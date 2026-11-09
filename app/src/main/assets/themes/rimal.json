@@ -1,0 +1,22 @@
+{
+  "id": "rimal",
+  "name": "رمال مذهّب",
+  "nameEn": "Golden Rimal",
+  "builtin": true,
+  "palette": {
+    "primary": "#E5B842",
+    "surface": "#0E1528",
+    "onSurface": "#FAF6EC",
+    "panelAccents": { "sleep": "#3B2D5E", "prayer": "#18284C", "tools": "#4A2A40", "weather": "#4A3525" }
+  },
+  "wallpaper": {
+    "type": "gradient",
+    "asset": "arabesque_mandala",
+    "parallax": 0.15,
+    "gradient": ["#182446", "#0E1528", "#231A12"],
+    "pattern": { "type": "arabesque_mandala", "alpha": 0.14, "cell": 112 }
+  },
+  "cards": { "radius": 18, "glass": 0.62, "strokeAlpha": 0.28 },
+  "icons": { "mask": "squircle_22", "pack": "mishkat_cute_v1" },
+  "motion": { "focusScale": 1.04, "enterMs": 220, "springDamping": 0.88 }
+}

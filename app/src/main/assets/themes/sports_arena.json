@@ -1,0 +1,22 @@
+{
+  "id": "sports_arena",
+  "name": "ملاعب ورياضة",
+  "nameEn": "Sports Arena",
+  "builtin": true,
+  "palette": {
+    "primary": "#4ADE80",
+    "surface": "#061E14",
+    "onSurface": "#F0FDF4",
+    "panelAccents": { "sleep": "#143828", "prayer": "#0D3322", "tools": "#1E3A2F", "weather": "#114232" }
+  },
+  "wallpaper": {
+    "type": "gradient",
+    "asset": "sports_stadium",
+    "parallax": 0.12,
+    "gradient": ["#0B3824", "#061E14", "#03110B"],
+    "pattern": { "type": "sports_stadium", "alpha": 0.18, "cell": 110 }
+  },
+  "cards": { "radius": 18, "glass": 0.72, "strokeAlpha": 0.34 },
+  "icons": { "mask": "squircle_22", "pack": "mishkat_cute_v1" },
+  "motion": { "focusScale": 1.05, "enterMs": 200, "springDamping": 0.85 }
+}

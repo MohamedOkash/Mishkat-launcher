@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- R22 + S8 Android 7.0 (API 24) SSL & Live Radio Icecast/Radiojar compatibility:
+     1) Trusts system + user CAs so modern Let's Encrypt / ISRG Root X1 certificates work on Android 7.0+ TVs.
+     2) Permits cleartext traffic so live radio streams (such as Cairo Quran Radio & Saudi Quran Radio on Radiojar)
+        that issue 302 redirects from https://stream.radiojar.com to http://n09.radiojar.com CDN edges play without error. -->
+<network-security-config>
+    <base-config cleartextTrafficPermitted="true">
+        <trust-anchors>
+            <certificates src="system" />
+            <certificates src="user" />
+        </trust-anchors>
+    </base-config>
+</network-security-config>

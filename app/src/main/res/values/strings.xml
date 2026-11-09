@@ -1,0 +1,172 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- R8: default locale = Arabic (RTL-first). English lives in values-en. -->
+<resources>
+    <string name="app_name">مشكاة</string>
+
+    <!-- Sidebar -->
+    <string name="status_online">متصل</string>
+    <string name="status_offline">غير متصل</string>
+    <string name="cd_network_status">حالة الشبكة: %1$s</string>
+
+    <!-- Shelves -->
+    <string name="shelf_sections">الأقسام</string>
+    <string name="shelf_reciters">إذاعات القرآن والقراء</string>
+    <string name="shelf_apps">التطبيقات</string>
+    <string name="shelf_apps_empty">لا توجد تطبيقات قابلة للتشغيل</string>
+    <string name="card_error">تعذّر تحميل هذا القسم</string>
+
+    <!-- Sections -->
+    <string name="section_radio">الإذاعة والقراء</string>
+    <string name="section_radio_live">%1$d إذاعة جاهزة</string>
+    <string name="section_prayer">مواقيت الصلاة</string>
+    <string name="section_adhkar">الأذكار</string>
+    <string name="section_weather">الطقس</string>
+    <string name="section_tools">أدوات الجهاز</string>
+    <string name="section_settings">الإعدادات</string>
+    <string name="section_live_tv">البث الحي للقنوات</string>
+    <string name="section_notifications">الإشعارات والتحديثات 🔔</string>
+    <string name="section_developer">مطور التطبيق 👨‍💻</string>
+    <string name="section_coming">قريبًا</string>
+
+    <!-- Radio & Sleep Timer (S1 + S3) -->
+    <string name="radio_now_playing">يُبث الآن مباشر</string>
+    <string name="radio_buffering">جارٍ الاتصال بالبث…</string>
+    <string name="radio_paused">متوقف مؤقتًا</string>
+    <string name="radio_idle">اختر قارئًا للبث المباشر</string>
+    <string name="radio_error_fallback">تعذّر الاتصال بالمحطة — جارٍ التحويل لمحطة بديلة</string>
+    <string name="radio_play">تشغيل</string>
+    <string name="radio_pause">إيقاف</string>
+    <string name="radio_next">التالي</string>
+    <string name="radio_prev">السابق</string>
+    <string name="radio_favorite_add">إضافة للمفضلة</string>
+    <string name="radio_favorite_remove">إزالة من المفضلة</string>
+    <string name="radio_all_stations">الكل (%1$d)</string>
+    <string name="radio_favorites_tab">المفضلة (%1$d)</string>
+    <string name="radio_reciters_tab">القراء (%1$d)</string>
+    <string name="radio_thematic_tab">تفسير وأذكار (%1$d)</string>
+    <string name="radio_favorites_empty">لا توجد نتائج مطابقة في هذا التصنيف</string>
+    <string name="radio_refresh">تحديث القائمة</string>
+    <string name="radio_close">رجوع</string>
+    <string name="sleep_timer_off">مؤقت النوم</string>
+    <string name="sleep_timer_active">نوم: %1$s</string>
+    <string name="sleep_timer_fading">خفض الصوت…</string>
+    <string name="cd_radio_play_pause">تشغيل أو إيقاف الإذاعة</string>
+    <string name="cd_radio_next">المحطة التالية</string>
+    <string name="cd_radio_prev">المحطة السابقة</string>
+    <string name="cd_radio_favorite">تبديل المفضلة</string>
+    <string name="cd_sleep_timer">مؤقت النوم</string>
+    <string name="cd_open_radio_panel">فتح قائمة جميع القراء</string>
+
+    <!-- Billboard, Weather & Theme Manager (S3) -->
+    <string name="billboard_quran_title">البث المباشر للقرآن الكريم • %1$s</string>
+    <string name="billboard_quran_subtitle">177 قارئًا وإذاعة قرآنية على مدار الساعة — اضغط OK للاستماع أو اختيار القارئ</string>
+    <string name="weather_clear">صافي</string>
+    <string name="weather_cloudy">غائم جزئيًا</string>
+    <string name="weather_fog">ضباب</string>
+    <string name="weather_rain">ممطر</string>
+    <string name="weather_offline_notice">سيتم تحديث توقعات الـ 7 أيام تلقائيًا فور الاتصال بالإنترنت</string>
+    <string name="theme_manager_title">استوديو الزجاج السائل ومعرض الخلفيات الإسلامية</string>
+    <string name="theme_manager_subtitle">اختر الثيم، قوة الزجاج السائل (Liquid Glass)، أو اللوحة والخلفية الفنية</string>
+    <string name="theme_glass_level_fmt">الزجاج السائل: %1$d%%</string>
+    <string name="section_themes">الثيمات والزجاج</string>
+    <string name="section_wallpapers">الخلفيات والصور</string>
+    <string name="section_lock_screen">قفل الشاشة 🔒</string>
+    <string name="lock_screen_unlock">🔓 فتح القفل — اضغط OK أو رجوع</string>
+    <string name="lock_screen_change_bg">تغيير الخلفية 🖼</string>
+    <string name="settings_apps_position_label">موقع صف التطبيقات في الشاشة الرئيسية</string>
+    <string name="settings_apps_top">في الأعلى مباشرة (وصول سريع)</string>
+    <string name="settings_apps_bottom">في الأسفل</string>
+    <string name="settings_card_size_label">حجم الكروت والبارات وتوزيع الشاشة</string>
+    <string name="settings_card_compact">مدمج وأنيق (Compact)</string>
+    <string name="settings_card_comfortable">كبير ومريح (Comfortable)</string>
+    <string name="settings_glass_label">قوة تأثير الزجاج السائل (Liquid Glass)</string>
+    <string name="settings_wallpaper_label">الخلفية واللوحة الإسلامية الحالية</string>
+    <string name="settings_lock_timeout_label">مؤقت شاشة القفل والتوقف التلقائي</string>
+
+    <!-- Sports & Match Center (S7) -->
+    <string name="section_sports">المباريات والرياضة ⚽</string>
+    <string name="sports_shelf_title">مواعيد المباريات والنتائج الحية ⚽</string>
+    <string name="sports_open_center">مركز المباريات (%1$d)</string>
+    <string name="sports_panel_title">مركز المباريات والفرق المحلية والدولية</string>
+    <string name="sports_tab_all">الكل (%1$d)</string>
+    <string name="sports_tab_fav">فريقي المفضل ★</string>
+    <string name="sports_tab_upcoming">القادمة والمباشر</string>
+    <string name="sports_tab_winners">النتائج والفائزون 🏆</string>
+    <string name="sports_activate_theme">تفعيل ثيم الملاعب ⚽</string>
+    <string name="sports_winner_fmt">🏆 الفائز: %1$s</string>
+    <string name="sports_draw_label">تعادل</string>
+
+    <!-- TV Receiver, HDMI Inputs & USB Hub (S8) + Mobile QR Remote (S9) -->
+    <string name="section_tv_inputs">الريسيفر والمداخل 📡</string>
+    <string name="tv_inputs_shelf_title">الريسيفر الداخلي ومداخل الشاشة والـ USB 📡</string>
+    <string name="tv_inputs_open_hub">كل المداخل والريسيفر</string>
+    <string name="tv_inputs_panel_title">بوابة الريسيفر الفضائي والأرضي ومداخل HDMI و USB</string>
+    <string name="tv_inputs_panel_subtitle">دعم كامل لشاشات الأندرويد المزودة بريسيفر داخلي (أندرويد 7+) وأجهزة البوكس</string>
+    <string name="section_remote_qr">ريموت الموبايل 📱</string>
+    <string name="remote_qr_title">ريموت مشكاة الذكي للموبايل (عبر الواي فاي المحلي) 📱</string>
+    <string name="remote_qr_subtitle">امسح كود QR بكاميرا هاتفك للتحكم الكامل بالشاشة والإذاعة والثيمات والريسيفر وقفل الشاشة</string>
+
+    <!-- App Drawer, Bloatware Manager & In-App Settings (S4) -->
+    <string name="app_drawer_open">إدارة كل التطبيقات (%1$d)</string>
+    <string name="app_drawer_title">مدير التطبيقات وإزالة البرامج المثقلة</string>
+    <string name="app_drawer_tab_visible">الظاهرة (%1$d)</string>
+    <string name="app_drawer_tab_pinned">المثبتة ★ (%1$d)</string>
+    <string name="app_drawer_tab_hidden">المخفية (%1$d)</string>
+    <string name="app_action_hide">إخفاء</string>
+    <string name="app_action_unhide">إظهار</string>
+    <string name="app_action_force_stop_info">إيقاف / تعطيل</string>
+    <string name="app_action_uninstall">إلغاء تثبيت</string>
+    <string name="settings_language_label">لغة الواجهة واتجاه العرض (بدون إعادة تشغيل)</string>
+    <string name="settings_clock_format_label">نظام عرض الوقت ومواقيت الصلاة</string>
+    <string name="settings_clock_12h">12 ساعة (ص / م)</string>
+    <string name="settings_clock_24h">24 ساعة</string>
+    <string name="settings_boot_launch_label">فتح مشكاة تلقائيًا عند تشغيل الشاشة (تجاوز الإعلانات)</string>
+    <string name="settings_enabled">مفعّل</string>
+    <string name="settings_disabled">معطّل</string>
+    <string name="settings_open_android_tv">فتح إعدادات النظام الأصلية للجهاز</string>
+
+    <!-- Prayer & Adhkar (S2) -->
+    <string name="prayer_fajr">الفجر</string>
+    <string name="prayer_sunrise">الشروق</string>
+    <string name="prayer_dhuhr">الظهر</string>
+    <string name="prayer_asr">العصر</string>
+    <string name="prayer_maghrib">المغرب</string>
+    <string name="prayer_isha">العشاء</string>
+    <string name="prayer_next_label">الصلاة القادمة: %1$s بعد %2$s</string>
+    <string name="prayer_change_city">المدينة: %1$s</string>
+    <string name="prayer_pick_city_title">اختر مدينتك (بدون إنترنت)</string>
+    <string name="prayer_test_adhan">معاينة شاشة الأذان</string>
+    <string name="adhkar_window_morning">أذكار الصباح</string>
+    <string name="adhkar_window_evening">أذكار المساء</string>
+    <string name="adhkar_window_after_prayer">أذكار بعد الصلاة</string>
+    <string name="adhkar_window_sleep">أذكار النوم</string>
+    <string name="adhkar_tasbih_counter">%1$d / %2$d — اضغط OK للتسبيح</string>
+    <string name="adhkar_open_all">كل الأذكار</string>
+    <string name="adhan_overlay_title">حان الآن موعد أذان %1$s</string>
+    <string name="adhan_overlay_subtitle">حَيَّ عَلَى الصَّلَاةِ • حَيَّ عَلَى الْفَلَاحِ</string>
+    <string name="adhan_overlay_dua">اللَّهُمَّ رَبَّ هَذِهِ الدَّعْوَةِ التَّامَّةِ، وَالصَّلَاةِ الْقَائِمَةِ، آتِ مُحَمَّدًا الْوَسِيلَةَ وَالْفَضِيلَةَ، وَابْعَثْهُ مَقَامًا مَحْمُودًا الَّذِي وَعَدْتَهُ.</string>
+    <string name="adhan_overlay_dismiss">إغلاق التنبيه</string>
+    <string name="geonames_attribution">إحداثيات المدن: GeoNames (CC-BY 4.0) • النصوص: حصن المسلم</string>
+
+    <!-- Honest Device Tools & Performance (S5) -->
+    <string name="tools_panel_title">أدوات الجهاز والفحص الصادق</string>
+    <string name="tools_honest_subtitle">قراءات حقيقية من نواة النظام بدون أرقام وهمية (R24)</string>
+    <string name="tools_ram_title">الذاكرة العشوائية RAM</string>
+    <string name="tools_storage_title">مساحة التخزين</string>
+    <string name="tools_storage_free_fmt">متاح: %1$s</string>
+    <string name="tools_temp_title">حرارة المعالج</string>
+    <string name="tools_launcher_ram_title">استهلاك مشكاة</string>
+    <string name="tools_budget_target">الميزانية ≤ 120 MB</string>
+    <string name="tools_clean_button">تنظيف الكاش المؤقت الفعلي الآن</string>
+    <string name="tools_clean_result_fmt">تم تحرير %1$s فعليًا (%2$d ملف)</string>
+    <string name="tools_cache_current_fmt">الكاش الحالي المقاس: %1$s — تنظيف تلقائي كل 6 ساعات</string>
+    <string name="tools_bloatware_hint">إخفاء التطبيقات الإعلانية أو إيقاف البرامج الثقيلة إجباريًا</string>
+
+    <!-- Safe mode (R10) -->
+    <string name="safe_mode_title">الوضع الآمن</string>
+    <string name="safe_mode_body">توقفت الواجهة عدة مرات متتالية. يمكنك العودة إلى الواجهة الأصلية للجهاز أو إعادة المحاولة.</string>
+    <string name="safe_mode_system_launcher">اختيار الواجهة الأصلية</string>
+    <string name="safe_mode_retry">إعادة المحاولة</string>
+    <string name="launch_failed">تعذّر فتح التطبيق</string>
+    <string name="accessibility_service_desc">خدمة مشكاة الذكية لبرمجة وتوجيه زر الهوم بالريموت للعودة للشاشة الرئيسية دائماً ومنع الخروج إلى لانشر النظام الأساسي.</string>
+</resources>

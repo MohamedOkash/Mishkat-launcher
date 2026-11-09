@@ -1,0 +1,22 @@
+{
+  "id": "zomorod",
+  "name": "زمرد سائل",
+  "nameEn": "Liquid Emerald",
+  "builtin": true,
+  "palette": {
+    "primary": "#5EEAD4",
+    "surface": "#061C24",
+    "onSurface": "#ECFEFF",
+    "panelAccents": { "sleep": "#1E293B", "prayer": "#0F3542", "tools": "#134E4A", "weather": "#153E52" }
+  },
+  "wallpaper": {
+    "type": "gradient",
+    "asset": "aurora_glass",
+    "parallax": 0.15,
+    "gradient": ["#0C3644", "#061C24", "#041017"],
+    "pattern": { "type": "aurora_glass", "alpha": 0.18, "cell": 108 }
+  },
+  "cards": { "radius": 20, "glass": 0.78, "strokeAlpha": 0.34 },
+  "icons": { "mask": "squircle_22", "pack": "mishkat_cute_v1" },
+  "motion": { "focusScale": 1.04, "enterMs": 220, "springDamping": 0.88 }
+}

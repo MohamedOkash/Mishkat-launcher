@@ -1,0 +1,22 @@
+{
+  "id": "kaaba_gold",
+  "name": "كسوة وذهب",
+  "nameEn": "Kiswah & Gold",
+  "builtin": true,
+  "palette": {
+    "primary": "#F5C451",
+    "surface": "#0B0B0F",
+    "onSurface": "#FAF7F0",
+    "panelAccents": { "sleep": "#262118", "prayer": "#1F1B12", "tools": "#2E2418", "weather": "#242019" }
+  },
+  "wallpaper": {
+    "type": "gradient",
+    "asset": "kaaba_kiswah",
+    "parallax": 0.12,
+    "gradient": ["#171510", "#0B0B0F", "#050507"],
+    "pattern": { "type": "kaaba_kiswah", "alpha": 0.17, "cell": 100 }
+  },
+  "cards": { "radius": 18, "glass": 0.68, "strokeAlpha": 0.32 },
+  "icons": { "mask": "squircle_22", "pack": "mishkat_cute_v1" },
+  "motion": { "focusScale": 1.04, "enterMs": 220, "springDamping": 0.88 }
+}

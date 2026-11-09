@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- TV banner 320x180dp. Original artwork (clean-room). Final brand banner with wordmark lands in S3. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="320dp"
+    android:height="180dp"
+    android:viewportWidth="320"
+    android:viewportHeight="180">
+    <path
+        android:fillColor="#FF141A2E"
+        android:pathData="M0,0 H320 V180 H0 Z" />
+    <path
+        android:fillColor="#33C9A227"
+        android:pathData="M0,150 Q80,120 160,145 T320,135 V180 H0 Z" />
+    <path
+        android:fillColor="#FFC9A227"
+        android:pathData="M150,40 A46,46 0 1,0 202,104 A37,37 0 1,1 150,40 Z" />
+    <path
+        android:fillColor="#FFF5F1E6"
+        android:pathData="M184,48 L187.5,55 L195,52.5 L192.5,60 L199.5,63.5 L192.5,67 L195,74.5 L187.5,72 L184,79 L180.5,72 L173,74.5 L175.5,67 L168.5,63.5 L175.5,60 L173,52.5 L180.5,55 Z" />
+</vector>

@@ -1,0 +1,22 @@
+{
+  "id": "noor",
+  "name": "نور النبوة",
+  "nameEn": "Emerald Noor",
+  "builtin": true,
+  "palette": {
+    "primary": "#E8C55A",
+    "surface": "#07221B",
+    "onSurface": "#F5F2E6",
+    "panelAccents": { "sleep": "#1D3B4A", "prayer": "#0F3D2E", "tools": "#3E361C", "weather": "#16463B" }
+  },
+  "wallpaper": {
+    "type": "gradient",
+    "asset": "islamic_arch",
+    "parallax": 0.12,
+    "gradient": ["#0D382B", "#07221B", "#041410"],
+    "pattern": { "type": "islamic_arch", "alpha": 0.16, "cell": 104 }
+  },
+  "cards": { "radius": 18, "glass": 0.65, "strokeAlpha": 0.30 },
+  "icons": { "mask": "squircle_22", "pack": "mishkat_cute_v1" },
+  "motion": { "focusScale": 1.04, "enterMs": 220, "springDamping": 0.88 }
+}

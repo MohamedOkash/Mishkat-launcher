@@ -1,0 +1,322 @@
+[
+  {
+    "id": "ch:kids_spacetoon",
+    "nameAr": "سبيس تون (Spacetoon)",
+    "nameEn": "Spacetoon",
+    "category": "kids_education",
+    "subtitleAr": "قناة شباب المستقبل - كرتون وأغاني",
+    "streamUrl": "https://live-uae-next.spacetoongo.com/ST_MENA_NEXT/hls/r9p2hjipmw2kl.m3u8",
+    "glyph": "🚀",
+    "badge": "1080p HD"
+  },
+  {
+    "id": "ch:kids_cn_arabic",
+    "nameAr": "كرتون نتورك بالعربية (CN)",
+    "nameEn": "Cartoon Network Arabic",
+    "category": "kids_education",
+    "subtitleAr": "أقوى مسلسلات الكرتون العالمية",
+    "streamUrl": "http://149.100.11.252:8000/play/a056/index.m3u8",
+    "glyph": "🎨",
+    "badge": "HD"
+  },
+  {
+    "id": "ch:kids_koogi",
+    "nameAr": "قناة كوكيز / كوجي كيدز",
+    "nameEn": "Koogi Kids TV",
+    "category": "kids_education",
+    "subtitleAr": "أغاني وبرامج أطفال وتعليم مرح",
+    "streamUrl": "https://5d658d7e9f562.streamlock.net/koogi.tv/koogi.smil/playlist.m3u8",
+    "glyph": "🍪",
+    "badge": "1080p HD"
+  },
+  {
+    "id": "ch:kids_mbc3",
+    "nameAr": "إم بي سي 3 (MBC 3)",
+    "nameEn": "MBC 3 Kids",
+    "category": "kids_education",
+    "subtitleAr": "أفلام ومسلسلات الأطفال الترفيهية",
+    "streamUrl": "https://shd-gcp-live.edgenextcdn.net/live/bitmovin-mbc-3-usa/5d58265a862a476dc7f97694addb5ded/index.m3u8",
+    "glyph": "🦁",
+    "badge": "1080p HD"
+  },
+  {
+    "id": "ch:kids_wanasah",
+    "nameAr": "قناة وناسة للأطفال (لولو)",
+    "nameEn": "Wanasah Kids",
+    "category": "kids_education",
+    "subtitleAr": "أغاني وناسة الشهيرة وأناشيد لولو",
+    "streamUrl": "https://shd-gcp-live.edgenextcdn.net/live/bitmovin-wanasah/13e82ea6232fa647c43b26e8a41f173d/index.m3u8",
+    "glyph": "🎈",
+    "badge": "1080p HD"
+  },
+  {
+    "id": "ch:kids_mawaheb",
+    "nameAr": "أطفال ومواهب",
+    "nameEn": "Atfal & Mawaheb",
+    "category": "kids_education",
+    "subtitleAr": "استعراضات ومواهب الأطفال والنشء",
+    "streamUrl": "https://5aafcc5de91f1.streamlock.net/atfal1.com/atfal2/playlist.m3u8",
+    "glyph": "⭐",
+    "badge": "1080p HD"
+  },
+  {
+    "id": "ch:kids_sat7",
+    "nameAr": "سات 7 كيدز",
+    "nameEn": "Sat 7 Kids",
+    "category": "kids_education",
+    "subtitleAr": "قصص وأناشيد هادفة وبرامج أطفال",
+    "streamUrl": "https://svs.itworkscdn.net/sat7kidslive/sat7kids.smil/playlist_dvr.m3u8",
+    "glyph": "🌈",
+    "badge": "1080p HD"
+  },
+  {
+    "id": "ch:cinema_rotana_masr",
+    "nameAr": "روتانا سينما (مصر)",
+    "nameEn": "Rotana Cinema Egypt",
+    "category": "cinema_movies",
+    "subtitleAr": "مش حتقدر تغمض عينيك - أفلام مصرية",
+    "streamUrl": "https://rotana.hibridcdn.net/rotananet/cinemamasr_net-7Y83PP5adWixDF93/playlist.m3u8",
+    "glyph": "🍿",
+    "badge": "1080p HD"
+  },
+  {
+    "id": "ch:cinema_rotana_classic",
+    "nameAr": "روتانا كلاسيك",
+    "nameEn": "Rotana Classic",
+    "category": "cinema_movies",
+    "subtitleAr": "زمن الفن الجميل وسينما الأبيض والأسود",
+    "streamUrl": "https://rotana.hibridcdn.net/rotananet/classical_net-7Y83PP5adWixDF93/playlist.m3u8",
+    "glyph": "🎞️",
+    "badge": "1080p HD"
+  },
+  {
+    "id": "ch:cinema_rotana_comedy",
+    "nameAr": "روتانا كوميدي",
+    "nameEn": "Rotana Comedy",
+    "category": "cinema_movies",
+    "subtitleAr": "أشهر أفلام ومسرحيات الكوميديا المصرية",
+    "streamUrl": "https://rotana.hibridcdn.net/rotananet/comedy_net-7Y83PP5adWixDF93/playlist.m3u8",
+    "glyph": "😂",
+    "badge": "1080p HD"
+  },
+  {
+    "id": "ch:cinema_rotana_clip",
+    "nameAr": "روتانا كليب",
+    "nameEn": "Rotana Clip",
+    "category": "cinema_movies",
+    "subtitleAr": "أحدث الكليبات والأغاني العربية المنوعة",
+    "streamUrl": "https://rotana.hibridcdn.net/rotananet/clip_net-7Y83PP5adWixDF93/playlist.m3u8",
+    "glyph": "🎵",
+    "badge": "1080p HD"
+  },
+  {
+    "id": "ch:cinema_mix",
+    "nameAr": "ميكس هوليوود (Mix)",
+    "nameEn": "Mix Hollywood",
+    "category": "cinema_movies",
+    "subtitleAr": "أقوى أفلام الأكشن والإثارة العالمية",
+    "streamUrl": "https://ml-pull-hwc.myco.io/MixTV/hls/index.m3u8",
+    "glyph": "🎬",
+    "badge": "1080p HD"
+  },
+  {
+    "id": "ch:cinema_mbc4",
+    "nameAr": "إم بي سي 4 (MBC 4)",
+    "nameEn": "MBC 4",
+    "category": "cinema_movies",
+    "subtitleAr": "مسلسلات وبرامج أجنبية مترجمة",
+    "streamUrl": "https://shd-gcp-live.edgenextcdn.net/live/bitmovin-mbc-4/24f134f1cd63db9346439e96b86ca6ed/index.m3u8",
+    "glyph": "🌟",
+    "badge": "1080p HD"
+  },
+  {
+    "id": "ch:cinema_mbc_bollywood",
+    "nameAr": "إم بي سي بوليوود (MBC Bollywood)",
+    "nameEn": "MBC Bollywood",
+    "category": "cinema_movies",
+    "subtitleAr": "أروع سينما وأفلام هندية مترجمة",
+    "streamUrl": "https://shd-gcp-live.edgenextcdn.net/live/bitmovin-mbc-bollywood/546eb40d7dcf9a209255dd2496903764/index.m3u8",
+    "glyph": "🎭",
+    "badge": "1080p HD"
+  },
+  {
+    "id": "ch:drama_rotana",
+    "nameAr": "روتانا دراما",
+    "nameEn": "Rotana Drama",
+    "category": "drama_series",
+    "subtitleAr": "باقة من أروع المسلسلات العربية والمصرية",
+    "streamUrl": "https://rotana.hibridcdn.net/rotananet/drama_net-7Y83PP5adWixDF93/playlist.m3u8",
+    "glyph": "🎭",
+    "badge": "1080p HD"
+  },
+  {
+    "id": "ch:drama_mbc_masr",
+    "nameAr": "إم بي سي مصر (MBC Masr)",
+    "nameEn": "MBC Masr",
+    "category": "drama_series",
+    "subtitleAr": "أقوى المسلسلات والبرامج المصرية الحصرية",
+    "streamUrl": "https://shd-gcp-live.edgenextcdn.net/live/bitmovin-mbc-masr/956eac069c78a35d47245db6cdbb1575/index.m3u8",
+    "glyph": "🇪🇬",
+    "badge": "1080p HD"
+  },
+  {
+    "id": "ch:drama_mbc_masr2",
+    "nameAr": "إم بي سي مصر 2",
+    "nameEn": "MBC Masr 2",
+    "category": "drama_series",
+    "subtitleAr": "منوعات ودراما مصرية متواصلة",
+    "streamUrl": "https://shd-gcp-live.edgenextcdn.net/live/bitmovin-mbc-masr-2/754931856515075b0aabf0e583495c68/index.m3u8",
+    "glyph": "🇪🇬",
+    "badge": "1080p HD"
+  },
+  {
+    "id": "ch:drama_mbc_drama",
+    "nameAr": "إم بي سي دراما (MBC Drama)",
+    "nameEn": "MBC Drama",
+    "category": "drama_series",
+    "subtitleAr": "مسلسلات خليجية وشامية ومصرية",
+    "streamUrl": "https://shd-gcp-live.edgenextcdn.net/live/bitmovin-mbc-drama/2c28a458e2f3253e678b07ac7d13fe71/index.m3u8",
+    "glyph": "📺",
+    "badge": "1080p HD"
+  },
+  {
+    "id": "ch:drama_mbc1",
+    "nameAr": "إم بي سي 1 (MBC 1)",
+    "nameEn": "MBC 1",
+    "category": "drama_series",
+    "subtitleAr": "الدراما والبرامج الاجتماعية الكبرى",
+    "streamUrl": "https://shd-gcp-live.edgenextcdn.net/live/bitmovin-mbc-1/15cf99af5de54063fdabfefe66adc075/index.m3u8",
+    "glyph": "✨",
+    "badge": "1080p HD"
+  },
+  {
+    "id": "ch:quran_makkah",
+    "nameAr": "قناة القرآن الكريم",
+    "nameEn": "Holy Quran Makkah Live",
+    "category": "islamic_quran",
+    "subtitleAr": "مكة المكرمة بث مباشر 24/7",
+    "streamUrl": "http://m.live.net.sa:1935/live/quran/gmswf.m3u8",
+    "glyph": "🕋",
+    "badge": "1080p HD"
+  },
+  {
+    "id": "ch:sunnah_madinah",
+    "nameAr": "قناة السنة النبوية",
+    "nameEn": "Sunnah Madinah Live",
+    "category": "islamic_quran",
+    "subtitleAr": "المسجد النبوي الشريف بث مباشر",
+    "streamUrl": "http://m.live.net.sa:1935/live/sunnah/gmswf.m3u8",
+    "glyph": "🕌",
+    "badge": "1080p HD"
+  },
+  {
+    "id": "ch:cairo_quran_radio",
+    "nameAr": "إذاعة القرآن الكريم (القاهرة)",
+    "nameEn": "Cairo Quran Radio Live",
+    "category": "islamic_quran",
+    "subtitleAr": "بث حي متواصل لكبار قراء مصر والعالم",
+    "streamUrl": "https://live.kwikmotion.com/sbrksaquranradiolive/srpksaquranradio/playlist.m3u8",
+    "glyph": "📻",
+    "badge": "HD"
+  },
+  {
+    "id": "ch:sharjah_quran",
+    "nameAr": "قناة الشارقة قرآن كريم",
+    "nameEn": "Sharjah Quran Live",
+    "category": "islamic_quran",
+    "subtitleAr": "تلاوات خاشعة بالقراءات المتواترة",
+    "streamUrl": "https://live.kwikmotion.com/smcquranlive/quranradiolive/playlist.m3u8",
+    "glyph": "📖",
+    "badge": "HD"
+  },
+  {
+    "id": "ch:islamic_resalah",
+    "nameAr": "قناة الرسالة الفضائية",
+    "nameEn": "Al Resalah TV",
+    "category": "islamic_quran",
+    "subtitleAr": "برامج توعوية وثقافية إسلامية هادفة",
+    "streamUrl": "https://rotana.hibridcdn.net/rotananet/risala_net-7Y83PP5adWixDF93/playlist.m3u8",
+    "glyph": "📜",
+    "badge": "1080p HD"
+  },
+  {
+    "id": "ch:islamic_iqraa",
+    "nameAr": "قناة اقرأ الفضائية",
+    "nameEn": "Iqraa International",
+    "category": "islamic_quran",
+    "subtitleAr": "نور هداية وعلم برامج فتاوى وثقافة",
+    "streamUrl": "https://playlist.fasttvcdn.com/pl/dlkqw1ftuvuuzkcb4pxdcg/Iqraafasttv2/playlist.m3u8",
+    "glyph": "📖",
+    "badge": "HD"
+  },
+  {
+    "id": "ch:egypt_almasriyah",
+    "nameAr": "الفضائية المصرية",
+    "nameEn": "Al Masriyah TV",
+    "category": "egypt_general",
+    "subtitleAr": "تلفزيون جمهورية مصر العربية الرسمي",
+    "streamUrl": "http://185.9.2.18/chid_247/index.m3u8",
+    "glyph": "🇪🇬",
+    "badge": "1080p HD"
+  },
+  {
+    "id": "ch:egypt_alghad",
+    "nameAr": "قناة الغد الإخبارية والعامة",
+    "nameEn": "Al Ghad TV",
+    "category": "egypt_general",
+    "subtitleAr": "تغطيات حية ومتابعات للأحداث المصرية والعربية",
+    "streamUrl": "https://eazyvwqssi.erbvr.com/alghadtv/alghadtv.m3u8",
+    "glyph": "📡",
+    "badge": "1080p HD"
+  },
+  {
+    "id": "ch:egypt_sharjah",
+    "nameAr": "تلفزيون الشارقة العام",
+    "nameEn": "Sharjah TV General",
+    "category": "egypt_general",
+    "subtitleAr": "برامج حوارية وثقافية واجتماعية منوعة",
+    "streamUrl": "https://live.kwikmotion.com/smc1live/smc1tv.smil/playlist.m3u8",
+    "glyph": "📺",
+    "badge": "1080p HD"
+  },
+  {
+    "id": "ch:news_alarabiya",
+    "nameAr": "قناة العربية الإخبارية",
+    "nameEn": "Al Arabiya News",
+    "category": "news_doc",
+    "subtitleAr": "أن تعرف أكثر - بث إخباري عاجل 24/7",
+    "streamUrl": "https://live.alarabiya.net/alarabiapublish/alarabiya.smil/playlist.m3u8",
+    "glyph": "🌐",
+    "badge": "1080p HD"
+  },
+  {
+    "id": "ch:news_skynews",
+    "nameAr": "سكاي نيوز عربية",
+    "nameEn": "Sky News Arabia",
+    "category": "news_doc",
+    "subtitleAr": "الأخبار أولاً بأول وتقارير ميدانية عاجلة",
+    "streamUrl": "https://live-stream.skynewsarabia.com/c-horizontal-channel/horizontal-stream/index.m3u8",
+    "glyph": "🌍",
+    "badge": "1080p HD"
+  },
+  {
+    "id": "ch:news_asharq_doc",
+    "nameAr": "الشرق الوثائقية",
+    "nameEn": "Asharq Documentary",
+    "category": "news_doc",
+    "subtitleAr": "أفلام وثائقية استقصائية وسياسية وتاريخية",
+    "streamUrl": "https://svs.itworkscdn.net/asharqdocumentarylive/asharqdocumentary.smil/playlist_dvr.m3u8",
+    "glyph": "📽️",
+    "badge": "1080p HD"
+  },
+  {
+    "id": "ch:sports_sharjah",
+    "nameAr": "الشارقة الرياضية HD",
+    "nameEn": "Sharjah Sports",
+    "category": "sports_cooking",
+    "subtitleAr": "تغطيات حية وبطولات رياضية عربية ودولية",
+    "streamUrl": "https://svs.itworkscdn.net/smc4sportslive/smc4tv.smil/playlist.m3u8",
+    "glyph": "⚽",
+    "badge": "1080p HD"
+  }
+]

@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Mishkat</string>
+
+    <!-- Sidebar -->
+    <string name="status_online">Online</string>
+    <string name="status_offline">Offline</string>
+    <string name="cd_network_status">Network status: %1$s</string>
+
+    <!-- Shelves -->
+    <string name="shelf_sections">Sections</string>
+    <string name="shelf_reciters">Quran Radio &amp; Reciters</string>
+    <string name="shelf_apps">Apps</string>
+    <string name="shelf_apps_empty">No launchable apps found</string>
+    <string name="card_error">Could not load this section</string>
+
+    <!-- Sections -->
+    <string name="section_radio">Radio &amp; Reciters</string>
+    <string name="section_radio_live">%1$d stations ready</string>
+    <string name="section_prayer">Prayer times</string>
+    <string name="section_adhkar">Adhkar</string>
+    <string name="section_weather">Weather</string>
+    <string name="section_tools">Device tools</string>
+    <string name="section_settings">Settings</string>
+    <string name="section_live_tv">Live TV Channels</string>
+    <string name="section_notifications">Notifications &amp; Updates 🔔</string>
+    <string name="section_developer">Developer Profile 👨‍💻</string>
+    <string name="section_coming">Coming soon</string>
+
+    <!-- Radio & Sleep Timer (S1 + S3) -->
+    <string name="radio_now_playing">Live stream</string>
+    <string name="radio_buffering">Connecting to stream…</string>
+    <string name="radio_paused">Paused</string>
+    <string name="radio_idle">Select a reciter for live stream</string>
+    <string name="radio_error_fallback">Stream unreachable — switching to fallback station</string>
+    <string name="radio_play">Play</string>
+    <string name="radio_pause">Pause</string>
+    <string name="radio_next">Next</string>
+    <string name="radio_prev">Previous</string>
+    <string name="radio_favorite_add">Add to favorites</string>
+    <string name="radio_favorite_remove">Remove from favorites</string>
+    <string name="radio_all_stations">All (%1$d)</string>
+    <string name="radio_favorites_tab">Favorites (%1$d)</string>
+    <string name="radio_reciters_tab">Reciters (%1$d)</string>
+    <string name="radio_thematic_tab">Tafsir &amp; Adhkar (%1$d)</string>
+    <string name="radio_favorites_empty">No matching stations in this filter</string>
+    <string name="radio_refresh">Refresh list</string>
+    <string name="radio_close">Back</string>
+    <string name="sleep_timer_off">Sleep timer</string>
+    <string name="sleep_timer_active">Sleep: %1$s</string>
+    <string name="sleep_timer_fading">Fading out…</string>
+    <string name="cd_radio_play_pause">Play or pause radio</string>
+    <string name="cd_radio_next">Next station</string>
+    <string name="cd_radio_prev">Previous station</string>
+    <string name="cd_radio_favorite">Toggle favorite</string>
+    <string name="cd_sleep_timer">Sleep timer</string>
+    <string name="cd_open_radio_panel">Open full reciters list</string>
+
+    <!-- Billboard, Weather & Theme Manager (S3) -->
+    <string name="billboard_quran_title">Live Quran Broadcast • %1$s</string>
+    <string name="billboard_quran_subtitle">177 reciters &amp; Islamic stations 24/7 — Press OK to listen or choose a reciter</string>
+    <string name="weather_clear">Clear</string>
+    <string name="weather_cloudy">Partly cloudy</string>
+    <string name="weather_fog">Fog</string>
+    <string name="weather_rain">Rain</string>
+    <string name="weather_offline_notice">7-day forecast will update automatically when online</string>
+    <string name="theme_manager_title">Liquid Glass Studio &amp; Islamic Wallpapers Gallery</string>
+    <string name="theme_manager_subtitle">Choose your theme, Liquid Glass intensity, or Islamic art backdrop</string>
+    <string name="theme_glass_level_fmt">Liquid Glass: %1$d%%</string>
+    <string name="section_themes">Themes &amp; Glass</string>
+    <string name="section_wallpapers">Wallpapers &amp; Art</string>
+    <string name="section_lock_screen">Lock Screen 🔒</string>
+    <string name="lock_screen_unlock">🔓 Unlock — Press OK or Back</string>
+    <string name="lock_screen_change_bg">Change Backdrop 🖼</string>
+    <string name="settings_apps_position_label">Apps Row Position on Home Screen</string>
+    <string name="settings_apps_top">At the Top (Instant Access)</string>
+    <string name="settings_apps_bottom">At the Bottom</string>
+    <string name="settings_card_size_label">Card &amp; Bar Size / Screen Density</string>
+    <string name="settings_card_compact">Sleek &amp; Compact</string>
+    <string name="settings_card_comfortable">Large &amp; Comfortable</string>
+    <string name="settings_glass_label">Liquid Glass Intensity</string>
+    <string name="settings_wallpaper_label">Active Islamic Backdrop &amp; Art</string>
+    <string name="settings_lock_timeout_label">Auto Lock Screen / Ambient Timeout</string>
+
+    <!-- Sports & Match Center (S7) -->
+    <string name="section_sports">Matches &amp; Sports ⚽</string>
+    <string name="sports_shelf_title">Live &amp; Upcoming Matches ⚽</string>
+    <string name="sports_open_center">Match Center (%1$d)</string>
+    <string name="sports_panel_title">Local &amp; International Match Center</string>
+    <string name="sports_tab_all">All (%1$d)</string>
+    <string name="sports_tab_fav">My Team ★</string>
+    <string name="sports_tab_upcoming">Live &amp; Upcoming</string>
+    <string name="sports_tab_winners">Results &amp; Winners 🏆</string>
+    <string name="sports_activate_theme">Activate Sports Theme ⚽</string>
+    <string name="sports_winner_fmt">🏆 Winner: %1$s</string>
+    <string name="sports_draw_label">Draw</string>
+
+    <!-- TV Receiver, HDMI Inputs & USB Hub (S8) + Mobile QR Remote (S9) -->
+    <string name="section_tv_inputs">Receiver &amp; Inputs 📡</string>
+    <string name="tv_inputs_shelf_title">Satellite Receiver, HDMI Inputs &amp; USB 📡</string>
+    <string name="tv_inputs_open_hub">All TV Inputs</string>
+    <string name="tv_inputs_panel_title">Built-in Satellite/Terrestrial Receiver, HDMI &amp; USB Hub</string>
+    <string name="tv_inputs_panel_subtitle">Full support for Android 7.0+ Smart TVs with built-in tuner &amp; TV Boxes</string>
+    <string name="section_remote_qr">Mobile Remote 📱</string>
+    <string name="remote_qr_title">Mishkat Smart Mobile Remote (Local Wi-Fi QR) 📱</string>
+    <string name="remote_qr_subtitle">Scan the QR code with your phone camera to control TV, Quran Radio, Themes, Receiver &amp; Lock Screen</string>
+
+    <!-- App Drawer, Bloatware Manager & In-App Settings (S4) -->
+    <string name="app_drawer_open">Manage All Apps (%1$d)</string>
+    <string name="app_drawer_title">App Manager &amp; Bloatware Control</string>
+    <string name="app_drawer_tab_visible">Visible (%1$d)</string>
+    <string name="app_drawer_tab_pinned">Pinned ★ (%1$d)</string>
+    <string name="app_drawer_tab_hidden">Hidden (%1$d)</string>
+    <string name="app_action_hide">Hide</string>
+    <string name="app_action_unhide">Unhide</string>
+    <string name="app_action_force_stop_info">Force Stop / Info</string>
+    <string name="app_action_uninstall">Uninstall</string>
+    <string name="settings_language_label">Interface Language &amp; Layout Direction (Instant)</string>
+    <string name="settings_clock_format_label">Clock &amp; Prayer Time Format</string>
+    <string name="settings_clock_12h">12-Hour (AM / PM)</string>
+    <string name="settings_clock_24h">24-Hour</string>
+    <string name="settings_boot_launch_label">Launch Mishkat automatically on TV boot (Skip stock ads)</string>
+    <string name="settings_enabled">Enabled</string>
+    <string name="settings_disabled">Disabled</string>
+    <string name="settings_open_android_tv">Open Device Android TV Settings</string>
+
+    <!-- Prayer & Adhkar (S2) -->
+    <string name="prayer_fajr">Fajr</string>
+    <string name="prayer_sunrise">Sunrise</string>
+    <string name="prayer_dhuhr">Dhuhr</string>
+    <string name="prayer_asr">Asr</string>
+    <string name="prayer_maghrib">Maghrib</string>
+    <string name="prayer_isha">Isha</string>
+    <string name="prayer_next_label">Next: %1$s in %2$s</string>
+    <string name="prayer_change_city">City: %1$s</string>
+    <string name="prayer_pick_city_title">Choose Your City (Offline)</string>
+    <string name="prayer_test_adhan">Preview Adhan Overlay</string>
+    <string name="adhkar_window_morning">Morning Adhkar</string>
+    <string name="adhkar_window_evening">Evening Adhkar</string>
+    <string name="adhkar_window_after_prayer">Post-Prayer Tasbih</string>
+    <string name="adhkar_window_sleep">Sleep Adhkar</string>
+    <string name="adhkar_tasbih_counter">%1$d / %2$d — Press OK for Tasbih</string>
+    <string name="adhkar_open_all">All Adhkar</string>
+    <string name="adhan_overlay_title">It is now time for %1$s Adhan</string>
+    <string name="adhan_overlay_subtitle">Hayya \'ala-s-Salah • Hayya \'ala-l-Falah</string>
+    <string name="adhan_overlay_dua">O Allah, Lord of this perfect call and established prayer, grant Muhammad the intercession and favor, and raise him to the honored station You have promised him.</string>
+    <string name="adhan_overlay_dismiss">Dismiss Alert</string>
+    <string name="geonames_attribution">City coordinates: GeoNames (CC-BY 4.0) • Texts: Hisn al-Muslim</string>
+
+    <!-- Honest Device Tools & Performance (S5) -->
+    <string name="tools_panel_title">Device Tools &amp; Honest Diagnostics</string>
+    <string name="tools_honest_subtitle">Genuine kernel metrics with zero fake numbers (R24)</string>
+    <string name="tools_ram_title">System RAM</string>
+    <string name="tools_storage_title">Internal Storage</string>
+    <string name="tools_storage_free_fmt">Free: %1$s</string>
+    <string name="tools_temp_title">SoC Temp</string>
+    <string name="tools_launcher_ram_title">Mishkat RAM</string>
+    <string name="tools_budget_target">Budget ≤ 120 MB</string>
+    <string name="tools_clean_button">Clean Real App Cache Now</string>
+    <string name="tools_clean_result_fmt">Freed %1$s genuinely (%2$d files)</string>
+    <string name="tools_cache_current_fmt">Measured cache: %1$s — Auto-clean every 6h</string>
+    <string name="tools_bloatware_hint">Hide ad apps or Force Stop / Uninstall heavy bloatware</string>
+
+    <!-- Safe mode (R10) -->
+    <string name="safe_mode_title">Safe mode</string>
+    <string name="safe_mode_body">The launcher stopped several times in a row. You can switch back to the device\'s original home screen or try again.</string>
+    <string name="safe_mode_system_launcher">Choose original home screen</string>
+    <string name="safe_mode_retry">Try again</string>
+    <string name="launch_failed">Could not open the app</string>
+</resources>

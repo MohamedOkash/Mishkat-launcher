@@ -1,0 +1,22 @@
+{
+  "id": "spring_blossom",
+  "name": "ربيع وزهور",
+  "nameEn": "Spring Blossom",
+  "builtin": true,
+  "palette": {
+    "primary": "#F9A8D4",
+    "surface": "#101E19",
+    "onSurface": "#FDF2F8",
+    "panelAccents": { "sleep": "#2E1E30", "prayer": "#183328", "tools": "#362032", "weather": "#1E3A2F" }
+  },
+  "wallpaper": {
+    "type": "gradient",
+    "asset": "spring_petals",
+    "parallax": 0.14,
+    "gradient": ["#1B352B", "#101E19", "#1E1424"],
+    "pattern": { "type": "spring_petals", "alpha": 0.20, "cell": 106 }
+  },
+  "cards": { "radius": 20, "glass": 0.72, "strokeAlpha": 0.32 },
+  "icons": { "mask": "squircle_22", "pack": "mishkat_cute_v1" },
+  "motion": { "focusScale": 1.04, "enterMs": 220, "springDamping": 0.88 }
+}

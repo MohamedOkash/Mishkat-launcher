@@ -1,0 +1,22 @@
+{
+  "id": "winter_snow",
+  "name": "شتاء وثلوج",
+  "nameEn": "Winter Snow & Rain",
+  "builtin": true,
+  "palette": {
+    "primary": "#7DD3FC",
+    "surface": "#071626",
+    "onSurface": "#F0F9FF",
+    "panelAccents": { "sleep": "#162E47", "prayer": "#0F2942", "tools": "#1E3A5F", "weather": "#133352" }
+  },
+  "wallpaper": {
+    "type": "gradient",
+    "asset": "winter_snow",
+    "parallax": 0.15,
+    "gradient": ["#0F2C4C", "#071626", "#040C17"],
+    "pattern": { "type": "winter_snow", "alpha": 0.22, "cell": 108 }
+  },
+  "cards": { "radius": 20, "glass": 0.78, "strokeAlpha": 0.36 },
+  "icons": { "mask": "squircle_22", "pack": "mishkat_cute_v1" },
+  "motion": { "focusScale": 1.04, "enterMs": 220, "springDamping": 0.88 }
+}

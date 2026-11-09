@@ -1,0 +1,22 @@
+{
+  "id": "cinema_action",
+  "name": "سينما وأكشن",
+  "nameEn": "Action & Cinema",
+  "builtin": true,
+  "palette": {
+    "primary": "#FB7185",
+    "surface": "#09070D",
+    "onSurface": "#FFF1F2",
+    "panelAccents": { "sleep": "#2D1224", "prayer": "#24101C", "tools": "#381428", "weather": "#1F162B" }
+  },
+  "wallpaper": {
+    "type": "gradient",
+    "asset": "cinema_imax",
+    "parallax": 0.14,
+    "gradient": ["#1F0B18", "#09070D", "#040306"],
+    "pattern": { "type": "cinema_imax", "alpha": 0.16, "cell": 120 }
+  },
+  "cards": { "radius": 20, "glass": 0.74, "strokeAlpha": 0.32 },
+  "icons": { "mask": "squircle_22", "pack": "mishkat_cute_v1" },
+  "motion": { "focusScale": 1.05, "enterMs": 220, "springDamping": 0.88 }
+}

@@ -1,0 +1,22 @@
+{
+  "id": "layla",
+  "name": "ليلة زجاجية",
+  "nameEn": "Liquid Layla",
+  "builtin": true,
+  "palette": {
+    "primary": "#8FD3FF",
+    "surface": "#080E24",
+    "onSurface": "#F0F5FF",
+    "panelAccents": { "sleep": "#2D2654", "prayer": "#15244F", "tools": "#3B234A", "weather": "#1B3B5A" }
+  },
+  "wallpaper": {
+    "type": "gradient",
+    "asset": "desert_night",
+    "parallax": 0.15,
+    "gradient": ["#13224E", "#080E24", "#040714"],
+    "pattern": { "type": "desert_night", "alpha": 0.15, "cell": 116 }
+  },
+  "cards": { "radius": 20, "glass": 0.72, "strokeAlpha": 0.32 },
+  "icons": { "mask": "squircle_22", "pack": "mishkat_cute_v1" },
+  "motion": { "focusScale": 1.04, "enterMs": 240, "springDamping": 0.9 }
+}
