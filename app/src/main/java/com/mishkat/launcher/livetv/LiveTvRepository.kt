@@ -17,6 +17,9 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.json.Json
+import java.io.File
+import java.net.HttpURLConnection
+import java.net.URL
 
 class LiveTvRepository(
     private val context: Context,
@@ -36,21 +39,60 @@ class LiveTvRepository(
 
     private fun loadChannels() {
         scope.launch {
+            val cacheFile = File(context.filesDir, "channels_cloud_cache.json")
+            
+            // 1. Instant local load (cache if available, otherwise built-in asset snapshot)
             val list = withContext(Dispatchers.IO) {
-                runCatching {
-                    val stream = context.assets.open("channels_snapshot.json")
-                    val text = stream.bufferedReader(Charsets.UTF_8).use { it.readText() }
-                    json.decodeFromString<List<LiveChannel>>(text)
-                }.getOrElse { err ->
-                    Logger.system { "Failed to load channels_snapshot.json: ${err.message}" }
+                val cachedContent = if (cacheFile.exists()) {
+                    runCatching { cacheFile.readText(Charsets.UTF_8) }.getOrNull()
+                } else null
+
+                val content = cachedContent ?: runCatching {
+                    context.assets.open("channels_snapshot.json").bufferedReader(Charsets.UTF_8).use { it.readText() }
+                }.getOrNull()
+
+                if (content != null) {
+                    runCatching { json.decodeFromString<List<LiveChannel>>(content) }.getOrElse { emptyList() }
+                } else {
                     emptyList()
                 }
             }
-            _state.value = _state.value.copy(
-                channels = list,
-                currentChannel = list.firstOrNull(),
-            )
-            Logger.system { "Loaded ${list.size} Live TV Channels into LiveTvRepository" }
+
+            if (list.isNotEmpty()) {
+                _state.value = _state.value.copy(
+                    channels = list,
+                    currentChannel = list.firstOrNull(),
+                )
+                Logger.system { "Loaded ${list.size} Live TV Channels into LiveTvRepository" }
+            }
+
+            // 2. Asynchronous cloud sync check from GitHub raw (auto-updates across all platforms)
+            withContext(Dispatchers.IO) {
+                runCatching {
+                    val url = URL("https://raw.githubusercontent.com/MohamedOkash/Mishkat-launcher/main/shared/channels.json")
+                    val conn = (url.openConnection() as HttpURLConnection).apply {
+                        connectTimeout = 4000
+                        readTimeout = 4000
+                        requestMethod = "GET"
+                        setRequestProperty("User-Agent", "MishkatLauncher-AndroidTV")
+                    }
+                    if (conn.responseCode == 200) {
+                        val remoteText = conn.inputStream.bufferedReader(Charsets.UTF_8).use { it.readText() }
+                        val remoteList = json.decodeFromString<List<LiveChannel>>(remoteText)
+                        if (remoteList.isNotEmpty() && remoteList != _state.value.channels) {
+                            cacheFile.writeText(remoteText, Charsets.UTF_8)
+                            _state.value = _state.value.copy(
+                                channels = remoteList,
+                                currentChannel = remoteList.firstOrNull(),
+                            )
+                            Logger.system { "Auto-synced ${remoteList.size} channels from GitHub Cloud" }
+                        }
+                    }
+                    conn.disconnect()
+                }.onFailure { err ->
+                    Logger.system { "Channels cloud sync check: ${err.message}" }
+                }
+            }
         }
     }
 

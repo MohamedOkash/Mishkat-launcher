@@ -1,0 +1,20 @@
+{
+  "id": "com.mishkat.launcher",
+  "version": "1.6.0",
+  "vendor": "Mohamed Okash",
+  "type": "web",
+  "main": "index.html",
+  "title": "مشكاة لانشر",
+  "icon": "icon.png",
+  "largeIcon": "largeIcon.png",
+  "bgImage": "splash.png",
+  "resolution": "1920x1080",
+  "handlesRelaunch": true,
+  "requiredPermissions": [
+    "application.launcher",
+    "media"
+  ],
+  "accessibility": {
+    "supportsAudioGuidance": true
+  }
+}

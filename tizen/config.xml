@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<widget xmlns="http://www.w3.org/ns/widgets" 
+        xmlns:tizen="http://tizen.org/ns/widgets" 
+        id="http://mishkat.tv/launcher" 
+        version="1.6.0" 
+        viewmodes="fullscreen">
+    <tizen:application id="org.mishkat.launcher" 
+                       exec="index.html" 
+                       screen-orientation="landscape" 
+                       context-menu="enable" 
+                       taskswitcher="enable"/>
+    <name>مشكاة لانشر</name>
+    <tizen:profile name="tv-samsung"/>
+    
+    <tizen:privilege name="http://tizen.org/privilege/tv.inputdevice"/>
+    <tizen:privilege name="http://tizen.org/privilege/internet"/>
+    <tizen:privilege name="http://tizen.org/privilege/application.launch"/>
+    <tizen:privilege name="http://tizen.org/privilege/mediacontroller.client"/>
+    <tizen:privilege name="http://developer.samsung.com/privilege/network.public"/>
+    
+    <icon src="icon.png"/>
+    <tizen:metadata key="http://samsung.com/tv/metadata/use.preview" value="true"/>
+    <tizen:setting screen-orientation="landscape" 
+                   context-menu="enable" 
+                   background-support="enable" 
+                   encryption="disable" 
+                   install-location="auto" 
+                   hw-acceleration="enable"/>
+</widget>

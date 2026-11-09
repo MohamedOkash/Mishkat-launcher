@@ -15,4 +15,7 @@ captures/
 *.log
 *.tmp
 .env*
+dist/
+*.wgt
+*.ipk
 
