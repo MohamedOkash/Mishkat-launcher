@@ -62,6 +62,7 @@ data class StorageDevice(
 data class SmbFtpSettings(
     val smbHost: String = "",
     val smbPort: Int = 445,
+    val smbDomain: String = "",
     val smbUser: String = "guest",
     val smbPass: String = "",
     val smbShare: String = "",

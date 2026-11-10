@@ -136,7 +136,7 @@ fun LiveTvQuickShelf(
             }
         }
 
-        // Row 2A: Satellite selector pills (نايل سات، عرب سات/بدر، سهيل سات، ياه سات، والريسيفر الداخلي)
+        // Row 2: Unified Filter Bar (Satellites + Categories in one sleek horizontal row)
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -159,7 +159,7 @@ fun LiveTvQuickShelf(
                             borderColor = if (isSelected) tokens.primary else tokens.glassRim,
                         )
                         .clickable { onOpenSatellite(sat) }
-                        .padding(horizontal = 11.dp, vertical = 5.dp),
+                        .padding(horizontal = 10.dp, vertical = 4.dp),
                 ) {
                     Text(
                         text = "${sat.glyph} ${if (isArabic) sat.titleAr else sat.titleEn}",
@@ -169,16 +169,14 @@ fun LiveTvQuickShelf(
                     )
                 }
             }
-        }
 
-        // Row 2B: Category selector pills
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .horizontalScroll(rememberScrollState()),
-            horizontalArrangement = Arrangement.spacedBy(7.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
+            Box(
+                modifier = Modifier
+                    .width(1.dp)
+                    .height(18.dp)
+                    .background(tokens.glassRim.copy(alpha = 0.5f)),
+            )
+
             ChannelCategory.entries.forEach { cat ->
                 val isSelected = cat == state.activeCategory
                 val pillShape = RoundedCornerShape(10.dp)
@@ -194,25 +192,26 @@ fun LiveTvQuickShelf(
                             borderColor = if (isSelected) tokens.primary else tokens.glassRim,
                         )
                         .clickable { onOpenCategory(cat) }
-                        .padding(horizontal = 12.dp, vertical = 6.dp),
+                        .padding(horizontal = 10.dp, vertical = 4.dp),
                 ) {
                     Text(
                         text = "${cat.glyph} ${if (isArabic) cat.titleAr else cat.titleEn}",
                         color = if (isSelected) tokens.primary else tokens.onSurface,
-                        fontSize = 12.sp,
+                        fontSize = 11.sp,
                         fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
                     )
                 }
             }
         }
 
-        // Horizontal Row of Channel Cards — using Row with horizontalScroll so ALL cards stay composed!
+        // Horizontal Row of Channel Cards
         Row(
             modifier = Modifier
                 .fillMaxWidth()
                 .horizontalScroll(scrollState),
             horizontalArrangement = Arrangement.spacedBy(10.dp),
         ) {
+            Spacer(modifier = Modifier.width(4.dp))
             val displayedChannels = state.filteredChannels.ifEmpty { state.channels }
             displayedChannels.forEachIndexed { index, channel ->
                 val isFirst = index == 0
@@ -222,11 +221,11 @@ fun LiveTvQuickShelf(
                     Modifier
                 }
                 val cardWidth = if (isFirst) {
-                    if (compact) 228.dp else 260.dp
+                    if (compact) 220.dp else 248.dp
                 } else {
-                    if (compact) 172.dp else 198.dp
+                    if (compact) 168.dp else 192.dp
                 }
-                val cardHeight = if (compact) 92.dp else 108.dp
+                val cardHeight = if (compact) 84.dp else 96.dp
 
                 Box(
                     modifier = cardFocusMod

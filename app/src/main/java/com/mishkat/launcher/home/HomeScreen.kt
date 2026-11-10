@@ -29,8 +29,10 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -38,6 +40,7 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.DisposableEffect
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.platform.LocalLayoutDirection
 import androidx.compose.ui.unit.LayoutDirection
 import androidx.compose.runtime.Immutable
@@ -53,6 +56,7 @@ import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusRequester
@@ -183,6 +187,7 @@ fun HomeScreen(
     val sportsState by graph.sportsRepository.state.collectAsState()
     val tvInputsState by graph.tvInputsRepository.state.collectAsState()
     val liveTvState by graph.liveTvRepository.state.collectAsState()
+    val storageState by graph.storageRepository.state.collectAsState()
     val remoteServerState by graph.companionRemoteServer.state.collectAsState()
     val updateState by graph.updateRepository.state.collectAsState()
     val appNotifications by NotificationRepository.notifications.collectAsState()
@@ -229,6 +234,7 @@ fun HomeScreen(
     // Single mutually-exclusive overlay state so two overlays can NEVER stack on top of each other!
     var activeOverlay by remember { mutableStateOf(ActiveOverlay.NONE) }
     var returnToNowPlaying by remember { mutableStateOf(false) }
+    var lastFocusedShelfId by rememberSaveable { mutableStateOf("livetv") }
     var lastInteractionMs by remember { mutableLongStateOf(System.currentTimeMillis()) }
 
     val anyOverlayOpen = activeOverlay != ActiveOverlay.NONE || prayerState.activeAdhanAlert != null
@@ -240,9 +246,13 @@ fun HomeScreen(
             wasOverlayOpen = true
         } else if (wasOverlayOpen) {
             wasOverlayOpen = false
-            val targetRequester = if (returnToNowPlaying) npFocus else firstCardFocus
+            val targetRequester = if (returnToNowPlaying) {
+                npFocus
+            } else {
+                shelfFocusMap[lastFocusedShelfId] ?: firstCardFocus
+            }
             returnToNowPlaying = false
-            repeat(3) {
+            repeat(4) {
                 withFrameNanos { }
                 if (runCatching { targetRequester.requestFocus() }.isSuccess) return@LaunchedEffect
             }
@@ -378,6 +388,10 @@ fun HomeScreen(
                     onOpenRemoteQr = { activeOverlay = ActiveOverlay.REMOTE_QR },
                     onOpenNotifications = { activeOverlay = ActiveOverlay.NOTIFICATIONS },
                     onOpenDeveloperProfile = { activeOverlay = ActiveOverlay.DEVELOPER_PROFILE },
+                    onOpenTools = {
+                        lastFocusedShelfId = "sections"
+                        activeOverlay = ActiveOverlay.TOOLS
+                    },
                     onOpenSettings = { activeOverlay = ActiveOverlay.SETTINGS },
                     onLockScreen = { activeOverlay = ActiveOverlay.LOCK_SCREEN },
                     onOpenWeather = { activeOverlay = ActiveOverlay.WEATHER },
@@ -412,147 +426,232 @@ fun HomeScreen(
                 )
             }
 
-            // Scrollable Shelves Container: all shelves stay composed so D-Pad Up/Down is 100% instant & deterministic
-            Column(
+            // Scrollable Shelves Container: LazyColumn ensures title + row are always scrolled and visible together
+            val lazyListState = rememberLazyListState()
+
+            LazyColumn(
+                state = lazyListState,
                 modifier = Modifier
-                    .fillMaxSize()
-                    .verticalScroll(scrollState)
-                    .padding(bottom = 24.dp),
-                verticalArrangement = Arrangement.spacedBy(if (compact) 14.dp else 18.dp),
+                    .fillMaxWidth()
+                    .weight(1f)
+                    .clipToBounds(),
+                contentPadding = PaddingValues(top = 10.dp, bottom = 48.dp),
+                verticalArrangement = Arrangement.spacedBy(if (compact) 12.dp else 16.dp),
             ) {
                 orderedShelves.forEachIndexed { index, shelfId ->
                     val isFirstShelf = index == 0
                     val shelfModifier = if (isFirstShelf) Modifier.focusProperties { up = npFocus } else Modifier
 
-                    when (shelfId) {
-                        "livetv" -> LiveTvQuickShelf(
-                            tokens = tokens,
-                            state = liveTvState,
-                            compact = compact,
-                            glassIntensity = appSettings.glassIntensity,
-                            isArabic = isArabic,
-                            firstFocusRequester = liveTvFocus,
-                            modifier = shelfModifier,
-                            onSelectChannel = { channel ->
-                                graph.liveTvRepository.playChannel(channel)
-                                activeOverlay = ActiveOverlay.LIVE_TV
-                            },
-                            onOpenCategory = { cat ->
-                                graph.liveTvRepository.selectCategory(cat)
-                            },
-                            onOpenSatellite = { sat ->
-                                graph.liveTvRepository.selectSatellite(sat)
-                            },
-                            onSyncCloud = {
-                                graph.liveTvRepository.syncFromCloudNow()
-                            },
-                        )
-                        "apps" -> AppsShelf(
-                            tokens = tokens,
-                            state = appsState,
-                            compact = compact,
-                            glassIntensity = appSettings.glassIntensity,
-                            isArabic = isArabic,
-                            firstCardFocus = appsFocus,
-                            modifier = shelfModifier,
-                            onLaunch = { launchApp(context, it) },
-                            onTogglePin = { graph.appsRepository.togglePin(it) },
-                            onToggleHide = { graph.appsRepository.toggleHide(it) },
-                            onMoveApp = { pkg, delta -> graph.appsRepository.moveApp(pkg, delta) },
-                            onOpenDrawer = { activeOverlay = ActiveOverlay.APP_MANAGER },
-                            onRetry = { graph.appsRepository.reload() },
-                        )
-                        "prayer" -> PrayerAndAdhkarRow(
-                            tokens = tokens,
-                            prayerState = prayerState,
-                            use24Hour = appSettings.use24Hour,
-                            firstFocusRequester = prayerFocus,
-                            onOpenCityPicker = { activeOverlay = ActiveOverlay.CITY_PICKER },
-                            onIncrementTasbih = { graph.prayerRepository.incrementTasbih() },
-                            onOpenAdhkarPanel = { activeOverlay = ActiveOverlay.ADHKAR },
-                        )
-                        "sections" -> SectionsShelf(
-                            tokens = tokens,
-                            stationsCount = stations.size,
-                            prayerState = prayerState,
-                            weatherSnapshot = weatherSnapshot,
-                            sportsState = sportsState,
-                            tvState = tvInputsState,
-                            remoteUrl = remoteServerState.url,
-                            appSettings = appSettings,
-                            firstCardFocus = sectionsFocus,
-                            onOpenLiveTv = { activeOverlay = ActiveOverlay.LIVE_TV },
-                            onOpenTvInputsPanel = { activeOverlay = ActiveOverlay.TV_INPUTS },
-                            onOpenRadioPanel = {
-                                returnToNowPlaying = false
-                                activeOverlay = ActiveOverlay.RADIO
-                            },
-                            onOpenSportsPanel = { activeOverlay = ActiveOverlay.SPORTS },
-                            onOpenRemoteQrPanel = { activeOverlay = ActiveOverlay.REMOTE_QR },
-                            onOpenCityPicker = { activeOverlay = ActiveOverlay.CITY_PICKER },
-                            onOpenAdhkarPanel = { activeOverlay = ActiveOverlay.ADHKAR },
-                            onOpenWeatherPanel = { activeOverlay = ActiveOverlay.WEATHER },
-                            onOpenThemeManager = { activeOverlay = ActiveOverlay.THEMES_WALLPAPERS },
-                            onOpenToolsPanel = { activeOverlay = ActiveOverlay.TOOLS },
-                            onLockScreen = { activeOverlay = ActiveOverlay.LOCK_SCREEN },
-                            onOpenSettingsPanel = { activeOverlay = ActiveOverlay.SETTINGS },
-                            onOpenNotifications = { activeOverlay = ActiveOverlay.NOTIFICATIONS },
-                            onOpenDeveloperProfile = { activeOverlay = ActiveOverlay.DEVELOPER_PROFILE },
-                        )
-                        "radio" -> if (stations.isNotEmpty()) {
-                            RecitersQuickShelf(
-                                tokens = tokens,
-                                stations = stations,
-                                currentStationId = radioState.currentStation?.id,
-                                isPlaying = radioState.isPlaying,
-                                firstFocusRequester = recitersFocus,
-                                onSelectStation = { graph.radioController.playStation(it) },
-                                onOpenAll = {
-                                    returnToNowPlaying = false
-                                    activeOverlay = ActiveOverlay.RADIO
-                                },
-                            )
+                    item(key = shelfId) {
+                        Column(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 4.dp),
+                        ) {
+                            when (shelfId) {
+                                "livetv" -> LiveTvQuickShelf(
+                                    tokens = tokens,
+                                    state = liveTvState,
+                                    compact = compact,
+                                    glassIntensity = appSettings.glassIntensity,
+                                    isArabic = isArabic,
+                                    firstFocusRequester = liveTvFocus,
+                                    modifier = shelfModifier,
+                                    onSelectChannel = { channel ->
+                                        lastFocusedShelfId = "livetv"
+                                        graph.liveTvRepository.playChannel(channel)
+                                        activeOverlay = ActiveOverlay.LIVE_TV
+                                    },
+                                    onOpenCategory = { cat ->
+                                        graph.liveTvRepository.selectCategory(cat)
+                                    },
+                                    onOpenSatellite = { sat ->
+                                        graph.liveTvRepository.selectSatellite(sat)
+                                    },
+                                    onSyncCloud = {
+                                        graph.liveTvRepository.syncFromCloudNow()
+                                    },
+                                )
+                                "apps" -> AppsShelf(
+                                    tokens = tokens,
+                                    state = appsState,
+                                    compact = compact,
+                                    glassIntensity = appSettings.glassIntensity,
+                                    isArabic = isArabic,
+                                    firstCardFocus = appsFocus,
+                                    modifier = shelfModifier,
+                                    onLaunch = { launchApp(context, it) },
+                                    onTogglePin = { graph.appsRepository.togglePin(it) },
+                                    onToggleHide = { graph.appsRepository.toggleHide(it) },
+                                    onMoveApp = { pkg, delta -> graph.appsRepository.moveApp(pkg, delta) },
+                                    onOpenDrawer = {
+                                        lastFocusedShelfId = "apps"
+                                        activeOverlay = ActiveOverlay.APP_MANAGER
+                                    },
+                                    onRetry = { graph.appsRepository.reload() },
+                                )
+                                "prayer" -> PrayerAndAdhkarRow(
+                                    tokens = tokens,
+                                    prayerState = prayerState,
+                                    use24Hour = appSettings.use24Hour,
+                                    firstFocusRequester = prayerFocus,
+                                    onOpenCityPicker = {
+                                        lastFocusedShelfId = "prayer"
+                                        activeOverlay = ActiveOverlay.CITY_PICKER
+                                    },
+                                    onIncrementTasbih = { graph.prayerRepository.incrementTasbih() },
+                                    onOpenAdhkarPanel = {
+                                        lastFocusedShelfId = "prayer"
+                                        activeOverlay = ActiveOverlay.ADHKAR
+                                    },
+                                )
+                                "sections" -> SectionsShelf(
+                                    tokens = tokens,
+                                    stationsCount = stations.size,
+                                    prayerState = prayerState,
+                                    weatherSnapshot = weatherSnapshot,
+                                    sportsState = sportsState,
+                                    tvState = tvInputsState,
+                                    remoteUrl = remoteServerState.url,
+                                    appSettings = appSettings,
+                                    firstCardFocus = sectionsFocus,
+                                    onOpenLiveTv = {
+                                        lastFocusedShelfId = "sections"
+                                        activeOverlay = ActiveOverlay.LIVE_TV
+                                    },
+                                    onOpenTvInputsPanel = {
+                                        lastFocusedShelfId = "sections"
+                                        activeOverlay = ActiveOverlay.TV_INPUTS
+                                    },
+                                    onOpenRadioPanel = {
+                                        lastFocusedShelfId = "sections"
+                                        returnToNowPlaying = false
+                                        activeOverlay = ActiveOverlay.RADIO
+                                    },
+                                    onOpenSportsPanel = {
+                                        lastFocusedShelfId = "sections"
+                                        activeOverlay = ActiveOverlay.SPORTS
+                                    },
+                                    onOpenRemoteQrPanel = {
+                                        lastFocusedShelfId = "sections"
+                                        activeOverlay = ActiveOverlay.REMOTE_QR
+                                    },
+                                    onOpenCityPicker = {
+                                        lastFocusedShelfId = "sections"
+                                        activeOverlay = ActiveOverlay.CITY_PICKER
+                                    },
+                                    onOpenAdhkarPanel = {
+                                        lastFocusedShelfId = "sections"
+                                        activeOverlay = ActiveOverlay.ADHKAR
+                                    },
+                                    onOpenWeatherPanel = {
+                                        lastFocusedShelfId = "sections"
+                                        activeOverlay = ActiveOverlay.WEATHER
+                                    },
+                                    onOpenThemeManager = {
+                                        lastFocusedShelfId = "sections"
+                                        activeOverlay = ActiveOverlay.THEMES_WALLPAPERS
+                                    },
+                                    onOpenToolsPanel = {
+                                        lastFocusedShelfId = "sections"
+                                        activeOverlay = ActiveOverlay.TOOLS
+                                    },
+                                    onLockScreen = {
+                                        lastFocusedShelfId = "sections"
+                                        activeOverlay = ActiveOverlay.LOCK_SCREEN
+                                    },
+                                    onOpenSettingsPanel = {
+                                        lastFocusedShelfId = "sections"
+                                        activeOverlay = ActiveOverlay.SETTINGS
+                                    },
+                                    onOpenNotifications = {
+                                        lastFocusedShelfId = "sections"
+                                        activeOverlay = ActiveOverlay.NOTIFICATIONS
+                                    },
+                                    onOpenDeveloperProfile = {
+                                        lastFocusedShelfId = "sections"
+                                        activeOverlay = ActiveOverlay.DEVELOPER_PROFILE
+                                    },
+                                )
+                                "radio" -> if (stations.isNotEmpty()) {
+                                    RecitersQuickShelf(
+                                        tokens = tokens,
+                                        stations = stations,
+                                        currentStationId = radioState.currentStation?.id,
+                                        isPlaying = radioState.isPlaying,
+                                        firstFocusRequester = recitersFocus,
+                                        onSelectStation = { graph.radioController.playStation(it) },
+                                        onOpenAll = {
+                                            lastFocusedShelfId = "radio"
+                                            returnToNowPlaying = false
+                                            activeOverlay = ActiveOverlay.RADIO
+                                        },
+                                    )
+                                }
+                                "tv" -> TvInputsQuickShelf(
+                                    tokens = tokens,
+                                    tvState = tvInputsState,
+                                    storageState = storageState,
+                                    firstFocusRequester = tvInputsFocus,
+                                    onSelectSource = { graph.tvInputsRepository.openSource(it) },
+                                    onOpenTvHub = {
+                                        lastFocusedShelfId = "tv"
+                                        activeOverlay = ActiveOverlay.TV_INPUTS
+                                    },
+                                    onOpenStorageExplorer = {
+                                        lastFocusedShelfId = "tv"
+                                        activeOverlay = ActiveOverlay.STORAGE_EXPLORER
+                                    },
+                                )
+                                "sports" -> SportsQuickShelf(
+                                    tokens = tokens,
+                                    sportsState = sportsState,
+                                    firstFocusRequester = sportsFocus,
+                                    onOpenSportsCenter = {
+                                        lastFocusedShelfId = "sports"
+                                        activeOverlay = ActiveOverlay.SPORTS
+                                    },
+                                    onCycleFavoriteTeam = { graph.sportsRepository.cycleFavoriteTeam() },
+                                )
+                            }
                         }
-                        "tv" -> TvInputsQuickShelf(
-                            tokens = tokens,
-                            tvState = tvInputsState,
-                            firstFocusRequester = tvInputsFocus,
-                            onSelectSource = { graph.tvInputsRepository.openSource(it) },
-                            onOpenTvHub = { activeOverlay = ActiveOverlay.TV_INPUTS },
-                            onOpenStorageExplorer = { activeOverlay = ActiveOverlay.STORAGE_EXPLORER },
-                        )
-                        "sports" -> SportsQuickShelf(
-                            tokens = tokens,
-                            sportsState = sportsState,
-                            firstFocusRequester = sportsFocus,
-                            onOpenSportsCenter = { activeOverlay = ActiveOverlay.SPORTS },
-                            onCycleFavoriteTeam = { graph.sportsRepository.cycleFavoriteTeam() },
-                        )
                     }
                 }
 
                 // Compact Hero Billboard Carousel (S3 + R23)
-                BillboardCarousel(
-                    tokens = tokens,
-                    isVisible = !anyOverlayOpen,
-                    isArabic = isArabic,
-                    radioState = radioState,
-                    prayerState = prayerState,
-                    weatherSnapshot = weatherSnapshot,
-                    sportsState = sportsState,
-                    firstFocusRequester = billboardFocus,
-                    onActionSlide = { slide ->
-                        when (slide) {
-                            0 -> {
-                                returnToNowPlaying = false
-                                activeOverlay = ActiveOverlay.RADIO
+                item(key = "billboard") {
+                    BillboardCarousel(
+                        tokens = tokens,
+                        isVisible = !anyOverlayOpen,
+                        isArabic = isArabic,
+                        radioState = radioState,
+                        prayerState = prayerState,
+                        weatherSnapshot = weatherSnapshot,
+                        sportsState = sportsState,
+                        firstFocusRequester = billboardFocus,
+                        onActionSlide = { slide ->
+                            when (slide) {
+                                0 -> {
+                                    lastFocusedShelfId = "radio"
+                                    returnToNowPlaying = false
+                                    activeOverlay = ActiveOverlay.RADIO
+                                }
+                                1 -> {
+                                    lastFocusedShelfId = "prayer"
+                                    activeOverlay = ActiveOverlay.ADHKAR
+                                }
+                                2 -> {
+                                    lastFocusedShelfId = "prayer"
+                                    activeOverlay = ActiveOverlay.CITY_PICKER
+                                }
+                                else -> {
+                                    lastFocusedShelfId = "sports"
+                                    activeOverlay = ActiveOverlay.SPORTS
+                                }
                             }
-                            1 -> activeOverlay = ActiveOverlay.ADHKAR
-                            2 -> activeOverlay = ActiveOverlay.WEATHER
-                            else -> activeOverlay = ActiveOverlay.SPORTS
-                        }
-                    },
-                )
+                        },
+                    )
+                }
             }
         }
 
@@ -750,6 +849,7 @@ private fun TopBar(
     onOpenRemoteQr: () -> Unit,
     onOpenNotifications: () -> Unit = {},
     onOpenDeveloperProfile: () -> Unit = {},
+    onOpenTools: () -> Unit = {},
     onOpenSettings: () -> Unit,
     onLockScreen: () -> Unit,
     onOpenWeather: () -> Unit,
@@ -778,8 +878,6 @@ private fun TopBar(
         val raw = SimpleDateFormat(pattern, appSettings.locale).format(Date(nowMillis))
         LocaleFormatter.localizeDigits(raw, appSettings.isArabic)
     }
-    val statusText = stringResource(if (online) R.string.status_online else R.string.status_offline)
-    val statusCd = stringResource(R.string.cd_network_status, statusText)
 
     val isArabic = appSettings.isArabic
     val pillShape = RoundedCornerShape(10.dp)
@@ -788,13 +886,13 @@ private fun TopBar(
         Box(
             modifier = Modifier.fillMaxWidth(),
         ) {
-            // Extreme Left Group: Always starts from the left edge (x=0)
+            // Extreme Left Group: Compact Utility and Action Icons
             Row(
                 modifier = Modifier.align(Alignment.CenterStart),
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                horizontalArrangement = Arrangement.spacedBy(7.dp),
             ) {
-                // Developer Profile: Absolute extreme left!
+                // Developer Profile
                 Box(
                     modifier = Modifier
                         .mishkatFocus(id = "topbar:dev_profile", radius = 10.dp)
@@ -807,10 +905,10 @@ private fun TopBar(
                             borderColor = tokens.primary.copy(alpha = 0.45f),
                         )
                         .clickable { onOpenDeveloperProfile() }
-                        .padding(horizontal = 11.dp, vertical = 4.dp),
+                        .padding(horizontal = 9.dp, vertical = 5.dp),
                 ) {
                     Text(
-                        text = if (isArabic) "👨‍💻 المطور" else "👨‍💻 Developer",
+                        text = if (isArabic) "👨‍💻 المطور" else "👨‍💻 Dev",
                         color = tokens.primary,
                         fontSize = 11.sp,
                         fontWeight = FontWeight.Bold,
@@ -818,7 +916,7 @@ private fun TopBar(
                     )
                 }
 
-                // Notifications Hub with unread badge
+                // Notifications Hub
                 Box(
                     modifier = Modifier
                         .mishkatFocus(id = "topbar:notifications", radius = 10.dp)
@@ -831,7 +929,7 @@ private fun TopBar(
                             borderColor = if (unreadNotificationsCount > 0) tokens.primary else tokens.glassRim,
                         )
                         .clickable { onOpenNotifications() }
-                        .padding(horizontal = 9.dp, vertical = 4.dp),
+                        .padding(horizontal = 8.dp, vertical = 5.dp),
                 ) {
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
@@ -849,70 +947,6 @@ private fun TopBar(
                     }
                 }
 
-                // Launcher Logo & Clock in distinct high-contrast capsules
-                Box(
-                    modifier = Modifier
-                        .clip(pillShape)
-                        .background(Color(0xEE090E1A))
-                        .border(1.dp, tokens.primary.copy(alpha = 0.55f), pillShape)
-                        .padding(horizontal = 10.dp, vertical = 4.dp),
-                ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(5.dp),
-                    ) {
-                        Box(
-                            modifier = Modifier
-                                .size(6.dp)
-                                .clip(CircleShape)
-                                .background(tokens.primary),
-                        )
-                        Text(
-                            text = "مشكاة ✦",
-                            color = tokens.primary,
-                            fontSize = 12.sp,
-                            fontWeight = FontWeight.Bold,
-                        )
-                    }
-                }
-
-                Box(
-                    modifier = Modifier
-                        .clip(pillShape)
-                        .background(Color(0xEE090E1A))
-                        .border(1.dp, tokens.glassRim.copy(alpha = 0.40f), pillShape)
-                        .padding(horizontal = 10.dp, vertical = 4.dp),
-                ) {
-                    Text(
-                        text = timeText,
-                        color = tokens.onSurface,
-                        fontSize = 13.sp,
-                        fontWeight = FontWeight.Bold,
-                        style = TextStyle(
-                            shadow = Shadow(color = Color.Black, blurRadius = 10f),
-                        ),
-                    )
-                }
-
-                // Weather
-                if (weatherSnapshot != null) {
-                    Box(
-                        modifier = Modifier
-                            .mishkatFocus(id = "topbar:weather", radius = 10.dp)
-                            .clip(pillShape)
-                            .liquidGlass(tokens, tokens.card, 10.dp, glass)
-                            .clickable { onOpenWeather() }
-                            .padding(horizontal = 8.dp, vertical = 3.dp),
-                    ) {
-                        Text(
-                            text = "${weatherCodeGlyph(weatherSnapshot.currentWeatherCode)} ${weatherSnapshot.currentTempC}°C",
-                            color = tokens.onSurface,
-                            fontSize = 11.sp,
-                            fontWeight = FontWeight.SemiBold,
-                        )
-                    }
-                }
-
                 // Language
                 Box(
                     modifier = Modifier
@@ -920,7 +954,7 @@ private fun TopBar(
                         .clip(pillShape)
                         .liquidGlass(tokens, tokens.card, 10.dp, glass)
                         .clickable { onToggleLanguage() }
-                        .padding(horizontal = 8.dp, vertical = 4.dp),
+                        .padding(horizontal = 8.dp, vertical = 5.dp),
                 ) {
                     Text(
                         text = if (isArabic) "EN" else "عربي",
@@ -929,33 +963,32 @@ private fun TopBar(
                         fontWeight = FontWeight.Bold,
                     )
                 }
-            }
 
-            // Extreme Right Group: Always aligned to the right edge
-            Row(
-                modifier = Modifier.align(Alignment.CenterEnd),
-                verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-            ) {
-                // TV Inputs (📡) & Remote (📱)
+                // RAM Booster / Tools
                 Box(
                     modifier = Modifier
-                        .mishkatFocus(id = "topbar:tv_inputs", radius = 10.dp)
+                        .mishkatFocus(id = "topbar:tools", radius = 10.dp)
                         .clip(pillShape)
                         .liquidGlass(tokens, tokens.card, 10.dp, glass)
-                        .clickable { onOpenTvInputs() }
-                        .padding(horizontal = 8.dp, vertical = 4.dp),
+                        .clickable { onOpenTools() }
+                        .padding(horizontal = 9.dp, vertical = 5.dp),
                 ) {
-                    Text(text = "📡", color = tokens.primary, fontSize = 11.sp)
+                    Text(
+                        text = if (isArabic) "🧹 تسريع" else "🧹 Boost",
+                        color = tokens.primary,
+                        fontSize = 11.sp,
+                        fontWeight = FontWeight.SemiBold,
+                    )
                 }
 
+                // Remote Companion
                 Box(
                     modifier = Modifier
                         .mishkatFocus(id = "topbar:remote_qr", radius = 10.dp)
                         .clip(pillShape)
                         .liquidGlass(tokens, tokens.card, 10.dp, glass)
                         .clickable { onOpenRemoteQr() }
-                        .padding(horizontal = 8.dp, vertical = 4.dp),
+                        .padding(horizontal = 8.dp, vertical = 5.dp),
                 ) {
                     Text(text = "📱", color = tokens.primary, fontSize = 11.sp)
                 }
@@ -967,31 +1000,9 @@ private fun TopBar(
                         .clip(pillShape)
                         .liquidGlass(tokens, tokens.card, 10.dp, glass)
                         .clickable { onOpenWallpapers() }
-                        .padding(horizontal = 9.dp, vertical = 4.dp),
+                        .padding(horizontal = 8.dp, vertical = 5.dp),
                 ) {
-                    Text(
-                        text = stringResource(R.string.section_wallpapers),
-                        color = tokens.onSurface,
-                        fontSize = 11.sp,
-                        fontWeight = FontWeight.Medium,
-                    )
-                }
-
-                // Light / Dark Mode
-                Box(
-                    modifier = Modifier
-                        .mishkatFocus(id = "topbar:light_dark", radius = 10.dp)
-                        .clip(pillShape)
-                        .liquidGlass(tokens, tokens.card, 10.dp, glass)
-                        .clickable { onToggleLightMode() }
-                        .padding(horizontal = 9.dp, vertical = 4.dp),
-                ) {
-                    Text(
-                        text = if (appSettings.isLightMode) "☀️ فاتح" else "🌙 داكن",
-                        color = tokens.onSurface,
-                        fontSize = 11.sp,
-                        fontWeight = FontWeight.SemiBold,
-                    )
+                    Text(text = "🖼", color = tokens.onSurface, fontSize = 11.sp)
                 }
 
                 // Theme quick cycle
@@ -1010,7 +1021,7 @@ private fun TopBar(
                                 onSelectTheme(next.id)
                             }
                         }
-                        .padding(horizontal = 10.dp, vertical = 4.dp),
+                        .padding(horizontal = 9.dp, vertical = 5.dp),
                 ) {
                     Text(
                         text = "✦ $activeThemeName",
@@ -1020,7 +1031,7 @@ private fun TopBar(
                     )
                 }
 
-                // Settings: Prominent Apple TV Button at the Top Right
+                // Settings
                 Box(
                     modifier = Modifier
                         .mishkatFocus(id = "topbar:settings", radius = 10.dp)
@@ -1033,7 +1044,7 @@ private fun TopBar(
                             borderColor = tokens.primary,
                         )
                         .clickable { onOpenSettings() }
-                        .padding(horizontal = 11.dp, vertical = 4.dp),
+                        .padding(horizontal = 10.dp, vertical = 5.dp),
                 ) {
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
@@ -1048,14 +1059,72 @@ private fun TopBar(
                         )
                     }
                 }
+            }
 
-                // App Name
-                Text(
-                    text = stringResource(R.string.app_name),
-                    color = tokens.primary,
-                    fontSize = 20.sp,
-                    fontWeight = FontWeight.Bold,
-                )
+            // Extreme Right Group: Single Logo Capsule + Clock & Weather Capsule
+            Row(
+                modifier = Modifier.align(Alignment.CenterEnd),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                // Clock & Weather Capsule
+                Box(
+                    modifier = Modifier
+                        .mishkatFocus(id = "topbar:clock_weather", radius = 10.dp)
+                        .clip(pillShape)
+                        .background(Color(0xEE090E1A))
+                        .border(1.dp, tokens.glassRim.copy(alpha = 0.40f), pillShape)
+                        .clickable { onOpenWeather() }
+                        .padding(horizontal = 11.dp, vertical = 5.dp),
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(7.dp),
+                    ) {
+                        Text(
+                            text = timeText,
+                            color = tokens.onSurface,
+                            fontSize = 13.sp,
+                            fontWeight = FontWeight.Bold,
+                            style = TextStyle(shadow = Shadow(color = Color.Black, blurRadius = 10f)),
+                        )
+                        if (weatherSnapshot != null) {
+                            Text(
+                                text = "| ${weatherCodeGlyph(weatherSnapshot.currentWeatherCode)} ${weatherSnapshot.currentTempC}°C",
+                                color = tokens.primary,
+                                fontSize = 11.sp,
+                                fontWeight = FontWeight.SemiBold,
+                            )
+                        }
+                    }
+                }
+
+                // Single Brand Logo Capsule
+                Box(
+                    modifier = Modifier
+                        .clip(pillShape)
+                        .background(Color(0xEE090E1A))
+                        .border(1.5.dp, tokens.primary, pillShape)
+                        .padding(horizontal = 12.dp, vertical = 5.dp),
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(6.dp),
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .size(7.dp)
+                                .clip(CircleShape)
+                                .background(tokens.primary),
+                        )
+                        Text(
+                            text = "مشكاة ✦",
+                            color = tokens.primary,
+                            fontSize = 13.sp,
+                            fontWeight = FontWeight.Bold,
+                        )
+                    }
+                }
             }
         }
     }

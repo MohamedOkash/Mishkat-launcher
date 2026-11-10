@@ -51,6 +51,7 @@ import com.mishkat.launcher.theme.liquidGlass
 fun TvInputsQuickShelf(
     tokens: ThemeTokens,
     tvState: TvInputsUiState,
+    storageState: com.mishkat.launcher.storage.StorageUiState? = null,
     firstFocusRequester: FocusRequester? = null,
     onSelectSource: (TvSourceItem) -> Unit,
     onOpenTvHub: () -> Unit,
@@ -61,6 +62,40 @@ fun TvInputsQuickShelf(
     val compact = appSettings.compactLayout
     val glass = appSettings.glassIntensity
 
+    val smbDev = storageState?.devices?.firstOrNull { it.type == com.mishkat.launcher.storage.StorageSourceType.ROUTER_SMB }
+    val ftpDev = storageState?.devices?.firstOrNull { it.type == com.mishkat.launcher.storage.StorageSourceType.ROUTER_FTP }
+    val usbDev = storageState?.devices?.firstOrNull { it.type == com.mishkat.launcher.storage.StorageSourceType.LOCAL_USB && it.id.startsWith("usb_") }
+
+    val smbHostText = smbDev?.host?.ifBlank { "192.168.1.1" } ?: "192.168.1.1"
+    val smbIsOnline = smbDev?.isConnected == true
+    val smbSubtitle = if (smbIsOnline) {
+        if (isArabic) "smb://$smbHostText (متصل بالراوتر)" else "smb://$smbHostText (Connected)"
+    } else {
+        if (isArabic) "smb://$smbHostText (غير متصل)" else "smb://$smbHostText (Offline)"
+    }
+    val smbBadge = if (smbIsOnline) (if (isArabic) "متصل" else "ONLINE") else (if (isArabic) "غير متصل" else "OFFLINE")
+    val smbBadgeColor = if (smbIsOnline) Color(0xFF10B981) else Color(0xFFEF4444)
+
+    val ftpHostText = ftpDev?.host?.ifBlank { "192.168.1.1" } ?: "192.168.1.1"
+    val ftpPort = ftpDev?.port ?: 21
+    val ftpIsOnline = ftpDev?.isConnected == true
+    val ftpSubtitle = if (ftpIsOnline) {
+        if (isArabic) "ftp://$ftpHostText:$ftpPort (متصل)" else "ftp://$ftpHostText:$ftpPort (Connected)"
+    } else {
+        if (isArabic) "ftp://$ftpHostText:$ftpPort (غير متصل)" else "ftp://$ftpHostText:$ftpPort (Offline)"
+    }
+    val ftpBadge = if (ftpIsOnline) (if (isArabic) "متصل" else "ONLINE") else (if (isArabic) "غير متصل" else "OFFLINE")
+    val ftpBadgeColor = if (ftpIsOnline) Color(0xFF10B981) else Color(0xFFEF4444)
+
+    val usbSubtitle = if (usbDev != null) {
+        val freeGb = String.format(java.util.Locale.US, "%.1f", usbDev.freeSpaceGb)
+        if (isArabic) "${usbDev.titleAr} ($freeGb GB متاح)" else "${usbDev.titleEn} ($freeGb GB free)"
+    } else {
+        if (isArabic) "لا توجد فلاشة متصلة" else "No USB Connected"
+    }
+    val usbBadge = if (usbDev != null) (if (isArabic) "متصل" else "MOUNTED") else (if (isArabic) "الداخلي" else "INTERNAL")
+    val usbBadgeColor = if (usbDev != null) Color(0xFF10B981) else tokens.onSurfaceMuted
+
     Column(
         modifier = Modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(8.dp),
@@ -69,7 +104,7 @@ fun TvInputsQuickShelf(
             title = if (isArabic) "الريسيفر الداخلي والمداخل وفلاشة الراوتر والـ USB" else "Receiver, Inputs, Router Storage & USB",
             tokens = tokens,
             icon = "🔌",
-            badgeText = if (tvState.usbDrives.isNotEmpty()) "USB (${tvState.usbDrives.size})" else null,
+            badgeText = if (usbDev != null) "USB متصل" else null,
         )
 
         Row(
@@ -78,10 +113,10 @@ fun TvInputsQuickShelf(
                 .horizontalScroll(rememberScrollState()),
             horizontalArrangement = Arrangement.spacedBy(10.dp),
         ) {
-            Spacer(modifier = Modifier.width(24.dp))
+            Spacer(modifier = Modifier.width(28.dp))
 
-            val cardW = if (compact) 186.dp else 212.dp
-            val cardH = if (compact) 70.dp else 82.dp
+            val cardW = if (compact) 194.dp else 222.dp
+            val cardH = if (compact) 72.dp else 84.dp
             val shape = RoundedCornerShape(tokens.cardRadius)
 
             // 1. Router Samba SMB Card
@@ -119,12 +154,14 @@ fun TvInputsQuickShelf(
                             fontWeight = FontWeight.Bold,
                         )
                     }
-                    Text(text = "مشاركة", color = tokens.primary, fontSize = 10.sp, fontWeight = FontWeight.Bold)
+                    Text(text = smbBadge, color = smbBadgeColor, fontSize = 10.sp, fontWeight = FontWeight.Bold)
                 }
                 Text(
-                    text = if (isArabic) "فلاشة وهارد الراوتر" else "Router Shared Drive",
+                    text = smbSubtitle,
                     color = tokens.onSurfaceMuted,
                     fontSize = 11.sp,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
                 )
             }
 
@@ -163,12 +200,14 @@ fun TvInputsQuickShelf(
                             fontWeight = FontWeight.Bold,
                         )
                     }
-                    Text(text = "سيرفر", color = tokens.onSurfaceMuted, fontSize = 10.sp)
+                    Text(text = ftpBadge, color = ftpBadgeColor, fontSize = 10.sp, fontWeight = FontWeight.Bold)
                 }
                 Text(
-                    text = if (isArabic) "خادم ملفات وسائط" else "FTP Media Server",
+                    text = ftpSubtitle,
                     color = tokens.onSurfaceMuted,
                     fontSize = 11.sp,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
                 )
             }
 
@@ -207,12 +246,14 @@ fun TvInputsQuickShelf(
                             fontWeight = FontWeight.Bold,
                         )
                     }
-                    Text(text = "مستعرض", color = tokens.onSurfaceMuted, fontSize = 10.sp)
+                    Text(text = usbBadge, color = usbBadgeColor, fontSize = 10.sp, fontWeight = FontWeight.Bold)
                 }
                 Text(
-                    text = if (isArabic) "تصفح وحدات التخزين" else "Browse Local Files",
+                    text = usbSubtitle,
                     color = tokens.onSurfaceMuted,
                     fontSize = 11.sp,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
                 )
             }
             tvState.sources.forEachIndexed { idx, source ->

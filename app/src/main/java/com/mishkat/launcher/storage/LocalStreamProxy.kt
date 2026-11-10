@@ -35,6 +35,8 @@ class LocalStreamProxy(
     var port: Int = 8790
         private set
 
+    var settings: SmbFtpSettings = SmbFtpSettings()
+
     fun start() {
         if (job?.isActive == true) return
         job = scope.launch(Dispatchers.IO) {
@@ -122,12 +124,22 @@ class LocalStreamProxy(
     private fun streamSmbFile(out: OutputStream, smbUrl: String, rangeHeader: String?) {
         runCatching {
             val prop = Properties().apply {
-                setProperty("jcifs.smb.client.enableSMB252", "true")
-                setProperty("jcifs.smb.client.disableSMB1", "false")
+                setProperty("jcifs.smb.client.minVersion", "SMB1")
+                setProperty("jcifs.smb.client.maxVersion", "SMB311")
+                setProperty("jcifs.smb.client.ipcSigningEnforced", "false")
                 setProperty("jcifs.smb.client.responseTimeout", "10000")
             }
             val base = BaseContext(PropertyConfiguration(prop))
-            val smbFile = SmbFile(smbUrl, base)
+            val authContext = if (settings.smbIsAnonymous) {
+                runCatching { base.withGuestCrendentials() }.getOrElse {
+                    runCatching { base.withAnonymousCredentials() }.getOrElse {
+                        base.withCredentials(NtlmPasswordAuthenticator("", "guest", ""))
+                    }
+                }
+            } else {
+                base.withCredentials(NtlmPasswordAuthenticator(settings.smbDomain, settings.smbUser, settings.smbPass))
+            }
+            val smbFile = SmbFile(smbUrl, authContext)
             val totalLen = smbFile.length()
             val (start, end) = parseRange(rangeHeader, totalLen)
             val contentLen = end - start + 1
@@ -138,28 +150,46 @@ class LocalStreamProxy(
                 if (start > 0) input.skip(start)
                 copyStream(input, out, contentLen)
             }
+        }.onFailure { t ->
+            Logger.w(Logger.TAG_SYSTEM, t) { "streamSmbFile error" }
         }
     }
 
     private fun streamFtpFile(out: OutputStream, ftpPath: String, rangeHeader: String?) {
-        // Simple fallback stream for FTP files
         runCatching {
             val uri = java.net.URI(ftpPath)
-            val host = uri.host
-            val port = if (uri.port > 0) uri.port else 21
-            val path = uri.path
+            val host = if (!uri.host.isNullOrBlank()) uri.host else settings.ftpHost
+            val port = if (uri.port > 0) uri.port else settings.ftpPort
+            val path = uri.path.ifBlank { "/" }
             val ftp = FTPClient()
             ftp.connect(host, port)
-            ftp.login("anonymous", "")
+            val user = if (settings.ftpIsAnonymous) "anonymous" else settings.ftpUser
+            val pass = if (settings.ftpIsAnonymous) "" else settings.ftpPass
+            if (!ftp.login(user, pass)) {
+                ftp.login("guest", "")
+            }
             ftp.enterLocalPassiveMode()
             ftp.setFileType(FTP.BINARY_FILE_TYPE)
+            ftp.controlEncoding = "UTF-8"
+            ftp.connectTimeout = 10000
+            ftp.soTimeout = 10000
 
+            val files = ftp.listFiles(path)
+            val totalLen = files?.firstOrNull()?.size ?: -1L
+            val (start, end) = parseRange(rangeHeader, if (totalLen > 0) totalLen else 0L)
+            val contentLen = if (totalLen > 0) (end - start + 1) else -1L
             val mime = getMimeType(path)
-            sendHeaders(out, false, 0, 0, -1, -1, mime)
+
+            sendHeaders(out, start > 0, start, end, totalLen, contentLen, mime)
+            if (start > 0) {
+                ftp.setRestartOffset(start)
+            }
             ftp.retrieveFileStream(path)?.use { input ->
-                copyStream(input, out, Long.MAX_VALUE)
+                copyStream(input, out, if (contentLen > 0) contentLen else Long.MAX_VALUE)
             }
             ftp.disconnect()
+        }.onFailure { t ->
+            Logger.w(Logger.TAG_SYSTEM, t) { "streamFtpFile error" }
         }
     }
 
