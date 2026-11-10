@@ -182,11 +182,24 @@ class NetworkAndUsbStorageRepository(
     }
 
     private fun detectRouterGatewayIp(): String? {
-        val wifi = context.applicationContext.getSystemService(Context.WIFI_SERVICE) as? WifiManager
-        val dhcp = wifi?.dhcpInfo ?: return null
-        val gw = dhcp.gateway
-        if (gw == 0) return null
-        return "${gw and 0xFF}.${gw shr 8 and 0xFF}.${gw shr 16 and 0xFF}.${gw shr 24 and 0xFF}"
+        // 1. Try ConnectivityManager / LinkProperties route gateway (safe on Android 10+ without special permissions)
+        runCatching {
+            val cm = context.getSystemService(Context.CONNECTIVITY_SERVICE) as? android.net.ConnectivityManager
+            val activeNetwork = cm?.activeNetwork
+            val linkProps = activeNetwork?.let { cm.getLinkProperties(it) }
+            val route = linkProps?.routes?.firstOrNull { it.isDefaultRoute && it.gateway != null }
+            val gw = route?.gateway?.hostAddress
+            if (!gw.isNullOrBlank() && gw != "0.0.0.0") return gw
+        }
+
+        // 2. Fallback to WifiManager dhcpInfo safely wrapped in runCatching
+        return runCatching {
+            val wifi = context.applicationContext.getSystemService(Context.WIFI_SERVICE) as? WifiManager
+            val dhcp = wifi?.dhcpInfo ?: return@runCatching null
+            val gw = dhcp.gateway
+            if (gw == 0) return@runCatching null
+            "${gw and 0xFF}.${gw shr 8 and 0xFF}.${gw shr 16 and 0xFF}.${gw shr 24 and 0xFF}"
+        }.getOrNull()
     }
 
     private fun probePort(host: String, port: Int): Boolean {
