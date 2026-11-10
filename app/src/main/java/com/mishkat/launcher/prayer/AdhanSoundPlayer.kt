@@ -1,51 +1,139 @@
 package com.mishkat.launcher.prayer
 
+import android.content.Context
 import android.media.AudioAttributes
 import android.media.AudioFormat
 import android.media.AudioTrack
+import android.media.MediaPlayer
+import android.net.Uri
+import com.mishkat.launcher.R
+import com.mishkat.launcher.core.Logger
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.io.File
+import java.io.FileOutputStream
+import java.net.HttpURLConnection
+import java.net.URL
 import kotlin.math.PI
 import kotlin.math.exp
 import kotlin.math.sin
 
 /**
- * S8: Pure offline synthesized Maqam Hijaz Takbeer / Adhan chime using Android's native [AudioTrack].
- * - Zero MP3 asset bloat (keeps APK under 3 MB).
- * - Works 100% offline on Android 7.0+ (`minSdk = 24`).
- * - Can be stopped immediately when the user dismisses `AdhanOverlay` or mutes audio Adhan.
+ * Level 2: Real Human Adhan Audio Engine.
+ * - Plays authentic human adhan audio using [MediaPlayer] with gradual volume ramp-up.
+ * - Seamlessly caches selected Muezzin (Makkah, Abdulbasit, Alafasy, Cairo) in `filesDir/adhan_cache/`.
+ * - Embedded standard MP3 in `R.raw.adhan_makkah` provides 100% offline out-of-the-box real human voice.
+ * - Retains procedural Maqam Hijaz [AudioTrack] synthesizer as ultimate fail-safe.
  */
 object AdhanSoundPlayer {
 
     private var playJob: Job? = null
     @Volatile
+    private var mediaPlayer: MediaPlayer? = null
+    @Volatile
     private var activeTrack: AudioTrack? = null
 
-    /**
-     * Plays a gentle, reverent Maqam Hijaz melodic call (D4 - Eb4 - F#4 - G4 - A4 cadence)
-     * on `USAGE_NOTIFICATION` / `USAGE_MEDIA` so the user hears the prayer alert clearly on TV speakers.
-     */
-    fun playAdhanChime(scope: CoroutineScope) {
+    fun isPlaying(): Boolean = mediaPlayer?.isPlaying == true || activeTrack?.playState == AudioTrack.PLAYSTATE_PLAYING
+
+    fun playRealAdhan(
+        context: Context,
+        scope: CoroutineScope,
+        muezzin: MuezzinVoice = MuezzinVoice.MAKKAH,
+        onCompletion: (() -> Unit)? = null,
+    ) {
         stop()
-        playJob = scope.launch(Dispatchers.Default) {
+        playJob = scope.launch(Dispatchers.IO) {
+            val cacheDir = File(context.filesDir, "adhan_cache").apply { mkdirs() }
+            val cacheFile = File(cacheDir, "${muezzin.id}.mp3")
+
+            // If not cached and not default makkah, download in background for future offline use
+            if (!cacheFile.exists() && muezzin.streamUrl.isNotBlank()) {
+                downloadMuezzinAsync(muezzin, cacheFile)
+            }
+
+            // Decide playback source: cache file -> raw resource -> fallback procedural
+            val started = runCatching {
+                val mp = MediaPlayer().apply {
+                    setAudioAttributes(
+                        AudioAttributes.Builder()
+                            .setUsage(AudioAttributes.USAGE_MEDIA)
+                            .setContentType(AudioAttributes.CONTENT_TYPE_SPEECH)
+                            .build()
+                    )
+                    if (cacheFile.exists() && cacheFile.length() > 10_000) {
+                        setDataSource(context, Uri.fromFile(cacheFile))
+                    } else {
+                        // Fallback to embedded real Makkah MP3
+                        val afd = context.resources.openRawResourceFd(R.raw.adhan_makkah)
+                        setDataSource(afd.fileDescriptor, afd.startOffset, afd.length)
+                        afd.close()
+                    }
+                    prepare()
+                    setVolume(0.15f, 0.15f) // start soft
+                    setOnCompletionListener {
+                        stop()
+                        onCompletion?.invoke()
+                    }
+                    start()
+                }
+                mediaPlayer = mp
+
+                // Volume ramp-up over 2.5 seconds
+                launch(Dispatchers.Default) {
+                    for (step in 1..25) {
+                        if (!isActive || mediaPlayer == null) break
+                        delay(100L)
+                        val vol = 0.15f + (0.85f * (step / 25f))
+                        runCatching { mediaPlayer?.setVolume(vol, vol) }
+                    }
+                }
+                true
+            }.getOrElse { err ->
+                Logger.w(Logger.TAG_SYSTEM, err) { "MediaPlayer real adhan failed, falling back to AudioTrack" }
+                false
+            }
+
+            if (!started) {
+                playProceduralFallback(scope)
+            }
+        }
+    }
+
+    private fun downloadMuezzinAsync(muezzin: MuezzinVoice, targetFile: File) {
+        runCatching {
+            val url = URL(muezzin.streamUrl)
+            val conn = (url.openConnection() as HttpURLConnection).apply {
+                connectTimeout = 6000
+                readTimeout = 12000
+                requestMethod = "GET"
+            }
+            if (conn.responseCode == 200) {
+                val tempFile = File(targetFile.parentFile, "${targetFile.name}.tmp")
+                conn.inputStream.use { input ->
+                    FileOutputStream(tempFile).use { output ->
+                        input.copyTo(output)
+                    }
+                }
+                tempFile.renameTo(targetFile)
+                Logger.system { "Downloaded and cached Muezzin ${muezzin.name} (${targetFile.length()} bytes)" }
+            }
+            conn.disconnect()
+        }
+    }
+
+    private fun playProceduralFallback(scope: CoroutineScope) {
+        scope.launch(Dispatchers.Default) {
             runCatching {
                 val sampleRate = 22050
-                // Maqam Hijaz notes (Hz) & durations (ms): reverent two-phrase Takbeer cadence
                 val phrase = listOf(
-                    293.66 to 420, // D4
-                    311.13 to 380, // Eb4
-                    369.99 to 550, // F#4
-                    392.00 to 750, // G4
-                    0.0 to 180,    // breath
-                    392.00 to 380, // G4
-                    440.00 to 520, // A4
-                    392.00 to 460, // G4
-                    369.99 to 520, // F#4
-                    311.13 to 420, // Eb4
-                    293.66 to 900, // D4
+                    293.66 to 420, 311.13 to 380, 369.99 to 550, 392.00 to 750,
+                    0.0 to 180, 392.00 to 380, 440.00 to 520, 392.00 to 460,
+                    369.99 to 520, 311.13 to 420, 293.66 to 900,
                 )
                 val totalMs = phrase.sumOf { it.second }
                 val totalSamples = (sampleRate * totalMs) / 1000
@@ -61,11 +149,9 @@ object AdhanSoundPlayer {
                         } else {
                             val t = i.toDouble() / sampleRate
                             val progress = i.toDouble() / count
-                            // Smooth attack & warm decay envelope
                             val attack = (progress / 0.08).coerceAtMost(1.0)
                             val decay = exp(-2.2 * progress)
                             val env = attack * decay
-                            // Fundamental + soft octave + fifth overtone for warm bell/oud timbre
                             val wave = sin(2.0 * PI * freq * t) * 0.72 +
                                 sin(2.0 * PI * (freq * 2.0) * t) * 0.20 +
                                 sin(2.0 * PI * (freq * 1.5) * t) * 0.08
@@ -110,10 +196,16 @@ object AdhanSoundPlayer {
         playJob?.cancel()
         playJob = null
         runCatching {
+            mediaPlayer?.let { mp ->
+                if (mp.isPlaying) mp.stop()
+                mp.release()
+            }
+        }
+        mediaPlayer = null
+
+        runCatching {
             activeTrack?.let { t ->
-                if (t.playState == AudioTrack.PLAYSTATE_PLAYING) {
-                    t.stop()
-                }
+                if (t.playState == AudioTrack.PLAYSTATE_PLAYING) t.stop()
                 t.release()
             }
         }

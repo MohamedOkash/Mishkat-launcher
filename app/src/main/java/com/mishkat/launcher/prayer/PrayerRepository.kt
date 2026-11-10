@@ -41,6 +41,8 @@ data class PrayerUiState(
     val activeAdhanAlert: PrayerKind? = null,
     val upcomingHijriEvent: HijriEventInfo? = null,
     val audioAdhanEnabled: Boolean = true,
+    val selectedMuezzin: MuezzinVoice = MuezzinVoice.MAKKAH,
+    val isAdhanTesting: Boolean = false,
 ) {
     val currentDhikr: DhikrSpec?
         get() = windowAdhkar.getOrNull(currentDhikrIndex)
@@ -89,7 +91,11 @@ class PrayerRepository(
             val savedPrefs = runCatching { prefs.data.first() }.getOrNull()
             val savedCityId = savedPrefs?.get(KEY_CITY_ID)
             val audioEnabled = savedPrefs?.get(KEY_AUDIO_ADHAN) ?: true
-            _state.value = _state.value.copy(audioAdhanEnabled = audioEnabled)
+            val savedMuezzinId = savedPrefs?.get(KEY_MUEZZIN_ID) ?: "makkah"
+            _state.value = _state.value.copy(
+                audioAdhanEnabled = audioEnabled,
+                selectedMuezzin = MuezzinVoice.fromId(savedMuezzinId),
+            )
             val initialCity = selectInitialCity(savedCityId)
             applyCity(initialCity, persist = false)
 
@@ -133,11 +139,31 @@ class PrayerRepository(
         _state.value = _state.value.copy(activeAdhanAlert = null)
     }
 
+    fun setMuezzin(muezzin: MuezzinVoice) {
+        _state.value = _state.value.copy(selectedMuezzin = muezzin)
+        scope.launch {
+            prefs.edit { it[KEY_MUEZZIN_ID] = muezzin.id }
+        }
+        Logger.system { "Selected Muezzin: ${muezzin.name}" }
+    }
+
+    fun testAdhanToggle() {
+        if (AdhanSoundPlayer.isPlaying() || _state.value.isAdhanTesting) {
+            AdhanSoundPlayer.stop()
+            _state.value = _state.value.copy(isAdhanTesting = false)
+        } else {
+            _state.value = _state.value.copy(isAdhanTesting = true)
+            AdhanSoundPlayer.playRealAdhan(context, scope, _state.value.selectedMuezzin) {
+                _state.value = _state.value.copy(isAdhanTesting = false)
+            }
+        }
+    }
+
     /** Manual preview trigger from the Prayer card / panel so the user can test AdhanOverlay anytime. */
     fun triggerAdhanPreview(kind: PrayerKind = _state.value.nextPrayer?.kind ?: PrayerKind.FAJR) {
         _state.value = _state.value.copy(activeAdhanAlert = kind)
         if (_state.value.audioAdhanEnabled) {
-            AdhanSoundPlayer.playAdhanChime(scope)
+            AdhanSoundPlayer.playRealAdhan(context, scope, _state.value.selectedMuezzin)
         }
     }
 
@@ -146,7 +172,7 @@ class PrayerRepository(
         if (!enabled) {
             AdhanSoundPlayer.stop()
         } else if (_state.value.activeAdhanAlert != null) {
-            AdhanSoundPlayer.playAdhanChime(scope)
+            AdhanSoundPlayer.playRealAdhan(context, scope, _state.value.selectedMuezzin)
         }
         scope.launch {
             prefs.edit { it[KEY_AUDIO_ADHAN] = enabled }
@@ -184,9 +210,9 @@ class PrayerRepository(
                 lastTriggeredPrayerEpoch = pMs
                 alert = kind
                 if (cur.audioAdhanEnabled) {
-                    AdhanSoundPlayer.playAdhanChime(scope)
+                    AdhanSoundPlayer.playRealAdhan(context, scope, cur.selectedMuezzin)
                 }
-                Logger.system { "Adhan alert triggered for $kind" }
+                Logger.system { "Adhan alert triggered for $kind (${cur.selectedMuezzin.name})" }
                 break
             }
         }
@@ -260,5 +286,6 @@ class PrayerRepository(
     private companion object {
         val KEY_CITY_ID = stringPreferencesKey("prayer_city_id")
         val KEY_AUDIO_ADHAN = booleanPreferencesKey("prayer_audio_adhan_enabled")
+        val KEY_MUEZZIN_ID = stringPreferencesKey("prayer_muezzin_id")
     }
 }

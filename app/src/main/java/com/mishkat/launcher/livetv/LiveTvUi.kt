@@ -1,5 +1,7 @@
 package com.mishkat.launcher.livetv
 
+import android.media.tv.TvView
+import android.net.Uri
 import android.view.KeyEvent
 import android.view.ViewGroup
 import android.widget.FrameLayout
@@ -70,6 +72,8 @@ fun LiveTvQuickShelf(
     firstFocusRequester: FocusRequester? = null,
     onSelectChannel: (LiveChannel) -> Unit,
     onOpenCategory: (ChannelCategory) -> Unit,
+    onOpenSatellite: (SatelliteSource) -> Unit = {},
+    onSyncCloud: () -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
     val scrollState = rememberScrollState()
@@ -79,55 +83,95 @@ fun LiveTvQuickShelf(
         modifier = modifier.fillMaxWidth(),
         verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
-        // Row 1: Shelf Header: Title + LIVE badge + Channel Count Pill
+        // Row 1: Shelf Header: Title + LIVE badge + Cloud Sync & Channel Count Pill
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically,
         ) {
+            com.mishkat.launcher.theme.SectionTitlePill(
+                title = if (isArabic) "دليل القنوات الفضائية والساتلايت" else "Live Satellite Channels",
+                tokens = tokens,
+                icon = "📺",
+                badgeText = "LIVE",
+            )
+
             Row(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
-                Text(
-                    text = if (isArabic) "📺 دليل القنوات الفضائية المباشرة (نايل سات)" else "📺 Live Satellite Channels (NileSat)",
-                    color = tokens.onSurface,
-                    fontSize = if (compact) 15.sp else 17.sp,
-                    fontWeight = FontWeight.Bold,
-                )
+                // Cloud Freq Sync Button
                 Box(
                     modifier = Modifier
-                        .clip(RoundedCornerShape(6.dp))
-                        .background(Color(0xFFDC2626))
-                        .padding(horizontal = 6.dp, vertical = 2.dp),
+                        .mishkatFocus(id = "livetv:sync_freqs", radius = 8.dp)
+                        .clip(RoundedCornerShape(8.dp))
+                        .liquidGlass(tokens, tokens.card, 8.dp, glassIntensity)
+                        .clickable { onSyncCloud() }
+                        .padding(horizontal = 8.dp, vertical = 3.dp),
                 ) {
                     Text(
-                        text = "LIVE",
-                        color = Color.White,
-                        fontSize = 10.sp,
-                        fontWeight = FontWeight.Black,
+                        text = if (state.isSyncingCloud) (if (isArabic) "⏳ تحديث..." else "⏳ Syncing...")
+                               else (if (isArabic) "☁️ تحديث الترددات" else "☁️ Sync Freqs"),
+                        color = tokens.primary,
+                        fontSize = 11.sp,
+                        fontWeight = FontWeight.SemiBold,
+                    )
+                }
+
+                // Quick channel count pill
+                val count = state.filteredChannels.size
+                Box(
+                    modifier = Modifier
+                        .clip(RoundedCornerShape(8.dp))
+                        .liquidGlass(tokens, tokens.card, 8.dp, glassIntensity)
+                        .padding(horizontal = 10.dp, vertical = 3.dp),
+                ) {
+                    Text(
+                        text = if (isArabic) "$count قناة متاحة" else "$count Channels",
+                        color = tokens.primary,
+                        fontSize = 11.sp,
+                        fontWeight = FontWeight.SemiBold,
                     )
                 }
             }
+        }
 
-            // Quick channel count pill
-            val count = state.filteredChannels.size
-            Box(
-                modifier = Modifier
-                    .clip(RoundedCornerShape(8.dp))
-                    .liquidGlass(tokens, tokens.card, 8.dp, glassIntensity)
-                    .padding(horizontal = 10.dp, vertical = 3.dp),
-            ) {
-                Text(
-                    text = if (isArabic) "$count قناة متاحة" else "$count Channels",
-                    color = tokens.primary,
-                    fontSize = 11.sp,
-                    fontWeight = FontWeight.SemiBold,
-                )
+        // Row 2A: Satellite selector pills (نايل سات، عرب سات/بدر، سهيل سات، ياه سات، والريسيفر الداخلي)
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .horizontalScroll(rememberScrollState()),
+            horizontalArrangement = Arrangement.spacedBy(7.dp),
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            SatelliteSource.entries.forEach { sat ->
+                val isSelected = sat == state.activeSatellite
+                val pillShape = RoundedCornerShape(10.dp)
+                Box(
+                    modifier = Modifier
+                        .mishkatFocus(id = "livetv:sat:${sat.id}", radius = 10.dp)
+                        .clip(pillShape)
+                        .liquidGlass(
+                            tokens = tokens,
+                            baseColor = if (isSelected) tokens.primary.copy(alpha = 0.35f) else tokens.card,
+                            radius = 10.dp,
+                            glassIntensity = glassIntensity,
+                            borderColor = if (isSelected) tokens.primary else tokens.glassRim,
+                        )
+                        .clickable { onOpenSatellite(sat) }
+                        .padding(horizontal = 11.dp, vertical = 5.dp),
+                ) {
+                    Text(
+                        text = "${sat.glyph} ${if (isArabic) sat.titleAr else sat.titleEn}",
+                        color = if (isSelected) tokens.primary else tokens.onSurface,
+                        fontSize = 11.sp,
+                        fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
+                    )
+                }
             }
         }
 
-        // Row 2: Category selector pills — horizontal scrollable so it NEVER overflows or forces vertical gap!
+        // Row 2B: Category selector pills
         Row(
             modifier = Modifier
                 .fillMaxWidth()
@@ -250,8 +294,13 @@ fun LiveTvQuickShelf(
                                 maxLines = 1,
                                 overflow = TextOverflow.Ellipsis,
                             )
+                            val subText = if (channel.frequency.isNotBlank()) {
+                                "${channel.displaySubtitle(isArabic)} • ${channel.frequency} ${channel.polarization}"
+                            } else {
+                                channel.displaySubtitle(isArabic)
+                            }
                             Text(
-                                text = channel.displaySubtitle(isArabic),
+                                text = subText,
                                 color = tokens.onSurfaceMuted,
                                 fontSize = 11.sp,
                                 maxLines = 1,
@@ -327,7 +376,7 @@ fun LiveTvPlayerOverlay(
                     }
                     return@onPreviewKeyEvent false
                 }
-                when (ev.nativeKeyEvent.keyCode) {
+                when (val code = ev.nativeKeyEvent.keyCode) {
                     KeyEvent.KEYCODE_DPAD_UP, KeyEvent.KEYCODE_PAGE_UP, KeyEvent.KEYCODE_CHANNEL_UP -> {
                         repository.previousChannel()
                         showOsd = true
@@ -335,6 +384,18 @@ fun LiveTvPlayerOverlay(
                     }
                     KeyEvent.KEYCODE_DPAD_DOWN, KeyEvent.KEYCODE_PAGE_DOWN, KeyEvent.KEYCODE_CHANNEL_DOWN -> {
                         repository.nextChannel()
+                        showOsd = true
+                        true
+                    }
+                    in KeyEvent.KEYCODE_0..KeyEvent.KEYCODE_9 -> {
+                        val digit = code - KeyEvent.KEYCODE_0
+                        repository.jumpToChannelByNumber(digit)
+                        showOsd = true
+                        true
+                    }
+                    in KeyEvent.KEYCODE_NUMPAD_0..KeyEvent.KEYCODE_NUMPAD_9 -> {
+                        val digit = code - KeyEvent.KEYCODE_NUMPAD_0
+                        repository.jumpToChannelByNumber(digit)
                         showOsd = true
                         true
                     }
@@ -352,25 +413,51 @@ fun LiveTvPlayerOverlay(
                 }
             },
     ) {
-        // Video Viewport using Media3 PlayerView
-        AndroidView(
-            factory = { ctx ->
-                PlayerView(ctx).apply {
-                    layoutParams = FrameLayout.LayoutParams(
-                        ViewGroup.LayoutParams.MATCH_PARENT,
-                        ViewGroup.LayoutParams.MATCH_PARENT,
-                    )
-                    useController = false
-                    player = repository.getPlayer()
-                    isFocusable = false
-                    isFocusableInTouchMode = false
-                }
-            },
-            update = { playerView ->
-                playerView.player = repository.getPlayer()
-            },
-            modifier = Modifier.fillMaxSize(),
-        )
+        val activeCh = state.currentChannel
+        if (activeCh?.isTuner == true) {
+            // Internal Hardware Tuner View (DVB-S2 / DTV)
+            AndroidView(
+                factory = { ctx ->
+                    TvView(ctx).apply {
+                        layoutParams = FrameLayout.LayoutParams(
+                            ViewGroup.LayoutParams.MATCH_PARENT,
+                            ViewGroup.LayoutParams.MATCH_PARENT,
+                        )
+                        val uriStr = activeCh.tunerChannelUri
+                        if (!uriStr.isNullOrBlank()) {
+                            runCatching { tune(activeCh.inputId ?: "", Uri.parse(uriStr)) }
+                        }
+                    }
+                },
+                update = { tvView ->
+                    val uriStr = activeCh.tunerChannelUri
+                    if (!uriStr.isNullOrBlank()) {
+                        runCatching { tvView.tune(activeCh.inputId ?: "", Uri.parse(uriStr)) }
+                    }
+                },
+                modifier = Modifier.fillMaxSize(),
+            )
+        } else {
+            // HLS Stream Video Viewport using Media3 PlayerView
+            AndroidView(
+                factory = { ctx ->
+                    PlayerView(ctx).apply {
+                        layoutParams = FrameLayout.LayoutParams(
+                            ViewGroup.LayoutParams.MATCH_PARENT,
+                            ViewGroup.LayoutParams.MATCH_PARENT,
+                        )
+                        useController = false
+                        player = repository.getPlayer()
+                        isFocusable = false
+                        isFocusableInTouchMode = false
+                    }
+                },
+                update = { playerView ->
+                    playerView.player = repository.getPlayer()
+                },
+                modifier = Modifier.fillMaxSize(),
+            )
+        }
 
         // Buffering / Loading Indicator
         if (state.isBuffering) {
@@ -521,8 +608,10 @@ fun LiveTvPlayerOverlay(
                             fontWeight = FontWeight.Medium,
                         )
 
+                        val currentCh = state.currentChannel
+                        val tag = if (currentCh?.isTuner == true) "📡 DVB-S2 • TUNER" else "🔴 LIVE • HLS • 1080p"
                         Text(
-                            text = "🔴 LIVE • HLS • 1080p",
+                            text = tag,
                             color = Color(0xFFEF4444),
                             fontSize = 13.sp,
                             fontWeight = FontWeight.Bold,

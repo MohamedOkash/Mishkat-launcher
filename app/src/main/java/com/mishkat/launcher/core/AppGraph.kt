@@ -20,6 +20,7 @@ import com.mishkat.launcher.weather.WeatherRepository
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.launch
 
 /** Manual DI object graph (§1: no Hilt). One instance per process, owned by MishkatApp. */
 class AppGraph(private val app: Application) {
@@ -40,7 +41,10 @@ class AppGraph(private val app: Application) {
     val weatherRepository = WeatherRepository(prefs, prayerRepository, appScope)
     val sportsRepository = SportsRepository(app, prefs, appScope)
     val tvInputsRepository = TvInputsRepository(app, prefs, appScope)
-    val liveTvRepository = LiveTvRepository(app, appScope)
+    val backgroundProcessKiller = com.mishkat.launcher.tools.BackgroundProcessKiller(app, prefs, appScope)
+    val liveTvRepository = LiveTvRepository(app, prefs, appScope)
+    val localStreamProxy = com.mishkat.launcher.storage.LocalStreamProxy(appScope)
+    val storageRepository = com.mishkat.launcher.storage.NetworkAndUsbStorageRepository(app, prefs, appScope, localStreamProxy)
     val updateRepository = com.mishkat.launcher.update.UpdateRepository(app, appScope)
     val companionRemoteServer = CompanionRemoteServer(appScope)
 
@@ -48,6 +52,7 @@ class AppGraph(private val app: Application) {
         crashGuard.install()
         localeRepository.start()
         network.start()
+        backgroundProcessKiller.start()
         themeRepository.start()
         focusRestorer.start()
         appsRepository.start()
@@ -58,7 +63,48 @@ class AppGraph(private val app: Application) {
         weatherRepository.start()
         sportsRepository.start()
         tvInputsRepository.start()
+        storageRepository.start()
+        companionRemoteServer.infoProvider = {
+            val liveCh = liveTvRepository.state.value.currentChannel?.nameAr ?: ""
+            val st = radioController.state.value.currentStation?.nameAr ?: ""
+            val appsList = (appsRepository.state.value as? com.mishkat.launcher.home.AppsState.Ready)?.visibleApps.orEmpty()
+            val channelsList = liveTvRepository.state.value.channels
+            val appsJson = appsList.take(35).joinToString(",") { """{"pkg":"${it.packageName}","name":"${it.label.replace("\"", "\\\"")}"}""" }
+            val channelsJson = channelsList.take(45).joinToString(",") { """{"id":"${it.id}","name":"${it.nameAr.replace("\"", "\\\"")}","sat":"${it.satellite}"}""" }
+            """{"status":"online","tvName":"Mishkat Smart TV","currentChannel":"$liveCh","currentStation":"$st","appsCount":${appsList.size},"channelsCount":${channelsList.size},"version":"1.8.0","apps":[$appsJson],"channels":[$channelsJson]}"""
+        }
+        companionRemoteServer.boostHandler = {
+            val res = backgroundProcessKiller.sweepNow()
+            """{"ok":true,"killedCount":${res.killedCount},"freedMb":${String.format(java.util.Locale.US, "%.1f", res.freedMb)}}"""
+        }
         companionRemoteServer.start()
+
+        appScope.launch {
+            companionRemoteServer.commands.collect { cmd ->
+                when (cmd) {
+                    is com.mishkat.launcher.remote.CompanionCommand.LaunchPackage -> {
+                        val launchIntent = app.packageManager.getLeanbackLaunchIntentForPackage(cmd.packageName)
+                            ?: app.packageManager.getLaunchIntentForPackage(cmd.packageName)
+                        launchIntent?.let { intent ->
+                            intent.addFlags(android.content.Intent.FLAG_ACTIVITY_NEW_TASK)
+                            runCatching { app.startActivity(intent) }
+                        }
+                    }
+                    is com.mishkat.launcher.remote.CompanionCommand.TriggerBoost -> {
+                        backgroundProcessKiller.sweepNow()
+                    }
+                    is com.mishkat.launcher.remote.CompanionCommand.ImportM3u -> {
+                        if (cmd.payload.startsWith("http://") || cmd.payload.startsWith("https://")) {
+                            liveTvRepository.importM3uUrl(cmd.payload)
+                        } else {
+                            liveTvRepository.importM3uPlaylist(cmd.payload)
+                        }
+                    }
+                    else -> Unit
+                }
+            }
+        }
+
         HonestCleaner.schedulePeriodicAutoClean(app)
     }
 }

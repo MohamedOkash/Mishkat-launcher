@@ -11,6 +11,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -53,6 +54,7 @@ fun TvInputsQuickShelf(
     firstFocusRequester: FocusRequester? = null,
     onSelectSource: (TvSourceItem) -> Unit,
     onOpenTvHub: () -> Unit,
+    onOpenStorageExplorer: () -> Unit = onOpenTvHub,
 ) {
     val appSettings = LocalAppSettings.current
     val isArabic = appSettings.isArabic
@@ -61,40 +63,14 @@ fun TvInputsQuickShelf(
 
     Column(
         modifier = Modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(6.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
-        Row(
-            horizontalArrangement = Arrangement.spacedBy(8.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Text(
-                text = stringResource(R.string.tv_inputs_shelf_title),
-                color = tokens.onSurface,
-                fontSize = if (compact) 15.sp else 17.sp,
-                fontWeight = FontWeight.SemiBold,
-            )
-            if (tvState.usbDrives.isNotEmpty()) {
-                val usbShape = RoundedCornerShape(10.dp)
-                Box(
-                    modifier = Modifier
-                        .clip(usbShape)
-                        .background(Color(0xFF10B981).copy(alpha = 0.22f))
-                        .border(BorderStroke(1.dp, Color(0xFF10B981)), usbShape)
-                        .padding(horizontal = 8.dp, vertical = 2.dp),
-                ) {
-                    Text(
-                        text = if (isArabic) {
-                            "💾 فلاشة USB متصلة (${tvState.usbDrives.size})"
-                        } else {
-                            "💾 USB Connected (${tvState.usbDrives.size})"
-                        },
-                        color = Color(0xFF34D399),
-                        fontSize = 11.sp,
-                        fontWeight = FontWeight.Bold,
-                    )
-                }
-            }
-        }
+        com.mishkat.launcher.theme.SectionTitlePill(
+            title = if (isArabic) "الريسيفر الداخلي والمداخل وفلاشة الراوتر والـ USB" else "Receiver, Inputs, Router Storage & USB",
+            tokens = tokens,
+            icon = "🔌",
+            badgeText = if (tvState.usbDrives.isNotEmpty()) "USB (${tvState.usbDrives.size})" else null,
+        )
 
         Row(
             modifier = Modifier
@@ -102,6 +78,143 @@ fun TvInputsQuickShelf(
                 .horizontalScroll(rememberScrollState()),
             horizontalArrangement = Arrangement.spacedBy(10.dp),
         ) {
+            Spacer(modifier = Modifier.width(24.dp))
+
+            val cardW = if (compact) 186.dp else 212.dp
+            val cardH = if (compact) 70.dp else 82.dp
+            val shape = RoundedCornerShape(tokens.cardRadius)
+
+            // 1. Router Samba SMB Card
+            Column(
+                modifier = (if (firstFocusRequester != null) Modifier.focusRequester(firstFocusRequester) else Modifier)
+                    .width(cardW)
+                    .height(cardH)
+                    .mishkatFocus(id = "tv_shelf:storage_smb")
+                    .clip(shape)
+                    .liquidGlass(
+                        tokens = tokens,
+                        baseColor = tokens.cardFocused,
+                        radius = tokens.cardRadius,
+                        glassIntensity = glass,
+                        borderColor = tokens.primary,
+                    )
+                    .clickable { onOpenStorageExplorer() }
+                    .padding(horizontal = 12.dp, vertical = 8.dp),
+                verticalArrangement = Arrangement.SpaceBetween,
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(6.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Text(text = "🖴", fontSize = 15.sp)
+                        Text(
+                            text = if (isArabic) "Samba الراوتر" else "Router SMB",
+                            color = tokens.primary,
+                            fontSize = 13.sp,
+                            fontWeight = FontWeight.Bold,
+                        )
+                    }
+                    Text(text = "مشاركة", color = tokens.primary, fontSize = 10.sp, fontWeight = FontWeight.Bold)
+                }
+                Text(
+                    text = if (isArabic) "فلاشة وهارد الراوتر" else "Router Shared Drive",
+                    color = tokens.onSurfaceMuted,
+                    fontSize = 11.sp,
+                )
+            }
+
+            // 2. Router FTP Card
+            Column(
+                modifier = Modifier
+                    .width(cardW)
+                    .height(cardH)
+                    .mishkatFocus(id = "tv_shelf:storage_ftp")
+                    .clip(shape)
+                    .liquidGlass(
+                        tokens = tokens,
+                        baseColor = tokens.card,
+                        radius = tokens.cardRadius,
+                        glassIntensity = glass,
+                        borderColor = tokens.glassRim,
+                    )
+                    .clickable { onOpenStorageExplorer() }
+                    .padding(horizontal = 12.dp, vertical = 8.dp),
+                verticalArrangement = Arrangement.SpaceBetween,
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(6.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Text(text = "🌐", fontSize = 15.sp)
+                        Text(
+                            text = if (isArabic) "FTP الراوتر" else "Router FTP",
+                            color = tokens.onSurface,
+                            fontSize = 13.sp,
+                            fontWeight = FontWeight.Bold,
+                        )
+                    }
+                    Text(text = "سيرفر", color = tokens.onSurfaceMuted, fontSize = 10.sp)
+                }
+                Text(
+                    text = if (isArabic) "خادم ملفات وسائط" else "FTP Media Server",
+                    color = tokens.onSurfaceMuted,
+                    fontSize = 11.sp,
+                )
+            }
+
+            // 3. Local USB & Storage Card
+            Column(
+                modifier = Modifier
+                    .width(cardW)
+                    .height(cardH)
+                    .mishkatFocus(id = "tv_shelf:storage_usb")
+                    .clip(shape)
+                    .liquidGlass(
+                        tokens = tokens,
+                        baseColor = tokens.card,
+                        radius = tokens.cardRadius,
+                        glassIntensity = glass,
+                        borderColor = tokens.glassRim,
+                    )
+                    .clickable { onOpenStorageExplorer() }
+                    .padding(horizontal = 12.dp, vertical = 8.dp),
+                verticalArrangement = Arrangement.SpaceBetween,
+            ) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Row(
+                        horizontalArrangement = Arrangement.spacedBy(6.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Text(text = "💾", fontSize = 15.sp)
+                        Text(
+                            text = if (isArabic) "الهارد والـ USB" else "USB & Storage",
+                            color = tokens.onSurface,
+                            fontSize = 13.sp,
+                            fontWeight = FontWeight.Bold,
+                        )
+                    }
+                    Text(text = "مستعرض", color = tokens.onSurfaceMuted, fontSize = 10.sp)
+                }
+                Text(
+                    text = if (isArabic) "تصفح وحدات التخزين" else "Browse Local Files",
+                    color = tokens.onSurfaceMuted,
+                    fontSize = 11.sp,
+                )
+            }
             tvState.sources.forEachIndexed { idx, source ->
                 val isDefault = source.id == tvState.defaultSourceId
                 val cardW = if (compact) 186.dp else 212.dp

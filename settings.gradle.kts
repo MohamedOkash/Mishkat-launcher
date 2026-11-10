@@ -16,3 +16,4 @@ dependencyResolutionManagement {
 
 rootProject.name = "MishkatLauncher"
 include(":app")
+include(":remote")

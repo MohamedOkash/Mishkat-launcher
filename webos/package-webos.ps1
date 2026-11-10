@@ -34,7 +34,7 @@ New-Item -ItemType Directory -Path $sharedStage -Force | Out-Null
 Copy-Item "$PSScriptRoot/../shared/*.json" "$sharedStage/"
 
 # 5. Build .ipk or deployable package
-$ipkPath = "$OutputDir/com.mishkat.launcher_1.6.0_all.ipk"
+$ipkPath = "$OutputDir/com.mishkat.launcher_1.8.0_all.ipk"
 $zipPath = "$OutputDir/MishkatLauncher-LG-webOS.zip"
 
 $aresPackage = Get-Command "ares-package" -ErrorAction SilentlyContinue

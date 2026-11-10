@@ -282,8 +282,13 @@ fun Modifier.liquidGlass(
         ),
     )
     val strokeStyle = Stroke(width = 1.dp.toPx())
-    val minAlpha = if (tokens.isLightMode) 0.36f else 0.42f
-    val fillAlpha = (baseColor.alpha * (1.04f - clampedGlass * 0.10f)).coerceIn(minAlpha, 0.72f)
+    val minAlpha = if (tokens.isLightMode) 0.52f else 0.80f
+    // High-contrast, rich deep Liquid Glass: ensures text is 100% legible over any wallpaper
+    val fillAlpha = when {
+        clampedGlass >= 1.05f -> (baseColor.alpha * 1.15f).coerceIn(0.88f, 0.94f) // Deep High-Contrast
+        clampedGlass <= 0.60f -> (baseColor.alpha * 0.88f).coerceIn(0.68f, 0.76f) // Crystal Clear
+        else -> (baseColor.alpha * 1.05f).coerceIn(minAlpha, 0.88f)              // Standard Liquid Glass
+    }
     val effectiveFill = baseColor.copy(alpha = fillAlpha)
 
     onDrawWithContent {
@@ -429,14 +434,15 @@ fun ThemeWallpaper(
                             ),
                         )
                     } else {
-                        val baseTop = if (isIslamicArt) 0.34f else 0.48f
-                        val baseMid = if (isIslamicArt) 0.18f else 0.24f
-                        val baseBot = if (isIslamicArt) 0.42f else 0.56f
+                        // Smart Dark Vignette & Scrim: Prevents bright wallpaper spots (rain, snow, lightning) from overpowering text
+                        val baseTop = if (isIslamicArt) 0.44f else 0.58f
+                        val baseMid = if (isIslamicArt) 0.32f else 0.48f
+                        val baseBot = if (isIslamicArt) 0.54f else 0.70f
                         Brush.verticalGradient(
                             colors = listOf(
-                                Color(0xFF04070F).copy(alpha = (baseTop + extraDimAlpha).coerceAtMost(0.95f)),
-                                Color(0xFF04070F).copy(alpha = (baseMid + extraDimAlpha).coerceAtMost(0.92f)),
-                                Color(0xFF04070F).copy(alpha = (baseBot + extraDimAlpha).coerceAtMost(0.96f)),
+                                Color(0xFF040914).copy(alpha = (baseTop + extraDimAlpha).coerceAtMost(0.98f)),
+                                Color(0xFF050B17).copy(alpha = (baseMid + extraDimAlpha).coerceAtMost(0.95f)),
+                                Color(0xFF060D1A).copy(alpha = (baseBot + extraDimAlpha).coerceAtMost(0.98f)),
                             ),
                         )
                     }

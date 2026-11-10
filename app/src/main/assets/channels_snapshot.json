@@ -7,7 +7,12 @@
     "subtitleAr": "قناة شباب المستقبل - كرتون وأغاني",
     "streamUrl": "https://live-uae-next.spacetoongo.com/ST_MENA_NEXT/hls/r9p2hjipmw2kl.m3u8",
     "glyph": "🚀",
-    "badge": "1080p HD"
+    "badge": "1080p HD",
+    "satellite": "nilesat_7w",
+    "frequency": "11785",
+    "polarization": "V",
+    "symbolRate": "27500",
+    "sourceType": "HLS_STREAM"
   },
   {
     "id": "ch:kids_cn_arabic",
@@ -17,7 +22,12 @@
     "subtitleAr": "أقوى مسلسلات الكرتون العالمية",
     "streamUrl": "http://149.100.11.252:8000/play/a056/index.m3u8",
     "glyph": "🎨",
-    "badge": "HD"
+    "badge": "HD",
+    "satellite": "nilesat_7w",
+    "frequency": "12226",
+    "polarization": "H",
+    "symbolRate": "27500",
+    "sourceType": "HLS_STREAM"
   },
   {
     "id": "ch:kids_koogi",
@@ -27,7 +37,12 @@
     "subtitleAr": "أغاني وبرامج أطفال وتعليم مرح",
     "streamUrl": "https://5d658d7e9f562.streamlock.net/koogi.tv/koogi.smil/playlist.m3u8",
     "glyph": "🍪",
-    "badge": "1080p HD"
+    "badge": "1080p HD",
+    "satellite": "nilesat_7w",
+    "frequency": "11636",
+    "polarization": "V",
+    "symbolRate": "27500",
+    "sourceType": "HLS_STREAM"
   },
   {
     "id": "ch:kids_mbc3",
@@ -37,7 +52,12 @@
     "subtitleAr": "أفلام ومسلسلات الأطفال الترفيهية",
     "streamUrl": "https://shd-gcp-live.edgenextcdn.net/live/bitmovin-mbc-3-usa/5d58265a862a476dc7f97694addb5ded/index.m3u8",
     "glyph": "🦁",
-    "badge": "1080p HD"
+    "badge": "1080p HD",
+    "satellite": "nilesat_7w",
+    "frequency": "11470",
+    "polarization": "V",
+    "symbolRate": "27500",
+    "sourceType": "HLS_STREAM"
   },
   {
     "id": "ch:kids_wanasah",
@@ -47,7 +67,12 @@
     "subtitleAr": "أغاني وناسة الشهيرة وأناشيد لولو",
     "streamUrl": "https://shd-gcp-live.edgenextcdn.net/live/bitmovin-wanasah/13e82ea6232fa647c43b26e8a41f173d/index.m3u8",
     "glyph": "🎈",
-    "badge": "1080p HD"
+    "badge": "1080p HD",
+    "satellite": "nilesat_7w",
+    "frequency": "11470",
+    "polarization": "V",
+    "symbolRate": "27500",
+    "sourceType": "HLS_STREAM"
   },
   {
     "id": "ch:kids_mawaheb",
@@ -57,7 +82,12 @@
     "subtitleAr": "استعراضات ومواهب الأطفال والنشء",
     "streamUrl": "https://5aafcc5de91f1.streamlock.net/atfal1.com/atfal2/playlist.m3u8",
     "glyph": "⭐",
-    "badge": "1080p HD"
+    "badge": "1080p HD",
+    "satellite": "nilesat_7w",
+    "frequency": "11747",
+    "polarization": "V",
+    "symbolRate": "27500",
+    "sourceType": "HLS_STREAM"
   },
   {
     "id": "ch:kids_sat7",
@@ -67,7 +97,12 @@
     "subtitleAr": "قصص وأناشيد هادفة وبرامج أطفال",
     "streamUrl": "https://svs.itworkscdn.net/sat7kidslive/sat7kids.smil/playlist_dvr.m3u8",
     "glyph": "🌈",
-    "badge": "1080p HD"
+    "badge": "1080p HD",
+    "satellite": "nilesat_7w",
+    "frequency": "11354",
+    "polarization": "V",
+    "symbolRate": "27500",
+    "sourceType": "HLS_STREAM"
   },
   {
     "id": "ch:cinema_rotana_masr",
@@ -77,7 +112,12 @@
     "subtitleAr": "مش حتقدر تغمض عينيك - أفلام مصرية",
     "streamUrl": "https://rotana.hibridcdn.net/rotananet/cinemamasr_net-7Y83PP5adWixDF93/playlist.m3u8",
     "glyph": "🍿",
-    "badge": "1080p HD"
+    "badge": "1080p HD",
+    "satellite": "nilesat_7w",
+    "frequency": "11747",
+    "polarization": "V",
+    "symbolRate": "27500",
+    "sourceType": "HLS_STREAM"
   },
   {
     "id": "ch:cinema_rotana_classic",
@@ -87,7 +127,12 @@
     "subtitleAr": "زمن الفن الجميل وسينما الأبيض والأسود",
     "streamUrl": "https://rotana.hibridcdn.net/rotananet/classical_net-7Y83PP5adWixDF93/playlist.m3u8",
     "glyph": "🎞️",
-    "badge": "1080p HD"
+    "badge": "1080p HD",
+    "satellite": "nilesat_7w",
+    "frequency": "12226",
+    "polarization": "H",
+    "symbolRate": "27500",
+    "sourceType": "HLS_STREAM"
   },
   {
     "id": "ch:cinema_rotana_comedy",
@@ -97,7 +142,12 @@
     "subtitleAr": "أشهر أفلام ومسرحيات الكوميديا المصرية",
     "streamUrl": "https://rotana.hibridcdn.net/rotananet/comedy_net-7Y83PP5adWixDF93/playlist.m3u8",
     "glyph": "😂",
-    "badge": "1080p HD"
+    "badge": "1080p HD",
+    "satellite": "nilesat_7w",
+    "frequency": "12226",
+    "polarization": "H",
+    "symbolRate": "27500",
+    "sourceType": "HLS_STREAM"
   },
   {
     "id": "ch:cinema_rotana_clip",
@@ -107,7 +157,12 @@
     "subtitleAr": "أحدث الكليبات والأغاني العربية المنوعة",
     "streamUrl": "https://rotana.hibridcdn.net/rotananet/clip_net-7Y83PP5adWixDF93/playlist.m3u8",
     "glyph": "🎵",
-    "badge": "1080p HD"
+    "badge": "1080p HD",
+    "satellite": "nilesat_7w",
+    "frequency": "12226",
+    "polarization": "H",
+    "symbolRate": "27500",
+    "sourceType": "HLS_STREAM"
   },
   {
     "id": "ch:cinema_mix",
@@ -117,7 +172,12 @@
     "subtitleAr": "أقوى أفلام الأكشن والإثارة العالمية",
     "streamUrl": "https://ml-pull-hwc.myco.io/MixTV/hls/index.m3u8",
     "glyph": "🎬",
-    "badge": "1080p HD"
+    "badge": "1080p HD",
+    "satellite": "nilesat_7w",
+    "frequency": "11747",
+    "polarization": "V",
+    "symbolRate": "27500",
+    "sourceType": "HLS_STREAM"
   },
   {
     "id": "ch:cinema_mbc4",
@@ -127,7 +187,12 @@
     "subtitleAr": "مسلسلات وبرامج أجنبية مترجمة",
     "streamUrl": "https://shd-gcp-live.edgenextcdn.net/live/bitmovin-mbc-4/24f134f1cd63db9346439e96b86ca6ed/index.m3u8",
     "glyph": "🌟",
-    "badge": "1080p HD"
+    "badge": "1080p HD",
+    "satellite": "nilesat_7w",
+    "frequency": "11470",
+    "polarization": "V",
+    "symbolRate": "27500",
+    "sourceType": "HLS_STREAM"
   },
   {
     "id": "ch:cinema_mbc_bollywood",
@@ -137,7 +202,12 @@
     "subtitleAr": "أروع سينما وأفلام هندية مترجمة",
     "streamUrl": "https://shd-gcp-live.edgenextcdn.net/live/bitmovin-mbc-bollywood/546eb40d7dcf9a209255dd2496903764/index.m3u8",
     "glyph": "🎭",
-    "badge": "1080p HD"
+    "badge": "1080p HD",
+    "satellite": "nilesat_7w",
+    "frequency": "11470",
+    "polarization": "V",
+    "symbolRate": "27500",
+    "sourceType": "HLS_STREAM"
   },
   {
     "id": "ch:drama_rotana",
@@ -147,7 +217,12 @@
     "subtitleAr": "باقة من أروع المسلسلات العربية والمصرية",
     "streamUrl": "https://rotana.hibridcdn.net/rotananet/drama_net-7Y83PP5adWixDF93/playlist.m3u8",
     "glyph": "🎭",
-    "badge": "1080p HD"
+    "badge": "1080p HD",
+    "satellite": "nilesat_7w",
+    "frequency": "11747",
+    "polarization": "V",
+    "symbolRate": "27500",
+    "sourceType": "HLS_STREAM"
   },
   {
     "id": "ch:drama_mbc_masr",
@@ -157,7 +232,12 @@
     "subtitleAr": "أقوى المسلسلات والبرامج المصرية الحصرية",
     "streamUrl": "https://shd-gcp-live.edgenextcdn.net/live/bitmovin-mbc-masr/956eac069c78a35d47245db6cdbb1575/index.m3u8",
     "glyph": "🇪🇬",
-    "badge": "1080p HD"
+    "badge": "1080p HD",
+    "satellite": "nilesat_7w",
+    "frequency": "11747",
+    "polarization": "V",
+    "symbolRate": "27500",
+    "sourceType": "HLS_STREAM"
   },
   {
     "id": "ch:drama_mbc_masr2",
@@ -167,7 +247,12 @@
     "subtitleAr": "منوعات ودراما مصرية متواصلة",
     "streamUrl": "https://shd-gcp-live.edgenextcdn.net/live/bitmovin-mbc-masr-2/754931856515075b0aabf0e583495c68/index.m3u8",
     "glyph": "🇪🇬",
-    "badge": "1080p HD"
+    "badge": "1080p HD",
+    "satellite": "nilesat_7w",
+    "frequency": "11823",
+    "polarization": "V",
+    "symbolRate": "27500",
+    "sourceType": "HLS_STREAM"
   },
   {
     "id": "ch:drama_mbc_drama",
@@ -177,7 +262,12 @@
     "subtitleAr": "مسلسلات خليجية وشامية ومصرية",
     "streamUrl": "https://shd-gcp-live.edgenextcdn.net/live/bitmovin-mbc-drama/2c28a458e2f3253e678b07ac7d13fe71/index.m3u8",
     "glyph": "📺",
-    "badge": "1080p HD"
+    "badge": "1080p HD",
+    "satellite": "nilesat_7w",
+    "frequency": "11470",
+    "polarization": "V",
+    "symbolRate": "27500",
+    "sourceType": "HLS_STREAM"
   },
   {
     "id": "ch:drama_mbc1",
@@ -187,7 +277,12 @@
     "subtitleAr": "الدراما والبرامج الاجتماعية الكبرى",
     "streamUrl": "https://shd-gcp-live.edgenextcdn.net/live/bitmovin-mbc-1/15cf99af5de54063fdabfefe66adc075/index.m3u8",
     "glyph": "✨",
-    "badge": "1080p HD"
+    "badge": "1080p HD",
+    "satellite": "nilesat_7w",
+    "frequency": "11470",
+    "polarization": "V",
+    "symbolRate": "27500",
+    "sourceType": "HLS_STREAM"
   },
   {
     "id": "ch:quran_makkah",
@@ -197,7 +292,12 @@
     "subtitleAr": "مكة المكرمة بث مباشر 24/7",
     "streamUrl": "http://m.live.net.sa:1935/live/quran/gmswf.m3u8",
     "glyph": "🕋",
-    "badge": "1080p HD"
+    "badge": "1080p HD",
+    "satellite": "nilesat_7w",
+    "frequency": "12149",
+    "polarization": "H",
+    "symbolRate": "27500",
+    "sourceType": "HLS_STREAM"
   },
   {
     "id": "ch:sunnah_madinah",
@@ -207,7 +307,12 @@
     "subtitleAr": "المسجد النبوي الشريف بث مباشر",
     "streamUrl": "http://m.live.net.sa:1935/live/sunnah/gmswf.m3u8",
     "glyph": "🕌",
-    "badge": "1080p HD"
+    "badge": "1080p HD",
+    "satellite": "nilesat_7w",
+    "frequency": "11747",
+    "polarization": "V",
+    "symbolRate": "27500",
+    "sourceType": "HLS_STREAM"
   },
   {
     "id": "ch:cairo_quran_radio",
@@ -217,7 +322,12 @@
     "subtitleAr": "بث حي متواصل لكبار قراء مصر والعالم",
     "streamUrl": "https://live.kwikmotion.com/sbrksaquranradiolive/srpksaquranradio/playlist.m3u8",
     "glyph": "📻",
-    "badge": "HD"
+    "badge": "HD",
+    "satellite": "nilesat_7w",
+    "frequency": "11747",
+    "polarization": "V",
+    "symbolRate": "27500",
+    "sourceType": "HLS_STREAM"
   },
   {
     "id": "ch:sharjah_quran",
@@ -227,7 +337,12 @@
     "subtitleAr": "تلاوات خاشعة بالقراءات المتواترة",
     "streamUrl": "https://live.kwikmotion.com/smcquranlive/quranradiolive/playlist.m3u8",
     "glyph": "📖",
-    "badge": "HD"
+    "badge": "HD",
+    "satellite": "nilesat_7w",
+    "frequency": "11747",
+    "polarization": "V",
+    "symbolRate": "27500",
+    "sourceType": "HLS_STREAM"
   },
   {
     "id": "ch:islamic_resalah",
@@ -237,7 +352,12 @@
     "subtitleAr": "برامج توعوية وثقافية إسلامية هادفة",
     "streamUrl": "https://rotana.hibridcdn.net/rotananet/risala_net-7Y83PP5adWixDF93/playlist.m3u8",
     "glyph": "📜",
-    "badge": "1080p HD"
+    "badge": "1080p HD",
+    "satellite": "nilesat_7w",
+    "frequency": "11747",
+    "polarization": "V",
+    "symbolRate": "27500",
+    "sourceType": "HLS_STREAM"
   },
   {
     "id": "ch:islamic_iqraa",
@@ -247,7 +367,12 @@
     "subtitleAr": "نور هداية وعلم برامج فتاوى وثقافة",
     "streamUrl": "https://playlist.fasttvcdn.com/pl/dlkqw1ftuvuuzkcb4pxdcg/Iqraafasttv2/playlist.m3u8",
     "glyph": "📖",
-    "badge": "HD"
+    "badge": "HD",
+    "satellite": "nilesat_7w",
+    "frequency": "11747",
+    "polarization": "V",
+    "symbolRate": "27500",
+    "sourceType": "HLS_STREAM"
   },
   {
     "id": "ch:egypt_almasriyah",
@@ -257,7 +382,12 @@
     "subtitleAr": "تلفزيون جمهورية مصر العربية الرسمي",
     "streamUrl": "http://185.9.2.18/chid_247/index.m3u8",
     "glyph": "🇪🇬",
-    "badge": "1080p HD"
+    "badge": "1080p HD",
+    "satellite": "nilesat_7w",
+    "frequency": "11747",
+    "polarization": "V",
+    "symbolRate": "27500",
+    "sourceType": "HLS_STREAM"
   },
   {
     "id": "ch:egypt_alghad",
@@ -267,7 +397,12 @@
     "subtitleAr": "تغطيات حية ومتابعات للأحداث المصرية والعربية",
     "streamUrl": "https://eazyvwqssi.erbvr.com/alghadtv/alghadtv.m3u8",
     "glyph": "📡",
-    "badge": "1080p HD"
+    "badge": "1080p HD",
+    "satellite": "nilesat_7w",
+    "frequency": "11747",
+    "polarization": "V",
+    "symbolRate": "27500",
+    "sourceType": "HLS_STREAM"
   },
   {
     "id": "ch:egypt_sharjah",
@@ -277,7 +412,12 @@
     "subtitleAr": "برامج حوارية وثقافية واجتماعية منوعة",
     "streamUrl": "https://live.kwikmotion.com/smc1live/smc1tv.smil/playlist.m3u8",
     "glyph": "📺",
-    "badge": "1080p HD"
+    "badge": "1080p HD",
+    "satellite": "nilesat_7w",
+    "frequency": "11747",
+    "polarization": "V",
+    "symbolRate": "27500",
+    "sourceType": "HLS_STREAM"
   },
   {
     "id": "ch:news_alarabiya",
@@ -287,7 +427,12 @@
     "subtitleAr": "أن تعرف أكثر - بث إخباري عاجل 24/7",
     "streamUrl": "https://live.alarabiya.net/alarabiapublish/alarabiya.smil/playlist.m3u8",
     "glyph": "🌐",
-    "badge": "1080p HD"
+    "badge": "1080p HD",
+    "satellite": "nilesat_7w",
+    "frequency": "11747",
+    "polarization": "V",
+    "symbolRate": "27500",
+    "sourceType": "HLS_STREAM"
   },
   {
     "id": "ch:news_skynews",
@@ -297,7 +442,12 @@
     "subtitleAr": "الأخبار أولاً بأول وتقارير ميدانية عاجلة",
     "streamUrl": "https://live-stream.skynewsarabia.com/c-horizontal-channel/horizontal-stream/index.m3u8",
     "glyph": "🌍",
-    "badge": "1080p HD"
+    "badge": "1080p HD",
+    "satellite": "nilesat_7w",
+    "frequency": "11747",
+    "polarization": "V",
+    "symbolRate": "27500",
+    "sourceType": "HLS_STREAM"
   },
   {
     "id": "ch:news_asharq_doc",
@@ -307,7 +457,12 @@
     "subtitleAr": "أفلام وثائقية استقصائية وسياسية وتاريخية",
     "streamUrl": "https://svs.itworkscdn.net/asharqdocumentarylive/asharqdocumentary.smil/playlist_dvr.m3u8",
     "glyph": "📽️",
-    "badge": "1080p HD"
+    "badge": "1080p HD",
+    "satellite": "nilesat_7w",
+    "frequency": "12322",
+    "polarization": "V",
+    "symbolRate": "27500",
+    "sourceType": "HLS_STREAM"
   },
   {
     "id": "ch:sports_sharjah",
@@ -317,6 +472,161 @@
     "subtitleAr": "تغطيات حية وبطولات رياضية عربية ودولية",
     "streamUrl": "https://svs.itworkscdn.net/smc4sportslive/smc4tv.smil/playlist.m3u8",
     "glyph": "⚽",
-    "badge": "1080p HD"
+    "badge": "1080p HD",
+    "satellite": "nilesat_7w",
+    "frequency": "11012",
+    "polarization": "V",
+    "symbolRate": "27500",
+    "sourceType": "HLS_STREAM"
+  },
+  {
+    "id": "ch:badr_alarabiya",
+    "nameAr": "العربية الإخبارية (عرب سات)",
+    "nameEn": "Al Arabiya HD (Badr)",
+    "category": "news_doc",
+    "subtitleAr": "بث عرب سات / بدر 26 شرق",
+    "streamUrl": "https://mbc-live-hls-prod.shahid.net/out/v1/4164eb3f49eb4037b56ff6d93b9e4a3e/index.m3u8",
+    "glyph": "📡",
+    "badge": "1080p",
+    "satellite": "badr_26e",
+    "frequency": "11938",
+    "polarization": "V",
+    "symbolRate": "27500",
+    "sourceType": "HLS_STREAM"
+  },
+  {
+    "id": "ch:badr_saudi_quran",
+    "nameAr": "القرآن الكريم مباشر (بدر)",
+    "nameEn": "Saudi Quran HD (Badr)",
+    "category": "islamic_quran",
+    "subtitleAr": "بث الحرم المكي مباشر من عرب سات",
+    "streamUrl": "https://stream.al-eman.tv/live/quran.m3u8",
+    "glyph": "🕋",
+    "badge": "1080p",
+    "satellite": "badr_26e",
+    "frequency": "12149",
+    "polarization": "H",
+    "symbolRate": "27500",
+    "sourceType": "HLS_STREAM"
+  },
+  {
+    "id": "ch:badr_rotana_khalijiah",
+    "nameAr": "روتانا خليجية (بدر)",
+    "nameEn": "Rotana Khalijiah HD",
+    "category": "drama_series",
+    "subtitleAr": "برامج ومسلسلات عرب سات",
+    "streamUrl": "https://shd-gcp-live.edgenextcdn.net/live/rotana-khalijiah/index.m3u8",
+    "glyph": "🎭",
+    "badge": "HD",
+    "satellite": "badr_26e",
+    "frequency": "11843",
+    "polarization": "H",
+    "symbolRate": "27500",
+    "sourceType": "HLS_STREAM"
+  },
+  {
+    "id": "ch:badr_ksa_sports",
+    "nameAr": "الرياضية السعودية 1 (KSA Sports)",
+    "nameEn": "KSA Sports 1 HD",
+    "category": "sports_cooking",
+    "subtitleAr": "الدوري السعودي وبطولات الخليج",
+    "streamUrl": "https://live.ksasports.sa/hls/live.m3u8",
+    "glyph": "⚽",
+    "badge": "1080p",
+    "satellite": "badr_26e",
+    "frequency": "12149",
+    "polarization": "H",
+    "symbolRate": "27500",
+    "sourceType": "HLS_STREAM"
+  },
+  {
+    "id": "ch:eshail_aljazeera",
+    "nameAr": "قناة الجزيرة الإخبارية (سهيل سات)",
+    "nameEn": "Al Jazeera HD (Es'hail)",
+    "category": "news_doc",
+    "subtitleAr": "بث سهيل سات 25.5 شرق مباشر",
+    "streamUrl": "https://live-hls-web-aja.aljazeera.net/AJA/index.m3u8",
+    "glyph": "📰",
+    "badge": "1080p",
+    "satellite": "eshail_25e",
+    "frequency": "11045",
+    "polarization": "H",
+    "symbolRate": "27500",
+    "sourceType": "HLS_STREAM"
+  },
+  {
+    "id": "ch:eshail_aljazeera_doc",
+    "nameAr": "الجزيرة الوثائقية (سهيل سات)",
+    "nameEn": "Al Jazeera Doc HD",
+    "category": "news_doc",
+    "subtitleAr": "أفلام وثائقية واستكشافية",
+    "streamUrl": "https://live-hls-web-ajd.aljazeera.net/AJD/index.m3u8",
+    "glyph": "🌍",
+    "badge": "1080p",
+    "satellite": "eshail_25e",
+    "frequency": "11045",
+    "polarization": "H",
+    "symbolRate": "27500",
+    "sourceType": "HLS_STREAM"
+  },
+  {
+    "id": "ch:eshail_qatar_tv",
+    "nameAr": "تلفزيون قطر الرسمي HD",
+    "nameEn": "Qatar TV HD",
+    "category": "egypt_general",
+    "subtitleAr": "القناة العامة لسهيل سات",
+    "streamUrl": "https://qtv-live.qatar.net.qa/qtv/live.m3u8",
+    "glyph": "🇶🇦",
+    "badge": "1080p",
+    "satellite": "eshail_25e",
+    "frequency": "10770",
+    "polarization": "V",
+    "symbolRate": "27500",
+    "sourceType": "HLS_STREAM"
+  },
+  {
+    "id": "ch:yahsat_abudhabi",
+    "nameAr": "قناة أبوظبي الأولى HD (ياه سات)",
+    "nameEn": "Abu Dhabi TV HD (Yahsat)",
+    "category": "egypt_general",
+    "subtitleAr": "بث قمر ياه سات 52.5 شرق",
+    "streamUrl": "https://admdn4.cdn.mangomolo.com/adtv/smil:adtv.smil/playlist.m3u8",
+    "glyph": "🇦🇪",
+    "badge": "1080p",
+    "satellite": "yahsat_52e",
+    "frequency": "12054",
+    "polarization": "H",
+    "symbolRate": "27500",
+    "sourceType": "HLS_STREAM"
+  },
+  {
+    "id": "ch:yahsat_yas_sports",
+    "nameAr": "ياس الرياضية HD (سباقات وهجن)",
+    "nameEn": "YAS Sports HD (Yahsat)",
+    "category": "sports_cooking",
+    "subtitleAr": "رياضات الأصالة وسباقات الخيل",
+    "streamUrl": "https://admdn4.cdn.mangomolo.com/yas/smil:yas.smil/playlist.m3u8",
+    "glyph": "🐎",
+    "badge": "1080p",
+    "satellite": "yahsat_52e",
+    "frequency": "12054",
+    "polarization": "H",
+    "symbolRate": "27500",
+    "sourceType": "HLS_STREAM"
+  },
+  {
+    "id": "ch:yahsat_majid",
+    "nameAr": "قناة ماجد للأطفال (ياه سات)",
+    "nameEn": "Majid Kids TV",
+    "category": "kids_education",
+    "subtitleAr": "مغامرات ماجد وكرتون الصغار",
+    "streamUrl": "https://admdn4.cdn.mangomolo.com/majid/smil:majid.smil/playlist.m3u8",
+    "glyph": "🪁",
+    "badge": "1080p",
+    "satellite": "yahsat_52e",
+    "frequency": "12054",
+    "polarization": "H",
+    "symbolRate": "27500",
+    "sourceType": "HLS_STREAM"
   }
 ]

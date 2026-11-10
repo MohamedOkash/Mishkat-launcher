@@ -17,8 +17,8 @@ android {
         applicationId = "com.mishkat.launcher"
         minSdk = 24
         targetSdk = 35
-        versionCode = 13
-        versionName = "1.6.0-s13"
+        versionCode = 15
+        versionName = "1.8.0"
     }
 
     buildTypes {
@@ -38,6 +38,13 @@ android {
     buildFeatures {
         compose = true
         buildConfig = true
+    }
+
+    packaging {
+        resources {
+            excludes += "/META-INF/{AL2.0,LGPL2.1}"
+            excludes += "/META-INF/DEPENDENCIES"
+        }
     }
 
     testOptions {
@@ -69,6 +76,9 @@ dependencies {
     implementation(libs.coil3.compose)
     implementation(libs.batoulapps.adhan)
     implementation(libs.androidx.work.runtime.ktx)
+
+    implementation(libs.commons.net)
+    implementation(libs.jcifs.ng)
 
     implementation(libs.kotlinx.coroutines.android)
     implementation(libs.kotlinx.serialization.json)

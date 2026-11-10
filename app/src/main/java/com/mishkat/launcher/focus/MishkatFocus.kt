@@ -99,9 +99,17 @@ private class MishkatFocusNode(var id: String?, var radius: Dp?) :
         val s = 1f + p * (tokens.focusScale - 1f)
         val st = stroke ?: Stroke(width = with(currentValueOf(LocalDensity)) { BORDER_DP.toPx() }).also { stroke = it }
         val r = (radius ?: tokens.cardRadius).toPx()
+        val glowStroke = Stroke(width = with(currentValueOf(LocalDensity)) { GLOW_DP.toPx() })
         val content = this
         scale(s, pivot = center) {
             content.drawContent()
+            // Outer subtle focus halo (Apple TV style specular depth)
+            drawRoundRect(
+                color = tokens.primary.copy(alpha = (p * 0.38f).coerceIn(0f, 1f)),
+                cornerRadius = CornerRadius(r + 2f, r + 2f),
+                style = glowStroke,
+            )
+            // Crisp inner bright focused border
             drawRoundRect(
                 color = tokens.primary.copy(alpha = p),
                 cornerRadius = CornerRadius(r, r),
@@ -111,6 +119,7 @@ private class MishkatFocusNode(var id: String?, var radius: Dp?) :
     }
 
     private companion object {
-        val BORDER_DP: Dp = 3.dp
+        val BORDER_DP: Dp = 2.5.dp
+        val GLOW_DP: Dp = 5.5.dp
     }
 }

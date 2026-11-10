@@ -21,6 +21,8 @@ This file tracks every direct dependency and data asset license per **Rule R2** 
 | `io.coil-kt.coil3:coil-compose` | 3.6.3 | Apache-2.0 | https://github.com/coil-kt/coil |
 | `com.batoulapps.adhan:adhan` | 1.2.1 | MIT | https://github.com/batoulapps/adhan-java |
 | `androidx.work:work-runtime-ktx` | 2.12.0 | Apache-2.0 | https://developer.android.com/jetpack/androidx/releases/work |
+| `commons-net:commons-net` | 3.11.1 | Apache-2.0 | https://commons.apache.org/proper/commons-net/ |
+| `eu.agno3.jcifs:jcifs-ng` | 2.1.10 | LGPL-2.1 | https://github.com/Agno3/jcifs-ng |
 | `junit:junit` (test only) | 4.13.2 | EPL-1.0 | https://github.com/junit-team/junit4 |
 
 ## Data Sources & Attributions (S1–S5)

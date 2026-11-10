@@ -23,6 +23,10 @@ class MishkatAccessibilityService : AccessibilityService() {
         private const val TAG = "MishkatAccessibility"
         private const val HOME_COOLDOWN_MS = 200L
 
+        @Volatile
+        var instance: MishkatAccessibilityService? = null
+            private set
+
         private val STOCK_LAUNCHER_PACKAGES = setOf(
             "com.google.android.tvlauncher",
             "com.google.android.apps.tv.launcherx",
@@ -35,11 +39,22 @@ class MishkatAccessibilityService : AccessibilityService() {
 
     override fun onServiceConnected() {
         super.onServiceConnected()
+        instance = this
         val info = serviceInfo ?: AccessibilityServiceInfo()
         info.flags = info.flags or AccessibilityServiceInfo.FLAG_REQUEST_FILTER_KEY_EVENTS
         info.eventTypes = AccessibilityEvent.TYPE_WINDOW_STATE_CHANGED
         serviceInfo = info
         Log.i(TAG, "Mishkat Accessibility Service connected, key filtering enabled")
+    }
+
+    override fun onDestroy() {
+        if (instance == this) instance = null
+        super.onDestroy()
+    }
+
+    fun deepForceStopPackage(pkg: String) {
+        // Can perform programmatic clean-up or dispatch global action
+        Log.d(TAG, "Requesting deep background suppression for: $pkg")
     }
 
     override fun onKeyEvent(event: KeyEvent): Boolean {

@@ -94,10 +94,18 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+    override fun onResume() {
+        super.onResume()
+        val graph = (application as? MishkatApp)?.graph
+        graph?.backgroundProcessKiller?.onHomeResumed()
+    }
+
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         setIntent(intent)
         RemoteUnificationLayer.emitAction(com.mishkat.launcher.input.MishkatAction.Home)
+        val graph = (application as? MishkatApp)?.graph
+        graph?.backgroundProcessKiller?.onHomeResumed()
     }
 
     override fun dispatchKeyEvent(event: KeyEvent): Boolean {

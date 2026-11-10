@@ -57,12 +57,14 @@ import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.Shadow
 import androidx.compose.ui.input.key.onPreviewKeyEvent
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
 import androidx.compose.ui.semantics.semantics
+import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
@@ -134,6 +136,7 @@ private enum class ActiveOverlay {
     LOCK_SCREEN,
     NOTIFICATIONS,
     DEVELOPER_PROFILE,
+    STORAGE_EXPLORER,
 }
 
 @Immutable
@@ -292,7 +295,9 @@ fun HomeScreen(
                 }
                 CompanionCommand.OpenTvReceiver -> activeOverlay = ActiveOverlay.TV_INPUTS
                 CompanionCommand.OpenSportsCenter -> activeOverlay = ActiveOverlay.SPORTS
+                is CompanionCommand.OpenStorageExplorer -> activeOverlay = ActiveOverlay.STORAGE_EXPLORER
                 is CompanionCommand.Key -> Unit
+                else -> Unit
             }
         }
     }
@@ -435,6 +440,12 @@ fun HomeScreen(
                             onOpenCategory = { cat ->
                                 graph.liveTvRepository.selectCategory(cat)
                             },
+                            onOpenSatellite = { sat ->
+                                graph.liveTvRepository.selectSatellite(sat)
+                            },
+                            onSyncCloud = {
+                                graph.liveTvRepository.syncFromCloudNow()
+                            },
                         )
                         "apps" -> AppsShelf(
                             tokens = tokens,
@@ -508,6 +519,7 @@ fun HomeScreen(
                             firstFocusRequester = tvInputsFocus,
                             onSelectSource = { graph.tvInputsRepository.openSource(it) },
                             onOpenTvHub = { activeOverlay = ActiveOverlay.TV_INPUTS },
+                            onOpenStorageExplorer = { activeOverlay = ActiveOverlay.STORAGE_EXPLORER },
                         )
                         "sports" -> SportsQuickShelf(
                             tokens = tokens,
@@ -594,7 +606,11 @@ fun HomeScreen(
                 tokens = tokens,
                 cities = cities,
                 selectedCityId = prayerState.city.id,
+                selectedMuezzin = prayerState.selectedMuezzin,
+                isAdhanTesting = prayerState.isAdhanTesting,
                 onSelectCity = { graph.prayerRepository.selectCity(it) },
+                onSelectMuezzin = { graph.prayerRepository.setMuezzin(it) },
+                onTestAdhan = { graph.prayerRepository.testAdhanToggle() },
                 onPreviewAdhan = {
                     activeOverlay = ActiveOverlay.NONE
                     graph.prayerRepository.triggerAdhanPreview()
@@ -629,6 +645,7 @@ fun HomeScreen(
             )
             ActiveOverlay.TOOLS -> DeviceToolsOverlay(
                 tokens = tokens,
+                killer = graph.backgroundProcessKiller,
                 onOpenAppManager = { activeOverlay = ActiveOverlay.APP_MANAGER },
                 onDismiss = { activeOverlay = ActiveOverlay.NONE },
             )
@@ -680,6 +697,10 @@ fun HomeScreen(
             ActiveOverlay.DEVELOPER_PROFILE -> DeveloperProfileOverlay(
                 tokens = tokens,
                 appSettings = appSettings,
+                onDismiss = { activeOverlay = ActiveOverlay.NONE },
+            )
+            ActiveOverlay.STORAGE_EXPLORER -> com.mishkat.launcher.storage.StorageExplorerOverlay(
+                repository = graph.storageRepository,
                 onDismiss = { activeOverlay = ActiveOverlay.NONE },
             )
             ActiveOverlay.LOCK_SCREEN -> LockScreenOverlay(
@@ -828,13 +849,50 @@ private fun TopBar(
                     }
                 }
 
-                // Clock
-                Text(
-                    text = timeText,
-                    color = tokens.onSurface,
-                    fontSize = 15.sp,
-                    fontWeight = FontWeight.Bold,
-                )
+                // Launcher Logo & Clock in distinct high-contrast capsules
+                Box(
+                    modifier = Modifier
+                        .clip(pillShape)
+                        .background(Color(0xEE090E1A))
+                        .border(1.dp, tokens.primary.copy(alpha = 0.55f), pillShape)
+                        .padding(horizontal = 10.dp, vertical = 4.dp),
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(5.dp),
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .size(6.dp)
+                                .clip(CircleShape)
+                                .background(tokens.primary),
+                        )
+                        Text(
+                            text = "مشكاة ✦",
+                            color = tokens.primary,
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Bold,
+                        )
+                    }
+                }
+
+                Box(
+                    modifier = Modifier
+                        .clip(pillShape)
+                        .background(Color(0xEE090E1A))
+                        .border(1.dp, tokens.glassRim.copy(alpha = 0.40f), pillShape)
+                        .padding(horizontal = 10.dp, vertical = 4.dp),
+                ) {
+                    Text(
+                        text = timeText,
+                        color = tokens.onSurface,
+                        fontSize = 13.sp,
+                        fontWeight = FontWeight.Bold,
+                        style = TextStyle(
+                            shadow = Shadow(color = Color.Black, blurRadius = 10f),
+                        ),
+                    )
+                }
 
                 // Weather
                 if (weatherSnapshot != null) {
@@ -1037,12 +1095,11 @@ private fun SectionsShelf(
         if (isArabic) p.titleAr else p.titleEn
     }
 
-    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-        Text(
-            text = stringResource(R.string.shelf_sections),
-            color = tokens.onSurface,
-            fontSize = if (compact) 15.sp else 17.sp,
-            fontWeight = FontWeight.SemiBold,
+    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        com.mishkat.launcher.theme.SectionTitlePill(
+            title = stringResource(R.string.shelf_sections),
+            tokens = tokens,
+            icon = "✦",
         )
 
         Row(
@@ -1051,6 +1108,7 @@ private fun SectionsShelf(
                 .horizontalScroll(rememberScrollState()),
             horizontalArrangement = Arrangement.spacedBy(10.dp),
         ) {
+            Spacer(modifier = Modifier.width(24.dp))
             SECTION_CARDS.forEachIndexed { index, item ->
                 val shape = RoundedCornerShape(tokens.cardRadius)
                 val baseModifier = if (firstCardFocus != null && index == 0) {
@@ -1166,13 +1224,13 @@ private fun AppsShelf(
 
     Column(
         modifier = modifier.fillMaxWidth(),
-        verticalArrangement = Arrangement.spacedBy(6.dp),
+        verticalArrangement = Arrangement.spacedBy(8.dp),
     ) {
-        Text(
-            text = stringResource(R.string.shelf_apps),
-            color = tokens.onSurface,
-            fontSize = if (compact) 15.sp else 17.sp,
-            fontWeight = FontWeight.SemiBold,
+        com.mishkat.launcher.theme.SectionTitlePill(
+            title = stringResource(R.string.shelf_apps),
+            tokens = tokens,
+            icon = "📱",
+            badgeText = if (totalCount > 0) "$totalCount" else null,
         )
 
         // Inline Quick App Action Bar when manageMode is active

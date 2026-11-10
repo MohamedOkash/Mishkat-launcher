@@ -1,12 +1,12 @@
 /* Apple TV Liquid Glass Style for Smart TVs (Samsung Tizen, LG webOS, Android) */
 
 :root {
-    --bg-primary: #0F172A;
+    --bg-primary: #070B14;
     --accent-gold: #F59E0B;
     --accent-gold-glow: rgba(245, 158, 11, 0.45);
-    --glass-bg: rgba(255, 255, 255, 0.08);
-    --glass-bg-hover: rgba(255, 255, 255, 0.14);
-    --glass-border: rgba(255, 255, 255, 0.16);
+    --glass-bg: rgba(14, 21, 38, 0.88);
+    --glass-bg-hover: rgba(25, 36, 62, 0.94);
+    --glass-border: rgba(255, 255, 255, 0.20);
     --glass-border-focus: #F59E0B;
     --text-primary: #F8FAFC;
     --text-muted: #94A3B8;

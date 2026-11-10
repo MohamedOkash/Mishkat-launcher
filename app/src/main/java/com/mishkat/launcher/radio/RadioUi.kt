@@ -206,17 +206,16 @@ fun RecitersQuickShelf(
     val preview = remember(stations) { stations.take(16) }
     val firstStationId = preview.firstOrNull()?.id
 
-    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-        Text(
-            text = stringResource(R.string.shelf_reciters),
-            color = tokens.onSurface,
-            fontSize = if (compact) 15.sp else 17.sp,
-            fontWeight = FontWeight.SemiBold,
+    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        com.mishkat.launcher.theme.SectionTitlePill(
+            title = stringResource(R.string.shelf_reciters),
+            tokens = tokens,
+            icon = "📻",
         )
 
         LazyRow(
+            contentPadding = PaddingValues(horizontal = 24.dp, vertical = 2.dp),
             horizontalArrangement = Arrangement.spacedBy(10.dp),
-            contentPadding = PaddingValues(vertical = 2.dp, horizontal = 2.dp),
         ) {
             items(
                 items = preview,

@@ -14,8 +14,11 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -52,6 +55,7 @@ import java.util.Locale
 @Composable
 fun DeviceToolsOverlay(
     tokens: ThemeTokens,
+    killer: BackgroundProcessKiller? = null,
     onOpenAppManager: () -> Unit,
     onDismiss: () -> Unit,
 ) {
@@ -61,6 +65,7 @@ fun DeviceToolsOverlay(
     val scope = rememberCoroutineScope()
     val cleanButtonFocus = remember { FocusRequester() }
 
+    val killerState by killer?.state?.collectAsState() ?: remember { mutableStateOf(BackgroundKillerState()) }
     var stats by remember { mutableStateOf(SystemStats()) }
     var lastCleanResult by remember { mutableStateOf<CleanResult?>(null) }
 
@@ -164,6 +169,89 @@ fun DeviceToolsOverlay(
 
             // Honest Cache Cleaner Action Card (R24)
             val cardShape = RoundedCornerShape(tokens.cardRadius)
+
+            // Level 1: Background Process Killer & RAM Booster Action Card
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .mishkatFocus(id = "tools:sweep_background_apps")
+                    .clip(cardShape)
+                    .background(tokens.card)
+                    .border(BorderStroke(1.dp, tokens.primary.copy(alpha = 0.5f)), cardShape)
+                    .clickable {
+                        scope.launch {
+                            killer?.sweepNow()
+                            stats = withContext(Dispatchers.IO) { SystemStatsReader.readSnapshot(context) }
+                        }
+                    }
+                    .padding(horizontal = 24.dp, vertical = 18.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Column(
+                    modifier = Modifier.weight(1f),
+                    verticalArrangement = Arrangement.spacedBy(4.dp)
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    ) {
+                        Text(
+                            text = "⚡ كنس برامج الخلفية وتسريع الرام (Process Killer)",
+                            color = tokens.primary,
+                            fontSize = 17.sp,
+                            fontWeight = FontWeight.Bold,
+                        )
+                        if (killerState.isRunningSweep) {
+                            Text(
+                                text = "⏳ جارٍ التحرير...",
+                                color = tokens.onSurfaceMuted,
+                                fontSize = 12.sp,
+                            )
+                        }
+                    }
+                    val lastRes = killerState.lastResult
+                    val killerStatus = if (lastRes != null) {
+                        "تم إيقاف ${lastRes.killedCount} تطبيق في الخلفية • تحرير ${String.format(Locale.US, "%.1f", lastRes.freedMb)} MB رام"
+                    } else {
+                        "يقوم بإيقاف التطبيقات والواجهات الخارجية المعلقة في الخلفية لتحرير المعالج والرام"
+                    }
+                    Text(
+                        text = killerStatus,
+                        color = tokens.onSurfaceMuted,
+                        fontSize = 13.sp,
+                    )
+                }
+
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                ) {
+                    Box(
+                        modifier = Modifier
+                            .mishkatFocus(id = "tools:toggle_auto_guard", radius = 10.dp)
+                            .clip(RoundedCornerShape(10.dp))
+                            .background(if (killerState.isAutoGuardEnabled) tokens.primary.copy(alpha = 0.25f) else tokens.surface)
+                            .border(BorderStroke(1.dp, if (killerState.isAutoGuardEnabled) tokens.primary else tokens.stroke), RoundedCornerShape(10.dp))
+                            .clickable { killer?.toggleAutoGuard(!killerState.isAutoGuardEnabled) }
+                            .padding(horizontal = 12.dp, vertical = 6.dp),
+                    ) {
+                        Text(
+                            text = if (killerState.isAutoGuardEnabled) "🛡 الحارس التلقائي: مفعّل" else "🛡 الحارس: معطّل",
+                            color = if (killerState.isAutoGuardEnabled) tokens.primary else tokens.onSurfaceMuted,
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Bold,
+                        )
+                    }
+
+                    Text(
+                        text = "كنس الرام ❯",
+                        color = tokens.primary,
+                        fontSize = 15.sp,
+                        fontWeight = FontWeight.Bold,
+                    )
+                }
+            }
             Row(
                 modifier = Modifier
                     .fillMaxWidth()

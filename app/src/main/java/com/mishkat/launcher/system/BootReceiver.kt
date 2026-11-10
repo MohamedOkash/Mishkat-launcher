@@ -30,6 +30,11 @@ class BootReceiver : BroadcastReceiver() {
                 }.getOrDefault(true)
 
                 Logger.system { "BootReceiver triggered (action=$action, launchOnBoot=$launchOnBoot)" }
+                
+                // Trigger auto background sweep on boot
+                val app = context.applicationContext as? com.mishkat.launcher.MishkatApp
+                app?.graph?.backgroundProcessKiller?.onBootCompleted()
+
                 if (launchOnBoot) {
                     runCatching {
                         val homeIntent = Intent(context, MainActivity::class.java).apply {

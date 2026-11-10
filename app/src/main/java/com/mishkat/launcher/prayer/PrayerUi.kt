@@ -334,7 +334,11 @@ fun CityPickerOverlay(
     tokens: ThemeTokens,
     cities: List<CitySpec>,
     selectedCityId: String,
+    selectedMuezzin: MuezzinVoice = MuezzinVoice.MAKKAH,
+    isAdhanTesting: Boolean = false,
     onSelectCity: (CitySpec) -> Unit,
+    onSelectMuezzin: (MuezzinVoice) -> Unit = {},
+    onTestAdhan: () -> Unit = {},
     onPreviewAdhan: () -> Unit,
     onDismiss: () -> Unit,
 ) {
@@ -408,6 +412,74 @@ fun CityPickerOverlay(
                             color = tokens.onSurface,
                             fontSize = 14.sp,
                         )
+                    }
+                }
+            }
+
+            // Level 2: Muezzin Selector Row
+            Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Text(
+                        text = if (isArabic) "🎙 اختيار صوت المؤذن (أذان بشري نقي 100%)" else "🎙 Select Muezzin Voice (Pure Human Audio)",
+                        color = tokens.onSurface,
+                        fontSize = 15.sp,
+                        fontWeight = FontWeight.Bold,
+                    )
+
+                    Box(
+                        modifier = Modifier
+                            .mishkatFocus(id = "prayer:test_adhan_toggle", radius = 12.dp)
+                            .clip(RoundedCornerShape(12.dp))
+                            .background(if (isAdhanTesting) tokens.primary else tokens.cardFocused)
+                            .border(BorderStroke(1.dp, tokens.primary), RoundedCornerShape(12.dp))
+                            .clickable { onTestAdhan() }
+                            .padding(horizontal = 14.dp, vertical = 6.dp),
+                    ) {
+                        Text(
+                            text = if (isAdhanTesting) (if (isArabic) "⏹ إيقاف الأذان" else "⏹ Stop Adhan")
+                                   else (if (isArabic) "▶ سماع وتجربة الأذان" else "▶ Test Adhan Audio"),
+                            color = if (isAdhanTesting) tokens.surface else tokens.primary,
+                            fontSize = 13.sp,
+                            fontWeight = FontWeight.Bold,
+                        )
+                    }
+                }
+
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.spacedBy(10.dp),
+                ) {
+                    MuezzinVoice.entries.forEach { m ->
+                        val isSelected = m == selectedMuezzin
+                        val shape = RoundedCornerShape(12.dp)
+                        Box(
+                            modifier = Modifier
+                                .weight(1f)
+                                .mishkatFocus(id = "muezzin:${m.id}", radius = 12.dp)
+                                .clip(shape)
+                                .background(if (isSelected) tokens.cardFocused else tokens.card)
+                                .border(
+                                    BorderStroke(1.dp, if (isSelected) tokens.primary else tokens.stroke),
+                                    shape,
+                                )
+                                .clickable { onSelectMuezzin(m) }
+                                .padding(horizontal = 10.dp, vertical = 10.dp),
+                            contentAlignment = Alignment.Center,
+                        ) {
+                            Text(
+                                text = m.displayName(isArabic),
+                                color = if (isSelected) tokens.primary else tokens.onSurface,
+                                fontSize = 12.sp,
+                                fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
+                                textAlign = TextAlign.Center,
+                                maxLines = 1,
+                                overflow = TextOverflow.Ellipsis,
+                            )
+                        }
                     }
                 }
             }

@@ -2,7 +2,7 @@
 <widget xmlns="http://www.w3.org/ns/widgets" 
         xmlns:tizen="http://tizen.org/ns/widgets" 
         id="http://mishkat.tv/launcher" 
-        version="1.6.0" 
+        version="1.8.0" 
         viewmodes="fullscreen">
     <tizen:application id="org.mishkat.launcher" 
                        exec="index.html" 

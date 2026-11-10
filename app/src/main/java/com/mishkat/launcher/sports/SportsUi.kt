@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -31,6 +32,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
@@ -73,21 +75,23 @@ fun SportsQuickShelf(
         prioritized.take(12)
     }
     val firstMatchId = preview.firstOrNull()?.id
+    val hasLive = remember(preview) { preview.any { it.isLive } }
 
-    Column(verticalArrangement = Arrangement.spacedBy(6.dp)) {
-        Text(
-            text = stringResource(R.string.sports_shelf_title),
-            color = tokens.onSurface,
-            fontSize = if (compact) 15.sp else 17.sp,
-            fontWeight = FontWeight.SemiBold,
+    Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        com.mishkat.launcher.theme.SectionTitlePill(
+            title = stringResource(R.string.sports_shelf_title),
+            tokens = tokens,
+            icon = "⚽",
+            badgeText = if (hasLive) "LIVE" else null,
         )
 
         Row(
             modifier = Modifier
                 .fillMaxWidth()
                 .horizontalScroll(rememberScrollState()),
-            horizontalArrangement = Arrangement.spacedBy(10.dp),
+            horizontalArrangement = Arrangement.spacedBy(12.dp),
         ) {
+            Spacer(modifier = Modifier.width(24.dp))
             preview.forEach { match ->
                 val shape = RoundedCornerShape(tokens.cardRadius)
                 val isFirst = match.id == firstMatchId
@@ -97,8 +101,8 @@ fun SportsQuickShelf(
 
                 Column(
                     modifier = (if (isFirst && firstFocusRequester != null) Modifier.focusRequester(firstFocusRequester) else Modifier)
-                        .width(if (compact) 215.dp else 245.dp)
-                        .height(if (compact) 68.dp else 80.dp)
+                        .width(if (compact) 235.dp else 265.dp)
+                        .height(if (compact) 82.dp else 94.dp)
                         .mishkatFocus(id = "match_quick:${match.id}")
                         .clip(shape)
                         .liquidGlass(
@@ -109,9 +113,10 @@ fun SportsQuickShelf(
                             borderColor = if (isFavMatch || match.isLive) tokens.primary else tokens.glassRim,
                         )
                         .clickable { onOpenSportsCenter() }
-                        .padding(horizontal = 12.dp, vertical = 7.dp),
+                        .padding(horizontal = 12.dp, vertical = 8.dp),
                     verticalArrangement = Arrangement.SpaceBetween,
                 ) {
+                    // Top: League Name + Status / Winner Badge
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween,
@@ -124,6 +129,7 @@ fun SportsQuickShelf(
                             fontWeight = FontWeight.Bold,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis,
+                            modifier = Modifier.weight(1f, fill = false),
                         )
                         Text(
                             text = when {
@@ -131,32 +137,57 @@ fun SportsQuickShelf(
                                 winner != null -> "🏆 $winner"
                                 else -> match.statusText
                             },
-                            color = if (match.isLive || winner != null) tokens.primary else tokens.onSurfaceMuted,
+                            color = if (match.isLive) Color(0xFFEF4444) else if (winner != null) tokens.primary else tokens.onSurfaceMuted,
                             fontSize = 10.sp,
-                            fontWeight = FontWeight.SemiBold,
+                            fontWeight = FontWeight.Bold,
                             maxLines = 1,
                         )
                     }
 
+                    // Middle: Home Team Row (Name + Score)
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween,
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
                         Text(
-                            text = "${match.homeName(isArabic)}  vs  ${match.awayName(isArabic)}",
+                            text = match.homeName(isArabic),
                             color = tokens.onSurface,
                             fontSize = 12.sp,
-                            fontWeight = FontWeight.Bold,
+                            fontWeight = FontWeight.SemiBold,
                             maxLines = 1,
                             overflow = TextOverflow.Ellipsis,
                             modifier = Modifier.weight(1f),
                         )
-
                         if (match.isLive || match.isFinished) {
                             Text(
-                                text = "${match.homeScore} - ${match.awayScore}",
-                                color = tokens.primary,
+                                text = match.homeScore.toString(),
+                                color = if (match.isLive) tokens.primary else tokens.onSurface,
+                                fontSize = 13.sp,
+                                fontWeight = FontWeight.Bold,
+                            )
+                        }
+                    }
+
+                    // Bottom: Away Team Row (Name + Score)
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Text(
+                            text = match.awayName(isArabic),
+                            color = tokens.onSurface,
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                            modifier = Modifier.weight(1f),
+                        )
+                        if (match.isLive || match.isFinished) {
+                            Text(
+                                text = match.awayScore.toString(),
+                                color = if (match.isLive) tokens.primary else tokens.onSurface,
                                 fontSize = 13.sp,
                                 fontWeight = FontWeight.Bold,
                             )
@@ -169,7 +200,7 @@ fun SportsQuickShelf(
             Column(
                 modifier = Modifier
                     .width(if (compact) 180.dp else 204.dp)
-                    .height(if (compact) 68.dp else 80.dp)
+                    .height(if (compact) 82.dp else 94.dp)
                     .mishkatFocus(id = "sports:fav_team_quick")
                     .clip(favShape)
                     .liquidGlass(tokens, tokens.cardFocused, tokens.cardRadius, glass, tokens.primary)
