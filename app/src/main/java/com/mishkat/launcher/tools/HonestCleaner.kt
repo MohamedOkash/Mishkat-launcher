@@ -1,6 +1,7 @@
 package com.mishkat.launcher.tools
 
 import android.content.Context
+import android.os.Environment
 import androidx.compose.runtime.Immutable
 import androidx.work.CoroutineWorker
 import androidx.work.ExistingPeriodicWorkPolicy
@@ -39,6 +40,48 @@ object HonestCleaner {
                 context.cacheDir,
                 context.externalCacheDir,
             ),
+        )
+    }
+
+    suspend fun cleanOldApks(context: Context): CleanResult = withContext(Dispatchers.IO) {
+        val downloadDirs = listOfNotNull(
+            Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS),
+            File(Environment.getExternalStorageDirectory(), "Download"),
+            File("/sdcard/Download"),
+            File("/storage/emulated/0/Download"),
+        ).distinct().filter { it.exists() && it.isDirectory }
+
+        var totalBefore = 0L
+        var deletedCount = 0
+        var totalFreed = 0L
+
+        for (dir in downloadDirs) {
+            dir.listFiles()?.forEach { file ->
+                if (file.isFile && file.name.endsWith(".apk", ignoreCase = true)) {
+                    val size = file.length()
+                    totalBefore += size
+                    if (runCatching { file.delete() }.getOrDefault(false)) {
+                        deletedCount++
+                        totalFreed += size
+                    }
+                } else if (file.isDirectory) {
+                    file.listFiles()?.forEach { subFile ->
+                        if (subFile.isFile && subFile.name.endsWith(".apk", ignoreCase = true)) {
+                            val size = subFile.length()
+                            totalBefore += size
+                            if (runCatching { subFile.delete() }.getOrDefault(false)) {
+                                deletedCount++
+                                totalFreed += size
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        CleanResult(
+            beforeBytes = totalBefore,
+            afterBytes = (totalBefore - totalFreed).coerceAtLeast(0L),
+            deletedFilesCount = deletedCount,
         )
     }
 

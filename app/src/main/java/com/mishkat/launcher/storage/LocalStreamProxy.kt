@@ -66,11 +66,15 @@ class LocalStreamProxy(
     }
 
     fun getStreamUrl(type: StorageSourceType, rawPath: String, settings: SmbFtpSettings): String {
+        if (type == StorageSourceType.UPNP_DLNA) {
+            return rawPath
+        }
         val encPath = java.net.URLEncoder.encode(rawPath, "UTF-8")
         val typeStr = when (type) {
             StorageSourceType.ROUTER_SMB -> "smb"
             StorageSourceType.ROUTER_FTP -> "ftp"
             StorageSourceType.LOCAL_USB -> "local"
+            StorageSourceType.UPNP_DLNA -> "upnp"
         }
         return "http://127.0.0.1:$port/stream?src=$typeStr&path=$encPath"
     }

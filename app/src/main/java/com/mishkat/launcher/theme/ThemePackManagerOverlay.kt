@@ -23,6 +23,8 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.withFrameNanos
 import androidx.compose.ui.Alignment
@@ -50,6 +52,7 @@ fun ThemePackManagerOverlay(
     isArabic: Boolean,
     glassIntensity: Float,
     isLightMode: Boolean = false,
+    autoWallpaperManager: com.mishkat.launcher.wallpaper.AutoWallpaperManager? = null,
     onSelectTheme: (String) -> Unit,
     onSelectWallpaper: (String) -> Unit,
     onCycleGlassIntensity: () -> Unit,
@@ -136,6 +139,30 @@ fun ThemePackManagerOverlay(
                                 fontSize = 13.sp,
                                 fontWeight = FontWeight.SemiBold,
                             )
+                        }
+
+                        if (autoWallpaperManager != null) {
+                            val autoState by autoWallpaperManager.state.collectAsState()
+                            val intervalLabel = if (isArabic) autoState.interval.labelAr else autoState.interval.labelEn
+                            Box(
+                                modifier = Modifier
+                                    .mishkatFocus(id = "theme_mgr:auto_rotate", radius = 12.dp)
+                                    .clip(pillShape)
+                                    .liquidGlass(tokens, tokens.card, 12.dp, glassIntensity)
+                                    .clickable {
+                                        val entries = com.mishkat.launcher.wallpaper.AutoWallpaperInterval.entries
+                                        val nextIdx = (autoState.interval.ordinal + 1) % entries.size
+                                        autoWallpaperManager.setInterval(entries[nextIdx])
+                                    }
+                                    .padding(horizontal = 14.dp, vertical = 7.dp),
+                            ) {
+                                Text(
+                                    text = if (isArabic) "🔄 تدوير الخلفية: $intervalLabel" else "🔄 Auto-Rotate: $intervalLabel",
+                                    color = tokens.primary,
+                                    fontSize = 13.sp,
+                                    fontWeight = FontWeight.SemiBold,
+                                )
+                            }
                         }
 
                         Box(

@@ -47,6 +47,7 @@ class AppGraph(private val app: Application) {
     val storageRepository = com.mishkat.launcher.storage.NetworkAndUsbStorageRepository(app, prefs, appScope, localStreamProxy)
     val updateRepository = com.mishkat.launcher.update.UpdateRepository(app, appScope)
     val companionRemoteServer = CompanionRemoteServer(appScope)
+    val autoWallpaperManager = com.mishkat.launcher.wallpaper.AutoWallpaperManager(prefs, localeRepository, appScope)
 
     fun start() {
         crashGuard.install()
@@ -64,6 +65,7 @@ class AppGraph(private val app: Application) {
         sportsRepository.start()
         tvInputsRepository.start()
         storageRepository.start()
+        autoWallpaperManager.start()
         companionRemoteServer.infoProvider = {
             val liveCh = liveTvRepository.state.value.currentChannel?.nameAr ?: ""
             val st = radioController.state.value.currentStation?.nameAr ?: ""
@@ -71,7 +73,7 @@ class AppGraph(private val app: Application) {
             val channelsList = liveTvRepository.state.value.channels
             val appsJson = appsList.take(35).joinToString(",") { """{"pkg":"${it.packageName}","name":"${it.label.replace("\"", "\\\"")}"}""" }
             val channelsJson = channelsList.take(45).joinToString(",") { """{"id":"${it.id}","name":"${it.nameAr.replace("\"", "\\\"")}","sat":"${it.satellite}"}""" }
-            """{"status":"online","tvName":"Mishkat Smart TV","currentChannel":"$liveCh","currentStation":"$st","appsCount":${appsList.size},"channelsCount":${channelsList.size},"version":"1.8.0","apps":[$appsJson],"channels":[$channelsJson]}"""
+            """{"status":"online","tvName":"Mishkat Smart TV","currentChannel":"$liveCh","currentStation":"$st","appsCount":${appsList.size},"channelsCount":${channelsList.size},"version":"1.9.0","apps":[$appsJson],"channels":[$channelsJson]}"""
         }
         companionRemoteServer.boostHandler = {
             val res = backgroundProcessKiller.sweepNow()

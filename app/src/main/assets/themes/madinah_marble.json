@@ -1,0 +1,22 @@
+{
+  "id": "madinah_marble",
+  "name": "رخام المدينة",
+  "nameEn": "Madinah Marble",
+  "builtin": true,
+  "palette": {
+    "primary": "#E0B354",
+    "surface": "#12151B",
+    "onSurface": "#F8FAFC",
+    "panelAccents": { "sleep": "#1E242E", "prayer": "#252D3A", "tools": "#2A3444", "weather": "#1C222C" }
+  },
+  "wallpaper": {
+    "type": "gradient",
+    "asset": "white_marble",
+    "parallax": 0.10,
+    "gradient": ["#202633", "#12151B", "#080A0D"],
+    "pattern": { "type": "marble_veins", "alpha": 0.14, "cell": 120 }
+  },
+  "cards": { "radius": 18, "glass": 0.72, "strokeAlpha": 0.30 },
+  "icons": { "mask": "squircle_22", "pack": "mishkat_cute_v1" },
+  "motion": { "focusScale": 1.04, "enterMs": 220, "springDamping": 0.88 }
+}

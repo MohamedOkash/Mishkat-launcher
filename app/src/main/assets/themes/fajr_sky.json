@@ -1,0 +1,22 @@
+{
+  "id": "fajr_sky",
+  "name": "سماء الفجر",
+  "nameEn": "Dawn Sky",
+  "builtin": true,
+  "palette": {
+    "primary": "#38BDF8",
+    "surface": "#0C1322",
+    "onSurface": "#F0F9FF",
+    "panelAccents": { "sleep": "#162035", "prayer": "#1B2A47", "tools": "#0C4A6E", "weather": "#13233D" }
+  },
+  "wallpaper": {
+    "type": "gradient",
+    "asset": "dawn_gradient",
+    "parallax": 0.15,
+    "gradient": ["#162B4D", "#0C1322", "#050912"],
+    "pattern": { "type": "stars", "alpha": 0.20, "cell": 112 }
+  },
+  "cards": { "radius": 20, "glass": 0.76, "strokeAlpha": 0.36 },
+  "icons": { "mask": "squircle_22", "pack": "mishkat_cute_v1" },
+  "motion": { "focusScale": 1.04, "enterMs": 220, "springDamping": 0.88 }
+}

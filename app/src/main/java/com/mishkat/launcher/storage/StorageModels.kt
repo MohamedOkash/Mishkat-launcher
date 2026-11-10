@@ -4,6 +4,7 @@ import androidx.compose.runtime.Immutable
 import kotlinx.serialization.Serializable
 
 enum class StorageSourceType {
+    UPNP_DLNA,
     LOCAL_USB,
     ROUTER_SMB,
     ROUTER_FTP
@@ -56,6 +57,7 @@ data class StorageDevice(
     val rootPath: String = "/",
     val freeSpaceGb: Double = 0.0,
     val totalSpaceGb: Double = 0.0,
+    val controlUrl: String = "",
 )
 
 @Serializable
@@ -73,11 +75,13 @@ data class SmbFtpSettings(
     val ftpUser: String = "anonymous",
     val ftpPass: String = "",
     val ftpIsAnonymous: Boolean = true,
+
+    val upnpHost: String = "",
 )
 
 @Immutable
 data class StorageUiState(
-    val activeTab: StorageSourceType = StorageSourceType.LOCAL_USB,
+    val activeTab: StorageSourceType = StorageSourceType.UPNP_DLNA,
     val currentPath: String = "/",
     val items: List<StorageItem> = emptyList(),
     val breadcrumbs: List<String> = listOf("/"),

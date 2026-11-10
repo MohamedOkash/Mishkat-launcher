@@ -1,17 +1,92 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!-- Original artwork (clean-room): gold crescent + 8-point star on night surface. -->
+<!-- Mishkat Launcher Icon: An ornate Islamic Niche (المشكاة) with a glowing Lantern/Lamp (المصباح في زجاجة كأنها كوكب دري) -->
 <vector xmlns:android="http://schemas.android.com/apk/res/android"
     android:width="48dp"
     android:height="48dp"
     android:viewportWidth="48"
     android:viewportHeight="48">
+
+    <!-- Deep Night-sky Rounded Tile -->
     <path
-        android:fillColor="#FF141A2E"
+        android:fillColor="#FF080D1A"
         android:pathData="M10,0 H38 A10,10 0 0 1 48,10 V38 A10,10 0 0 1 38,48 H10 A10,10 0 0 1 0,38 V10 A10,10 0 0 1 10,0 Z" />
+
+    <!-- Soft Emerald/Gold Ambient Glow inside the Niche -->
     <path
-        android:fillColor="#FFC9A227"
-        android:pathData="M22,8 A16,16 0 1,0 40,30 A13,13 0 1,1 22,8 Z" />
+        android:fillColor="#2210B981"
+        android:pathData="M24,7 C33,7 39,13 39,24 C39,35 33,41 24,41 C15,41 9,35 9,24 C9,13 15,7 24,7 Z" />
+
+    <!-- Islamic Arch (المشكاة) Outer Trim -->
     <path
-        android:fillColor="#FFF5F1E6"
-        android:pathData="M33,11 L34.6,14.2 L38,13 L36.8,16.4 L40,18 L36.8,19.6 L38,23 L34.6,21.8 L33,25 L31.4,21.8 L28,23 L29.2,19.6 L26,18 L29.2,16.4 L28,13 L31.4,14.2 Z" />
+        android:pathData="M12,42 L12,21 C12,12 19,5 24,3 C29,5 36,12 36,21 L36,42"
+        android:strokeColor="#FFD47E"
+        android:strokeWidth="1.6"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round" />
+
+    <!-- Arch Pedestal Base -->
+    <path
+        android:pathData="M9,42 L39,42"
+        android:strokeColor="#FFD47E"
+        android:strokeWidth="2.0"
+        android:strokeLineCap="round" />
+
+    <!-- Keystone Finial at Apex -->
+    <path
+        android:pathData="M24,1.5 L25.5,3 L24,4.5 L22.5,3 Z"
+        android:fillColor="#FFF6C2" />
+
+    <!-- Lantern Hanging Chain -->
+    <path
+        android:pathData="M24,6 L24,15"
+        android:strokeColor="#FFD47E"
+        android:strokeWidth="1.0"
+        android:strokeLineCap="round" />
+
+    <!-- Lantern Cap -->
+    <path
+        android:pathData="M21,15 L27,15 L25.5,17 L22.5,17 Z"
+        android:fillColor="#FFD47E" />
+
+    <!-- Glass Lantern (الزجاجة) -->
+    <path
+        android:pathData="M21,17 C19,21 19.5,26 21,29 L27,29 C28.5,26 29,21 27,17 Z"
+        android:fillColor="#33FFD47E"
+        android:strokeColor="#FFF6C2"
+        android:strokeWidth="0.9" />
+
+    <!-- Lantern Flame & Radiant Core (المصباح ونوره) -->
+    <path
+        android:pathData="M24,20 C25,22 26,23.5 25.5,25.5 C25,27 23.8,27.5 24,27.5 C24.2,27.5 23,27 22.5,25.5 C22,23.5 23,22 24,20 Z"
+        android:fillColor="#FFFBBD" />
+    <path
+        android:pathData="M24,22 C24.5,23 25,24 24.8,25 C24.5,26 23.5,26 24,26 C24.5,26 23.5,26 23.2,25 C23,24 23.5,23 24,22 Z"
+        android:fillColor="#FFFFFFFF" />
+
+    <!-- Lantern Base -->
+    <path
+        android:pathData="M21,29 L27,29 L26,31 L22,31 Z"
+        android:fillColor="#FFC247" />
+
+    <!-- Radiating Light Rays -->
+    <path
+        android:pathData="M16,24 L13,24"
+        android:strokeColor="#55FFF6C2"
+        android:strokeWidth="1.0"
+        android:strokeLineCap="round" />
+    <path
+        android:pathData="M32,24 L35,24"
+        android:strokeColor="#55FFF6C2"
+        android:strokeWidth="1.0"
+        android:strokeLineCap="round" />
+    <path
+        android:pathData="M18,20 L15,18"
+        android:strokeColor="#40FFF6C2"
+        android:strokeWidth="0.9"
+        android:strokeLineCap="round" />
+    <path
+        android:pathData="M30,20 L33,18"
+        android:strokeColor="#40FFF6C2"
+        android:strokeWidth="0.9"
+        android:strokeLineCap="round" />
 </vector>

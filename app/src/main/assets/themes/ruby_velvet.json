@@ -1,0 +1,22 @@
+{
+  "id": "ruby_velvet",
+  "name": "ياقوت مخملي",
+  "nameEn": "Royal Ruby",
+  "builtin": true,
+  "palette": {
+    "primary": "#FB7185",
+    "surface": "#1A0A0E",
+    "onSurface": "#FFF1F2",
+    "panelAccents": { "sleep": "#2B1117", "prayer": "#3B141E", "tools": "#881337", "weather": "#260E14" }
+  },
+  "wallpaper": {
+    "type": "gradient",
+    "asset": "ruby_flow",
+    "parallax": 0.12,
+    "gradient": ["#36121C", "#1A0A0E", "#0A0305"],
+    "pattern": { "type": "ruby_flow", "alpha": 0.15, "cell": 100 }
+  },
+  "cards": { "radius": 18, "glass": 0.72, "strokeAlpha": 0.34 },
+  "icons": { "mask": "squircle_22", "pack": "mishkat_cute_v1" },
+  "motion": { "focusScale": 1.04, "enterMs": 220, "springDamping": 0.88 }
+}

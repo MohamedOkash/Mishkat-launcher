@@ -1,5 +1,8 @@
 package com.mishkat.launcher.home
 
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
+import com.mishkat.launcher.storage.StorageSourceType
 import android.content.BroadcastReceiver
 import android.content.ComponentName
 import android.content.Context
@@ -9,6 +12,12 @@ import android.provider.Settings
 import android.view.KeyEvent
 import android.widget.Toast
 import com.mishkat.launcher.notification.NotificationRepository
+import androidx.compose.foundation.focusable
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.onKeyEvent
+import androidx.compose.ui.input.key.type
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
@@ -225,7 +234,9 @@ fun HomeScreen(
 
     val orderedShelves = remember(appSettings.shelfOrder, stations.isNotEmpty()) {
         appSettings.shelfOrder.filter { id ->
-            if (id == "radio") stations.isNotEmpty() else true
+            if (id == "sections") false
+            else if (id == "radio") stations.isNotEmpty()
+            else true
         }
     }
 
@@ -233,11 +244,20 @@ fun HomeScreen(
 
     // Single mutually-exclusive overlay state so two overlays can NEVER stack on top of each other!
     var activeOverlay by remember { mutableStateOf(ActiveOverlay.NONE) }
+    var activeDropdownMenu by remember { mutableStateOf(ActiveDropdownMenu.NONE) }
     var returnToNowPlaying by remember { mutableStateOf(false) }
     var lastFocusedShelfId by rememberSaveable { mutableStateOf("livetv") }
     var lastInteractionMs by remember { mutableLongStateOf(System.currentTimeMillis()) }
 
-    val anyOverlayOpen = activeOverlay != ActiveOverlay.NONE || prayerState.activeAdhanAlert != null
+    // 20-second automatic cycle for authentic Adhkar & Duas
+    LaunchedEffect(Unit) {
+        while (true) {
+            delay(20_000L)
+            graph.prayerRepository.nextDhikr()
+        }
+    }
+
+    val anyOverlayOpen = activeOverlay != ActiveOverlay.NONE || activeDropdownMenu != ActiveDropdownMenu.NONE || prayerState.activeAdhanAlert != null
 
     // When overlay closes, smoothly restore focus back to the Home Screen after 1 frame
     var wasOverlayOpen by remember { mutableStateOf(false) }
@@ -373,27 +393,13 @@ fun HomeScreen(
             ) {
                 TopBar(
                     tokens = tokens,
-                    themes = themes,
-                    online = online,
                     hijriDate = hijriLabel,
                     weatherSnapshot = weatherSnapshot,
                     appSettings = appSettings,
-                    unreadNotificationsCount = (if (updateState.hasUnreadNotification) 1 else 0) + appNotifications.size,
                     firstFocusRequester = topBarFocus,
-                    onSelectTheme = { graph.themeRepository.select(it) },
-                    onToggleLightMode = { graph.localeRepository.toggleLightMode() },
-                    onToggleLanguage = { graph.localeRepository.toggleLanguage() },
-                    onOpenWallpapers = { activeOverlay = ActiveOverlay.THEMES_WALLPAPERS },
-                    onOpenTvInputs = { activeOverlay = ActiveOverlay.TV_INPUTS },
-                    onOpenRemoteQr = { activeOverlay = ActiveOverlay.REMOTE_QR },
-                    onOpenNotifications = { activeOverlay = ActiveOverlay.NOTIFICATIONS },
-                    onOpenDeveloperProfile = { activeOverlay = ActiveOverlay.DEVELOPER_PROFILE },
-                    onOpenTools = {
-                        lastFocusedShelfId = "sections"
-                        activeOverlay = ActiveOverlay.TOOLS
-                    },
-                    onOpenSettings = { activeOverlay = ActiveOverlay.SETTINGS },
-                    onLockScreen = { activeOverlay = ActiveOverlay.LOCK_SCREEN },
+                    onOpenDropdownInputs = { activeDropdownMenu = ActiveDropdownMenu.INPUTS_AND_NETWORK },
+                    onOpenDropdownTools = { activeDropdownMenu = ActiveDropdownMenu.TOOLS_AND_FEATURES },
+                    onOpenDropdownAppearance = { activeDropdownMenu = ActiveDropdownMenu.APPEARANCE_AND_SETTINGS },
                     onOpenWeather = { activeOverlay = ActiveOverlay.WEATHER },
                 )
             }
@@ -655,165 +661,242 @@ fun HomeScreen(
             }
         }
 
-        // Single mutually-exclusive overlay renderer (prevents any overlay stacking!)
-        when (activeOverlay) {
-            ActiveOverlay.NONE -> Unit
-            ActiveOverlay.LIVE_TV -> LiveTvPlayerOverlay(
-                tokens = tokens,
-                repository = graph.liveTvRepository,
-                isArabic = isArabic,
-                onClose = { activeOverlay = ActiveOverlay.NONE },
-            )
-            ActiveOverlay.RADIO -> RadioPanelOverlay(
-                tokens = tokens,
-                stations = stations,
-                radioState = radioState,
-                sleepState = sleepState,
-                onPlayStation = { graph.radioController.playStation(it) },
-                onToggleFavorite = { graph.stationRepository.toggleFavorite(it) },
-                onCycleSleepTimer = { graph.sleepTimerRepository.cyclePreset() },
-                onRefreshOnline = { graph.stationRepository.refreshOnline() },
-                onDismiss = { activeOverlay = ActiveOverlay.NONE },
-            )
-            ActiveOverlay.SPORTS -> SportsPanelOverlay(
-                tokens = tokens,
-                sportsState = sportsState,
-                onSelectFavoriteTeam = { graph.sportsRepository.selectFavoriteTeam(it) },
-                onRefresh = { graph.sportsRepository.refreshOnline() },
-                onApplySportsTheme = { graph.themeRepository.select("sports_arena") },
-                onDismiss = { activeOverlay = ActiveOverlay.NONE },
-            )
-            ActiveOverlay.TV_INPUTS -> TvInputsPanelOverlay(
-                tokens = tokens,
-                tvState = tvInputsState,
-                onSelectSource = {
-                    activeOverlay = ActiveOverlay.NONE
-                    graph.tvInputsRepository.openSource(it)
-                },
-                onSetDefaultSource = { graph.tvInputsRepository.setDefaultSource(it) },
-                onToggleAutoBootLiveTv = { graph.tvInputsRepository.setAutoStartLiveTvOnBoot(it) },
-                onRefreshInputs = { graph.tvInputsRepository.refreshInputs() },
-                onDismiss = { activeOverlay = ActiveOverlay.NONE },
-            )
-            ActiveOverlay.REMOTE_QR -> CompanionRemoteOverlay(
-                tokens = tokens,
-                serverState = remoteServerState,
-                onRefreshIp = { graph.companionRemoteServer.refreshIp() },
-                onDismiss = { activeOverlay = ActiveOverlay.NONE },
-            )
-            ActiveOverlay.CITY_PICKER -> CityPickerOverlay(
-                tokens = tokens,
-                cities = cities,
-                selectedCityId = prayerState.city.id,
-                selectedMuezzin = prayerState.selectedMuezzin,
-                isAdhanTesting = prayerState.isAdhanTesting,
-                onSelectCity = { graph.prayerRepository.selectCity(it) },
-                onSelectMuezzin = { graph.prayerRepository.setMuezzin(it) },
-                onTestAdhan = { graph.prayerRepository.testAdhanToggle() },
-                onPreviewAdhan = {
-                    activeOverlay = ActiveOverlay.NONE
-                    graph.prayerRepository.triggerAdhanPreview()
-                },
-                onDismiss = { activeOverlay = ActiveOverlay.NONE },
-            )
-            ActiveOverlay.ADHKAR -> AdhkarPanelOverlay(
-                tokens = tokens,
-                initialWindow = prayerState.activeWindow,
-                onLoadWindow = { graph.prayerRepository.adhkarForWindow(it) },
-                onDismiss = { activeOverlay = ActiveOverlay.NONE },
-            )
-            ActiveOverlay.WEATHER -> WeatherPanelOverlay(
-                tokens = tokens,
-                cityName = prayerState.city.displayName(isArabic),
-                snapshot = weatherSnapshot,
-                onRefresh = { graph.weatherRepository.refreshNow() },
-                onDismiss = { activeOverlay = ActiveOverlay.NONE },
-            )
-            ActiveOverlay.THEMES_WALLPAPERS -> ThemePackManagerOverlay(
-                tokens = tokens,
-                themes = themes,
-                selectedWallpaperId = appSettings.wallpaperStyle,
-                isArabic = isArabic,
-                glassIntensity = appSettings.glassIntensity,
-                isLightMode = appSettings.isLightMode,
-                onSelectTheme = { graph.themeRepository.select(it) },
-                onSelectWallpaper = { graph.localeRepository.setWallpaperStyle(it) },
-                onCycleGlassIntensity = { graph.localeRepository.cycleGlassIntensity() },
-                onToggleLightMode = { graph.localeRepository.toggleLightMode() },
-                onDismiss = { activeOverlay = ActiveOverlay.NONE },
-            )
-            ActiveOverlay.TOOLS -> DeviceToolsOverlay(
-                tokens = tokens,
-                killer = graph.backgroundProcessKiller,
-                onOpenAppManager = { activeOverlay = ActiveOverlay.APP_MANAGER },
-                onDismiss = { activeOverlay = ActiveOverlay.NONE },
-            )
-            ActiveOverlay.APP_MANAGER -> {
-                val allApps = (appsState as? AppsState.Ready)?.allApps.orEmpty()
-                AppManagerOverlay(
-                    tokens = tokens,
-                    allApps = allApps,
-                    onLaunch = { launchApp(context, it) },
-                    onTogglePin = { graph.appsRepository.togglePin(it) },
-                    onToggleHide = { graph.appsRepository.toggleHide(it) },
-                    onMoveApp = { pkg, delta -> graph.appsRepository.moveApp(pkg, delta) },
-                    onDismiss = { activeOverlay = ActiveOverlay.NONE },
-                )
+        // Mutually-exclusive isolated dialog overlays (prevents any overlay stacking & isolates focus)
+        if (activeOverlay != ActiveOverlay.NONE) {
+            Dialog(
+                onDismissRequest = { activeOverlay = ActiveOverlay.NONE },
+                properties = DialogProperties(
+                    usePlatformDefaultWidth = false,
+                    dismissOnBackPress = true,
+                    decorFitsSystemWindows = false,
+                ),
+            ) {
+                when (activeOverlay) {
+                    ActiveOverlay.NONE -> Unit
+                    ActiveOverlay.LIVE_TV -> LiveTvPlayerOverlay(
+                        tokens = tokens,
+                        repository = graph.liveTvRepository,
+                        isArabic = isArabic,
+                        onClose = { activeOverlay = ActiveOverlay.NONE },
+                    )
+                    ActiveOverlay.RADIO -> RadioPanelOverlay(
+                        tokens = tokens,
+                        stations = stations,
+                        radioState = radioState,
+                        sleepState = sleepState,
+                        onPlayStation = { graph.radioController.playStation(it) },
+                        onToggleFavorite = { graph.stationRepository.toggleFavorite(it) },
+                        onCycleSleepTimer = { graph.sleepTimerRepository.cyclePreset() },
+                        onRefreshOnline = { graph.stationRepository.refreshOnline() },
+                        onDismiss = { activeOverlay = ActiveOverlay.NONE },
+                    )
+                    ActiveOverlay.SPORTS -> SportsPanelOverlay(
+                        tokens = tokens,
+                        sportsState = sportsState,
+                        onSelectFavoriteTeam = { graph.sportsRepository.selectFavoriteTeam(it) },
+                        onRefresh = { graph.sportsRepository.refreshOnline() },
+                        onApplySportsTheme = { graph.themeRepository.select("sports_arena") },
+                        onDismiss = { activeOverlay = ActiveOverlay.NONE },
+                    )
+                    ActiveOverlay.TV_INPUTS -> TvInputsPanelOverlay(
+                        tokens = tokens,
+                        tvState = tvInputsState,
+                        onSelectSource = {
+                            activeOverlay = ActiveOverlay.NONE
+                            graph.tvInputsRepository.openSource(it)
+                        },
+                        onSetDefaultSource = { graph.tvInputsRepository.setDefaultSource(it) },
+                        onToggleAutoBootLiveTv = { graph.tvInputsRepository.setAutoStartLiveTvOnBoot(it) },
+                        onRefreshInputs = { graph.tvInputsRepository.refreshInputs() },
+                        onDismiss = { activeOverlay = ActiveOverlay.NONE },
+                    )
+                    ActiveOverlay.REMOTE_QR -> CompanionRemoteOverlay(
+                        tokens = tokens,
+                        serverState = remoteServerState,
+                        onRefreshIp = { graph.companionRemoteServer.refreshIp() },
+                        onDismiss = { activeOverlay = ActiveOverlay.NONE },
+                    )
+                    ActiveOverlay.CITY_PICKER -> CityPickerOverlay(
+                        tokens = tokens,
+                        cities = cities,
+                        selectedCityId = prayerState.city.id,
+                        selectedMuezzin = prayerState.selectedMuezzin,
+                        isAdhanTesting = prayerState.isAdhanTesting,
+                        onSelectCity = { graph.prayerRepository.selectCity(it) },
+                        onSelectMuezzin = { graph.prayerRepository.setMuezzin(it) },
+                        onTestAdhan = { graph.prayerRepository.testAdhanToggle() },
+                        onPreviewAdhan = {
+                            activeOverlay = ActiveOverlay.NONE
+                            graph.prayerRepository.triggerAdhanPreview()
+                        },
+                        onDismiss = { activeOverlay = ActiveOverlay.NONE },
+                    )
+                    ActiveOverlay.ADHKAR -> AdhkarPanelOverlay(
+                        tokens = tokens,
+                        initialWindow = prayerState.activeWindow,
+                        onLoadWindow = { graph.prayerRepository.adhkarForWindow(it) },
+                        onDismiss = { activeOverlay = ActiveOverlay.NONE },
+                    )
+                    ActiveOverlay.WEATHER -> WeatherPanelOverlay(
+                        tokens = tokens,
+                        cityName = prayerState.city.displayName(isArabic),
+                        snapshot = weatherSnapshot,
+                        onRefresh = { graph.weatherRepository.refreshNow() },
+                        onDismiss = { activeOverlay = ActiveOverlay.NONE },
+                    )
+                    ActiveOverlay.THEMES_WALLPAPERS -> ThemePackManagerOverlay(
+                        tokens = tokens,
+                        themes = themes,
+                        selectedWallpaperId = appSettings.wallpaperStyle,
+                        isArabic = isArabic,
+                        glassIntensity = appSettings.glassIntensity,
+                        isLightMode = appSettings.isLightMode,
+                        autoWallpaperManager = graph.autoWallpaperManager,
+                        onSelectTheme = { graph.themeRepository.select(it) },
+                        onSelectWallpaper = { graph.localeRepository.setWallpaperStyle(it) },
+                        onCycleGlassIntensity = { graph.localeRepository.cycleGlassIntensity() },
+                        onToggleLightMode = { graph.localeRepository.toggleLightMode() },
+                        onDismiss = { activeOverlay = ActiveOverlay.NONE },
+                    )
+                    ActiveOverlay.TOOLS -> DeviceToolsOverlay(
+                        tokens = tokens,
+                        killer = graph.backgroundProcessKiller,
+                        onOpenAppManager = { activeOverlay = ActiveOverlay.APP_MANAGER },
+                        onDismiss = { activeOverlay = ActiveOverlay.NONE },
+                    )
+                    ActiveOverlay.APP_MANAGER -> {
+                        val allApps = (appsState as? AppsState.Ready)?.allApps.orEmpty()
+                        AppManagerOverlay(
+                            tokens = tokens,
+                            allApps = allApps,
+                            onLaunch = { launchApp(context, it) },
+                            onTogglePin = { graph.appsRepository.togglePin(it) },
+                            onToggleHide = { graph.appsRepository.toggleHide(it) },
+                            onMoveApp = { pkg, delta -> graph.appsRepository.moveApp(pkg, delta) },
+                            onDismiss = { activeOverlay = ActiveOverlay.NONE },
+                        )
+                    }
+                    ActiveOverlay.SETTINGS -> SettingsOverlay(
+                        tokens = tokens,
+                        settings = appSettings,
+                        onToggleLightMode = { graph.localeRepository.toggleLightMode() },
+                        onCycleFontScale = { graph.localeRepository.cycleFontScale() },
+                        onToggleAppsAtTop = { graph.localeRepository.toggleAppsAtTop() },
+                        onToggleCompactLayout = { graph.localeRepository.toggleCompactLayout() },
+                        onCycleGlassIntensity = { graph.localeRepository.cycleGlassIntensity() },
+                        onCycleWallpaperStyle = { graph.localeRepository.cycleWallpaperStyle() },
+                        onOpenWallpapersGallery = { activeOverlay = ActiveOverlay.THEMES_WALLPAPERS },
+                        onCycleLockTimeout = { graph.localeRepository.cycleLockTimeout() },
+                        onLockScreenNow = { activeOverlay = ActiveOverlay.LOCK_SCREEN },
+                        onToggleLanguage = { graph.localeRepository.toggleLanguage() },
+                        onToggle24Hour = { graph.localeRepository.toggle24Hour() },
+                        onToggleLaunchOnBoot = { graph.localeRepository.toggleLaunchOnBoot() },
+                        onOpenAndroidSettings = { openSystemSettings(context) },
+                        onOpenSafeModeLauncherChooser = onOpenHomeChooser,
+                        onToggleDataSaver = { graph.localeRepository.toggleDataSaver() },
+                        onMoveShelfUp = { graph.localeRepository.moveShelfUp(it) },
+                        onMoveShelfDown = { graph.localeRepository.moveShelfDown(it) },
+                        onOpenDeveloperProfile = { activeOverlay = ActiveOverlay.DEVELOPER_PROFILE },
+                        onOpenNotifications = { activeOverlay = ActiveOverlay.NOTIFICATIONS },
+                        onDismiss = { activeOverlay = ActiveOverlay.NONE },
+                    )
+                    ActiveOverlay.NOTIFICATIONS -> NotificationsOverlay(
+                        tokens = tokens,
+                        appSettings = appSettings,
+                        updateState = updateState,
+                        updateRepository = graph.updateRepository,
+                        onToggleDataSaver = { graph.localeRepository.toggleDataSaver() },
+                        onOpenDeveloperProfile = { activeOverlay = ActiveOverlay.DEVELOPER_PROFILE },
+                        onDismiss = { activeOverlay = ActiveOverlay.NONE },
+                    )
+                    ActiveOverlay.DEVELOPER_PROFILE -> DeveloperProfileOverlay(
+                        tokens = tokens,
+                        appSettings = appSettings,
+                        onDismiss = { activeOverlay = ActiveOverlay.NONE },
+                    )
+                    ActiveOverlay.STORAGE_EXPLORER -> com.mishkat.launcher.storage.StorageExplorerOverlay(
+                        repository = graph.storageRepository,
+                        onDismiss = { activeOverlay = ActiveOverlay.NONE },
+                    )
+                    ActiveOverlay.LOCK_SCREEN -> LockScreenOverlay(
+                        tokens = tokens,
+                        appSettings = appSettings,
+                        prayerState = prayerState,
+                        radioState = radioState,
+                        weatherSnapshot = weatherSnapshot,
+                        onToggleRadioPlayPause = { graph.radioController.togglePlayPause() },
+                        onNextStation = { graph.radioController.next() },
+                        onCycleWallpaper = { graph.localeRepository.cycleWallpaperStyle() },
+                        onUnlock = {
+                            lastInteractionMs = System.currentTimeMillis()
+                            activeOverlay = ActiveOverlay.NONE
+                        },
+                    )
+                }
             }
-            ActiveOverlay.SETTINGS -> SettingsOverlay(
+        }
+
+        // TopBar 3 Dropdown Menus Dialog
+        if (activeDropdownMenu != ActiveDropdownMenu.NONE) {
+            DropdownMenuDialog(
+                menu = activeDropdownMenu,
                 tokens = tokens,
-                settings = appSettings,
-                onToggleLightMode = { graph.localeRepository.toggleLightMode() },
-                onCycleFontScale = { graph.localeRepository.cycleFontScale() },
-                onToggleAppsAtTop = { graph.localeRepository.toggleAppsAtTop() },
-                onToggleCompactLayout = { graph.localeRepository.toggleCompactLayout() },
-                onCycleGlassIntensity = { graph.localeRepository.cycleGlassIntensity() },
-                onCycleWallpaperStyle = { graph.localeRepository.cycleWallpaperStyle() },
-                onOpenWallpapersGallery = { activeOverlay = ActiveOverlay.THEMES_WALLPAPERS },
-                onCycleLockTimeout = { graph.localeRepository.cycleLockTimeout() },
-                onLockScreenNow = { activeOverlay = ActiveOverlay.LOCK_SCREEN },
-                onToggleLanguage = { graph.localeRepository.toggleLanguage() },
-                onToggle24Hour = { graph.localeRepository.toggle24Hour() },
-                onToggleLaunchOnBoot = { graph.localeRepository.toggleLaunchOnBoot() },
-                onOpenAndroidSettings = { openSystemSettings(context) },
-                onOpenSafeModeLauncherChooser = onOpenHomeChooser,
-                onToggleDataSaver = { graph.localeRepository.toggleDataSaver() },
-                onMoveShelfUp = { graph.localeRepository.moveShelfUp(it) },
-                onMoveShelfDown = { graph.localeRepository.moveShelfDown(it) },
-                onOpenDeveloperProfile = { activeOverlay = ActiveOverlay.DEVELOPER_PROFILE },
-                onOpenNotifications = { activeOverlay = ActiveOverlay.NOTIFICATIONS },
-                onDismiss = { activeOverlay = ActiveOverlay.NONE },
-            )
-            ActiveOverlay.NOTIFICATIONS -> NotificationsOverlay(
-                tokens = tokens,
-                appSettings = appSettings,
-                updateState = updateState,
-                updateRepository = graph.updateRepository,
-                onToggleDataSaver = { graph.localeRepository.toggleDataSaver() },
-                onOpenDeveloperProfile = { activeOverlay = ActiveOverlay.DEVELOPER_PROFILE },
-                onDismiss = { activeOverlay = ActiveOverlay.NONE },
-            )
-            ActiveOverlay.DEVELOPER_PROFILE -> DeveloperProfileOverlay(
-                tokens = tokens,
-                appSettings = appSettings,
-                onDismiss = { activeOverlay = ActiveOverlay.NONE },
-            )
-            ActiveOverlay.STORAGE_EXPLORER -> com.mishkat.launcher.storage.StorageExplorerOverlay(
-                repository = graph.storageRepository,
-                onDismiss = { activeOverlay = ActiveOverlay.NONE },
-            )
-            ActiveOverlay.LOCK_SCREEN -> LockScreenOverlay(
-                tokens = tokens,
-                appSettings = appSettings,
-                prayerState = prayerState,
-                radioState = radioState,
-                weatherSnapshot = weatherSnapshot,
-                onToggleRadioPlayPause = { graph.radioController.togglePlayPause() },
-                onNextStation = { graph.radioController.next() },
-                onCycleWallpaper = { graph.localeRepository.cycleWallpaperStyle() },
-                onUnlock = {
-                    lastInteractionMs = System.currentTimeMillis()
-                    activeOverlay = ActiveOverlay.NONE
+                isArabic = isArabic,
+                onDismiss = { activeDropdownMenu = ActiveDropdownMenu.NONE },
+                onOpenUpnpStorage = {
+                    graph.storageRepository.selectTab(StorageSourceType.UPNP_DLNA)
+                    activeOverlay = ActiveOverlay.STORAGE_EXPLORER
+                },
+                onOpenSmbStorage = {
+                    graph.storageRepository.selectTab(StorageSourceType.ROUTER_SMB)
+                    activeOverlay = ActiveOverlay.STORAGE_EXPLORER
+                },
+                onOpenFtpStorage = {
+                    graph.storageRepository.selectTab(StorageSourceType.ROUTER_FTP)
+                    activeOverlay = ActiveOverlay.STORAGE_EXPLORER
+                },
+                onOpenUsbStorage = {
+                    graph.storageRepository.selectTab(StorageSourceType.LOCAL_USB)
+                    activeOverlay = ActiveOverlay.STORAGE_EXPLORER
+                },
+                onOpenDvbSatellite = {
+                    activeOverlay = ActiveOverlay.LIVE_TV
+                },
+                onOpenHdmiInputs = {
+                    activeOverlay = ActiveOverlay.TV_INPUTS
+                },
+                onOpenSportsCenter = {
+                    activeOverlay = ActiveOverlay.SPORTS
+                },
+                onOpenRamBooster = {
+                    activeOverlay = ActiveOverlay.TOOLS
+                },
+                onOpenCleaner = {
+                    activeOverlay = ActiveOverlay.TOOLS
+                },
+                onOpenRemoteQr = {
+                    activeOverlay = ActiveOverlay.REMOTE_QR
+                },
+                onOpenLockScreen = {
+                    activeOverlay = ActiveOverlay.LOCK_SCREEN
+                },
+                onOpenThemes = {
+                    activeOverlay = ActiveOverlay.THEMES_WALLPAPERS
+                },
+                onOpenWallpapers = {
+                    activeOverlay = ActiveOverlay.THEMES_WALLPAPERS
+                },
+                onOpenPrayerSettings = {
+                    activeOverlay = ActiveOverlay.CITY_PICKER
+                },
+                onOpenHomeSettings = {
+                    activeOverlay = ActiveOverlay.SETTINGS
+                },
+                onToggleLanguage = {
+                    graph.localeRepository.toggleLanguage()
+                },
+                onOpenDeveloperProfile = {
+                    activeOverlay = ActiveOverlay.DEVELOPER_PROFILE
                 },
             )
         }
@@ -834,24 +917,13 @@ fun HomeScreen(
 @Composable
 private fun TopBar(
     tokens: ThemeTokens,
-    themes: List<ThemeSpec>,
-    online: Boolean,
     hijriDate: String,
     weatherSnapshot: WeatherSnapshot?,
     appSettings: AppSettings,
-    unreadNotificationsCount: Int = 0,
     firstFocusRequester: FocusRequester,
-    onSelectTheme: (String) -> Unit,
-    onToggleLightMode: () -> Unit,
-    onToggleLanguage: () -> Unit,
-    onOpenWallpapers: () -> Unit,
-    onOpenTvInputs: () -> Unit,
-    onOpenRemoteQr: () -> Unit,
-    onOpenNotifications: () -> Unit = {},
-    onOpenDeveloperProfile: () -> Unit = {},
-    onOpenTools: () -> Unit = {},
-    onOpenSettings: () -> Unit,
-    onLockScreen: () -> Unit,
+    onOpenDropdownInputs: () -> Unit,
+    onOpenDropdownTools: () -> Unit,
+    onOpenDropdownAppearance: () -> Unit,
     onOpenWeather: () -> Unit,
 ) {
     var nowMillis by remember { mutableLongStateOf(System.currentTimeMillis()) }
@@ -880,206 +952,69 @@ private fun TopBar(
     }
 
     val isArabic = appSettings.isArabic
-    val pillShape = RoundedCornerShape(10.dp)
+    val pillShape = RoundedCornerShape(12.dp)
 
     CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
         Box(
             modifier = Modifier.fillMaxWidth(),
         ) {
-            // Extreme Left Group: Compact Utility and Action Icons
+            // Left Group: 3 Clean, Modern Dropdown Buttons
             Row(
                 modifier = Modifier.align(Alignment.CenterStart),
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(7.dp),
+                horizontalArrangement = Arrangement.spacedBy(10.dp),
             ) {
-                // Developer Profile
-                Box(
-                    modifier = Modifier
-                        .mishkatFocus(id = "topbar:dev_profile", radius = 10.dp)
-                        .clip(pillShape)
-                        .liquidGlass(
-                            tokens = tokens,
-                            baseColor = tokens.cardFocused,
-                            radius = 10.dp,
-                            glassIntensity = glass,
-                            borderColor = tokens.primary.copy(alpha = 0.45f),
-                        )
-                        .clickable { onOpenDeveloperProfile() }
-                        .padding(horizontal = 9.dp, vertical = 5.dp),
-                ) {
-                    Text(
-                        text = if (isArabic) "👨‍💻 المطور" else "👨‍💻 Dev",
-                        color = tokens.primary,
-                        fontSize = 11.sp,
-                        fontWeight = FontWeight.Bold,
-                        maxLines = 1,
-                    )
-                }
+                // Dropdown 1: Inputs & Network
+                TopBarDropdownButton(
+                    id = "topbar:btn_inputs",
+                    label = if (isArabic) "📂 المداخل والشبكة ▾" else "📂 Inputs & Network ▾",
+                    tokens = tokens,
+                    glassIntensity = glass,
+                    shape = pillShape,
+                    focusRequester = firstFocusRequester,
+                    onClick = onOpenDropdownInputs,
+                )
 
-                // Notifications Hub
-                Box(
-                    modifier = Modifier
-                        .mishkatFocus(id = "topbar:notifications", radius = 10.dp)
-                        .clip(pillShape)
-                        .liquidGlass(
-                            tokens = tokens,
-                            baseColor = if (unreadNotificationsCount > 0) tokens.primary.copy(alpha = 0.24f) else tokens.card,
-                            radius = 10.dp,
-                            glassIntensity = glass,
-                            borderColor = if (unreadNotificationsCount > 0) tokens.primary else tokens.glassRim,
-                        )
-                        .clickable { onOpenNotifications() }
-                        .padding(horizontal = 8.dp, vertical = 5.dp),
-                ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(4.dp),
-                    ) {
-                        Text(text = "🔔", fontSize = 11.sp)
-                        if (unreadNotificationsCount > 0) {
-                            Box(
-                                modifier = Modifier
-                                    .size(6.dp)
-                                    .clip(CircleShape)
-                                    .background(Color(0xFFE53935)),
-                            )
-                        }
-                    }
-                }
+                // Dropdown 2: Tools & Features
+                TopBarDropdownButton(
+                    id = "topbar:btn_tools",
+                    label = if (isArabic) "🛠️ أدوات ومميزات ▾" else "🛠️ Tools & Features ▾",
+                    tokens = tokens,
+                    glassIntensity = glass,
+                    shape = pillShape,
+                    onClick = onOpenDropdownTools,
+                )
 
-                // Language
-                Box(
-                    modifier = Modifier
-                        .mishkatFocus(id = "topbar:lang", radius = 10.dp)
-                        .clip(pillShape)
-                        .liquidGlass(tokens, tokens.card, 10.dp, glass)
-                        .clickable { onToggleLanguage() }
-                        .padding(horizontal = 8.dp, vertical = 5.dp),
-                ) {
-                    Text(
-                        text = if (isArabic) "EN" else "عربي",
-                        color = tokens.primary,
-                        fontSize = 11.sp,
-                        fontWeight = FontWeight.Bold,
-                    )
-                }
-
-                // RAM Booster / Tools
-                Box(
-                    modifier = Modifier
-                        .mishkatFocus(id = "topbar:tools", radius = 10.dp)
-                        .clip(pillShape)
-                        .liquidGlass(tokens, tokens.card, 10.dp, glass)
-                        .clickable { onOpenTools() }
-                        .padding(horizontal = 9.dp, vertical = 5.dp),
-                ) {
-                    Text(
-                        text = if (isArabic) "🧹 تسريع" else "🧹 Boost",
-                        color = tokens.primary,
-                        fontSize = 11.sp,
-                        fontWeight = FontWeight.SemiBold,
-                    )
-                }
-
-                // Remote Companion
-                Box(
-                    modifier = Modifier
-                        .mishkatFocus(id = "topbar:remote_qr", radius = 10.dp)
-                        .clip(pillShape)
-                        .liquidGlass(tokens, tokens.card, 10.dp, glass)
-                        .clickable { onOpenRemoteQr() }
-                        .padding(horizontal = 8.dp, vertical = 5.dp),
-                ) {
-                    Text(text = "📱", color = tokens.primary, fontSize = 11.sp)
-                }
-
-                // Wallpapers
-                Box(
-                    modifier = Modifier
-                        .mishkatFocus(id = "topbar:wallpapers", radius = 10.dp)
-                        .clip(pillShape)
-                        .liquidGlass(tokens, tokens.card, 10.dp, glass)
-                        .clickable { onOpenWallpapers() }
-                        .padding(horizontal = 8.dp, vertical = 5.dp),
-                ) {
-                    Text(text = "🖼", color = tokens.onSurface, fontSize = 11.sp)
-                }
-
-                // Theme quick cycle
-                val activeSpec = themes.firstOrNull { it.id == tokens.id }
-                val activeThemeName = if (isArabic) (activeSpec?.name ?: tokens.id) else (activeSpec?.nameEn ?: activeSpec?.name ?: tokens.id)
-                Box(
-                    modifier = Modifier
-                        .focusRequester(firstFocusRequester)
-                        .mishkatFocus(id = "topbar:theme_cycle", radius = 10.dp)
-                        .clip(pillShape)
-                        .liquidGlass(tokens, tokens.card, 10.dp, glass)
-                        .clickable {
-                            if (themes.isNotEmpty()) {
-                                val idx = themes.indexOfFirst { it.id == tokens.id }
-                                val next = themes[(idx + 1) % themes.size]
-                                onSelectTheme(next.id)
-                            }
-                        }
-                        .padding(horizontal = 9.dp, vertical = 5.dp),
-                ) {
-                    Text(
-                        text = "✦ $activeThemeName",
-                        color = tokens.primary,
-                        fontSize = 11.sp,
-                        fontWeight = FontWeight.Bold,
-                    )
-                }
-
-                // Settings
-                Box(
-                    modifier = Modifier
-                        .mishkatFocus(id = "topbar:settings", radius = 10.dp)
-                        .clip(pillShape)
-                        .liquidGlass(
-                            tokens = tokens,
-                            baseColor = tokens.cardFocused,
-                            radius = 10.dp,
-                            glassIntensity = glass,
-                            borderColor = tokens.primary,
-                        )
-                        .clickable { onOpenSettings() }
-                        .padding(horizontal = 10.dp, vertical = 5.dp),
-                ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(4.dp),
-                    ) {
-                        Text(text = "⚙", color = tokens.primary, fontSize = 12.sp, fontWeight = FontWeight.Bold)
-                        Text(
-                            text = if (isArabic) "الضبط" else "Settings",
-                            color = tokens.primary,
-                            fontSize = 12.sp,
-                            fontWeight = FontWeight.Bold,
-                        )
-                    }
-                }
+                // Dropdown 3: Appearance & Settings
+                TopBarDropdownButton(
+                    id = "topbar:btn_appearance",
+                    label = if (isArabic) "🎨 المظهر والضبط ▾" else "🎨 Appearance & Settings ▾",
+                    tokens = tokens,
+                    glassIntensity = glass,
+                    shape = pillShape,
+                    onClick = onOpenDropdownAppearance,
+                )
             }
 
-            // Extreme Right Group: Single Logo Capsule + Clock & Weather Capsule
+            // Right Group: Clock & Weather Capsule + Logo Capsule
             Row(
                 modifier = Modifier.align(Alignment.CenterEnd),
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                horizontalArrangement = Arrangement.spacedBy(10.dp),
             ) {
                 // Clock & Weather Capsule
                 Box(
                     modifier = Modifier
-                        .mishkatFocus(id = "topbar:clock_weather", radius = 10.dp)
+                        .mishkatFocus(id = "topbar:clock_weather", radius = 12.dp)
                         .clip(pillShape)
                         .background(Color(0xEE090E1A))
                         .border(1.dp, tokens.glassRim.copy(alpha = 0.40f), pillShape)
                         .clickable { onOpenWeather() }
-                        .padding(horizontal = 11.dp, vertical = 5.dp),
+                        .padding(horizontal = 12.dp, vertical = 6.dp),
                 ) {
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(7.dp),
+                        horizontalArrangement = Arrangement.spacedBy(8.dp),
                     ) {
                         Text(
                             text = timeText,
@@ -1096,37 +1031,91 @@ private fun TopBar(
                                 fontWeight = FontWeight.SemiBold,
                             )
                         }
+                        if (hijriDate.isNotBlank()) {
+                            Text(
+                                text = "| $hijriDate",
+                                color = tokens.onSurfaceMuted,
+                                fontSize = 10.sp,
+                            )
+                        }
                     }
                 }
 
-                // Single Brand Logo Capsule
+                // Brand Logo Capsule with Mishkat Lamp Emblem
                 Box(
                     modifier = Modifier
                         .clip(pillShape)
                         .background(Color(0xEE090E1A))
                         .border(1.5.dp, tokens.primary, pillShape)
-                        .padding(horizontal = 12.dp, vertical = 5.dp),
+                        .padding(horizontal = 14.dp, vertical = 6.dp),
                 ) {
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(6.dp),
+                        horizontalArrangement = Arrangement.spacedBy(7.dp),
                     ) {
-                        Box(
-                            modifier = Modifier
-                                .size(7.dp)
-                                .clip(CircleShape)
-                                .background(tokens.primary),
+                        Text(
+                            text = "✦",
+                            color = tokens.primary,
+                            fontSize = 12.sp,
                         )
                         Text(
-                            text = "مشكاة ✦",
+                            text = "مشكاة",
                             color = tokens.primary,
-                            fontSize = 13.sp,
+                            fontSize = 14.sp,
                             fontWeight = FontWeight.Bold,
+                        )
+                        Box(
+                            modifier = Modifier
+                                .size(6.dp)
+                                .clip(CircleShape)
+                                .background(tokens.primary),
                         )
                     }
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun TopBarDropdownButton(
+    id: String,
+    label: String,
+    tokens: ThemeTokens,
+    glassIntensity: Float,
+    shape: RoundedCornerShape,
+    focusRequester: FocusRequester? = null,
+    onClick: () -> Unit,
+) {
+    val focusMod = if (focusRequester != null) Modifier.focusRequester(focusRequester) else Modifier
+    Box(
+        modifier = focusMod
+            .mishkatFocus(id = id, radius = 12.dp)
+            .focusable()
+            .clip(shape)
+            .liquidGlass(
+                tokens = tokens,
+                baseColor = tokens.card,
+                radius = 12.dp,
+                glassIntensity = glassIntensity,
+                borderColor = tokens.glassRim.copy(alpha = 0.45f),
+            )
+            .onKeyEvent { keyEvent ->
+                if (keyEvent.type == KeyEventType.KeyUp &&
+                    (keyEvent.key == Key.DirectionCenter || keyEvent.key == Key.Enter || keyEvent.key == Key.NumPadEnter)) {
+                    onClick()
+                    true
+                } else false
+            }
+            .clickable { onClick() }
+            .padding(horizontal = 12.dp, vertical = 6.dp),
+    ) {
+        Text(
+            text = label,
+            color = tokens.primary,
+            fontSize = 12.sp,
+            fontWeight = FontWeight.Bold,
+        )
     }
 }
 

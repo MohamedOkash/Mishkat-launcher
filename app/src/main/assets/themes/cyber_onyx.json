@@ -1,0 +1,22 @@
+{
+  "id": "cyber_onyx",
+  "name": "أونيكس كربوني",
+  "nameEn": "Carbon Onyx",
+  "builtin": true,
+  "palette": {
+    "primary": "#60A5FA",
+    "surface": "#07080B",
+    "onSurface": "#F8FAFC",
+    "panelAccents": { "sleep": "#11141C", "prayer": "#151A24", "tools": "#1E293B", "weather": "#10141C" }
+  },
+  "wallpaper": {
+    "type": "gradient",
+    "asset": "carbon_grid",
+    "parallax": 0.08,
+    "gradient": ["#131722", "#07080B", "#020304"],
+    "pattern": { "type": "carbon_grid", "alpha": 0.12, "cell": 80 }
+  },
+  "cards": { "radius": 16, "glass": 0.65, "strokeAlpha": 0.28 },
+  "icons": { "mask": "squircle_22", "pack": "mishkat_cute_v1" },
+  "motion": { "focusScale": 1.04, "enterMs": 220, "springDamping": 0.88 }
+}

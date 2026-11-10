@@ -1,0 +1,22 @@
+{
+  "id": "rawda_sharifa",
+  "name": "الروضة الشريفة",
+  "nameEn": "Rawda Al-Sharifa",
+  "builtin": true,
+  "palette": {
+    "primary": "#34D399",
+    "surface": "#051A14",
+    "onSurface": "#F0FDF4",
+    "panelAccents": { "sleep": "#0F2922", "prayer": "#0D3327", "tools": "#064E3B", "weather": "#0F382B" }
+  },
+  "wallpaper": {
+    "type": "gradient",
+    "asset": "islamic_geometry",
+    "parallax": 0.14,
+    "gradient": ["#0B382A", "#051A14", "#020B08"],
+    "pattern": { "type": "islamic_geometry", "alpha": 0.18, "cell": 96 }
+  },
+  "cards": { "radius": 18, "glass": 0.74, "strokeAlpha": 0.35 },
+  "icons": { "mask": "squircle_22", "pack": "mishkat_cute_v1" },
+  "motion": { "focusScale": 1.04, "enterMs": 220, "springDamping": 0.88 }
+}

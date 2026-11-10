@@ -1,0 +1,121 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="96dp"
+    android:height="96dp"
+    android:viewportWidth="96"
+    android:viewportHeight="96">
+
+    <!-- Glowing Background Aura -->
+    <path
+        android:pathData="M48,16 C64,16 76,28 76,48 C76,68 64,80 48,80 C32,80 20,68 20,48 C20,28 32,16 48,16 Z"
+        android:fillColor="#1510B981" />
+
+    <!-- Islamic Arch (المشكاة / The Niche) Outer Frame -->
+    <path
+        android:pathData="M24,84 L24,42 C24,24 38,10 48,6 C58,10 72,24 72,42 L72,84"
+        android:strokeColor="#E6C875"
+        android:strokeWidth="2.5"
+        android:strokeLineCap="round"
+        android:strokeLineJoin="round" />
+
+    <!-- Islamic Arch Inner Frame -->
+    <path
+        android:pathData="M28,84 L28,43 C28,27 40,15 48,11 C56,15 68,27 68,43 L68,84"
+        android:strokeColor="#40E6C875"
+        android:strokeWidth="1.2"
+        android:strokeLineCap="round" />
+
+    <!-- Niche Base Pedestal -->
+    <path
+        android:pathData="M18,84 L78,84"
+        android:strokeColor="#E6C875"
+        android:strokeWidth="3"
+        android:strokeLineCap="round" />
+    <path
+        android:pathData="M22,88 L74,88"
+        android:strokeColor="#A6873A"
+        android:strokeWidth="2"
+        android:strokeLineCap="round" />
+
+    <!-- Arch Keystone / Finial Crown (قمة المشكاة) -->
+    <path
+        android:pathData="M48,3 L51,6 L48,9 L45,6 Z"
+        android:fillColor="#F6E09A" />
+
+    <!-- Lantern Hanging Chain (سلسلة القنديل) -->
+    <path
+        android:pathData="M48,11 L48,30"
+        android:strokeColor="#E6C875"
+        android:strokeWidth="1.6"
+        android:strokeLineCap="round" />
+
+    <!-- Lantern Top Cap (غطاء المصباح) -->
+    <path
+        android:pathData="M42,30 L54,30 L51,33 L45,33 Z"
+        android:fillColor="#E6C875" />
+    <path
+        android:pathData="M44,33 L52,33 L55,37 L41,37 Z"
+        android:fillColor="#CBA24B" />
+
+    <!-- Glass Lantern Body (الزجاجة كأنها كوكب دري) -->
+    <path
+        android:pathData="M41,37 C38,45 39,53 42,59 L54,59 C57,53 58,45 55,37 Z"
+        android:fillColor="#26E6C875"
+        android:strokeColor="#F6E09A"
+        android:strokeWidth="1.5"
+        android:strokeLineJoin="round" />
+
+    <!-- Inner Golden Light Glow -->
+    <path
+        android:pathData="M48,42 C52,42 55,45 55,49 C55,53 52,56 48,56 C44,56 41,53 41,49 C41,45 44,42 48,42 Z"
+        android:fillColor="#66F59E0B" />
+
+    <!-- Radiant Lamp Flame (شعلة المصباح) -->
+    <path
+        android:pathData="M48,41 C49.5,44 52,47 51,51 C50.2,53.8 47.8,55 48,55 C48.2,55 45.8,53.8 45,51 C44,47 46.5,44 48,41 Z"
+        android:fillColor="#FEF08A" />
+    <path
+        android:pathData="M48,45 C49,47 50,49 49.5,51 C49,52.5 47.5,53 48,53 C48.5,53 47,52.5 46.5,51 C46,49 47,47 48,45 Z"
+        android:fillColor="#FFFFFF" />
+
+    <!-- Lantern Base (قاعدة المصباح) -->
+    <path
+        android:pathData="M42,59 L54,59 L52,63 L44,63 Z"
+        android:fillColor="#CBA24B" />
+    <path
+        android:pathData="M48,63 L48,66"
+        android:strokeColor="#E6C875"
+        android:strokeWidth="2"
+        android:strokeLineCap="round" />
+
+    <!-- Light Rays Emanating (أشعة النور المبارك) -->
+    <path
+        android:pathData="M33,48 L27,48"
+        android:strokeColor="#40FEF08A"
+        android:strokeWidth="1.5"
+        android:strokeLineCap="round" />
+    <path
+        android:pathData="M63,48 L69,48"
+        android:strokeColor="#40FEF08A"
+        android:strokeWidth="1.5"
+        android:strokeLineCap="round" />
+    <path
+        android:pathData="M37,40 L32,36"
+        android:strokeColor="#30FEF08A"
+        android:strokeWidth="1.5"
+        android:strokeLineCap="round" />
+    <path
+        android:pathData="M59,40 L64,36"
+        android:strokeColor="#30FEF08A"
+        android:strokeWidth="1.5"
+        android:strokeLineCap="round" />
+    <path
+        android:pathData="M37,56 L32,60"
+        android:strokeColor="#30FEF08A"
+        android:strokeWidth="1.5"
+        android:strokeLineCap="round" />
+    <path
+        android:pathData="M59,56 L64,60"
+        android:strokeColor="#30FEF08A"
+        android:strokeWidth="1.5"
+        android:strokeLineCap="round" />
+</vector>

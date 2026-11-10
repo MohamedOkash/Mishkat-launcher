@@ -1,0 +1,22 @@
+{
+  "id": "aurora_borealis",
+  "name": "الشفق الأخضر",
+  "nameEn": "Northern Lights",
+  "builtin": true,
+  "palette": {
+    "primary": "#4ADE80",
+    "surface": "#051318",
+    "onSurface": "#F0FDF4",
+    "panelAccents": { "sleep": "#0C232A", "prayer": "#0E2F38", "tools": "#14532D", "weather": "#0C262E" }
+  },
+  "wallpaper": {
+    "type": "gradient",
+    "asset": "aurora_sweep",
+    "parallax": 0.16,
+    "gradient": ["#0E333C", "#051318", "#02070A"],
+    "pattern": { "type": "aurora_sweep", "alpha": 0.20, "cell": 115 }
+  },
+  "cards": { "radius": 20, "glass": 0.80, "strokeAlpha": 0.38 },
+  "icons": { "mask": "squircle_22", "pack": "mishkat_cute_v1" },
+  "motion": { "focusScale": 1.04, "enterMs": 220, "springDamping": 0.88 }
+}

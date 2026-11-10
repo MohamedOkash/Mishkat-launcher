@@ -90,13 +90,30 @@ class NetworkAndUsbStorageRepository(
     suspend fun scanAllStorageDevices() = withContext(Dispatchers.IO) {
         val devices = mutableListOf<StorageDevice>()
 
-        // 1. Local USB / HDD
-        devices.addAll(scanLocalUsbStorage())
-
-        // 2. Discover router gateway IP
+        // 1. Discover router gateway IP
         val gatewayIp = detectRouterGatewayIp() ?: settings.smbHost.ifBlank { "192.168.1.1" }
 
-        // 3. Probe SMB (port 445 / 139)
+        // 2. UPnP / DLNA Media Server (e.g. H188A: Media Server:)
+        val upnpHost = settings.upnpHost.ifBlank { gatewayIp }
+        val upnpServer = UpnpDlnaClient.discover(upnpHost)
+        devices.add(
+            StorageDevice(
+                id = "router_upnp",
+                titleAr = if (upnpServer != null) "📡 ${upnpServer.friendlyName}" else "📡 الشبكة المحلية UPnP (H188A)",
+                titleEn = if (upnpServer != null) upnpServer.friendlyName else "UPnP Media Server (H188A)",
+                type = StorageSourceType.UPNP_DLNA,
+                isConnected = upnpServer != null,
+                host = upnpServer?.host ?: upnpHost,
+                port = upnpServer?.port ?: 8200,
+                rootPath = "0",
+                controlUrl = upnpServer?.controlUrl ?: "",
+            )
+        )
+
+        // 3. Local USB / HDD
+        devices.addAll(scanLocalUsbStorage())
+
+        // 4. Probe SMB (port 445 / 139)
         val smbHost = settings.smbHost.ifBlank { gatewayIp }
         val smbOnline = probePort(smbHost, settings.smbPort) || probePort(smbHost, 139)
         devices.add(
@@ -112,7 +129,7 @@ class NetworkAndUsbStorageRepository(
             )
         )
 
-        // 4. Probe FTP (port 21)
+        // 5. Probe FTP (port 21)
         val ftpHost = settings.ftpHost.ifBlank { gatewayIp }
         val ftpOnline = probePort(ftpHost, settings.ftpPort)
         devices.add(
@@ -129,6 +146,11 @@ class NetworkAndUsbStorageRepository(
         )
 
         _state.value = _state.value.copy(devices = devices)
+
+        // If active tab is UPnP, load its root directory automatically
+        if (_state.value.activeTab == StorageSourceType.UPNP_DLNA) {
+            loadUpnpDirectory("0")
+        }
     }
 
     private fun scanLocalUsbStorage(): List<StorageDevice> {
@@ -263,7 +285,7 @@ class NetworkAndUsbStorageRepository(
 
     fun selectTab(tab: StorageSourceType) {
         val device = _state.value.devices.firstOrNull { it.type == tab }
-        val root = device?.rootPath ?: "/"
+        val root = if (tab == StorageSourceType.UPNP_DLNA) "0" else (device?.rootPath ?: "/")
         _state.value = _state.value.copy(
             activeTab = tab,
             currentPath = root,
@@ -301,10 +323,52 @@ class NetworkAndUsbStorageRepository(
         _state.value = _state.value.copy(isLoading = true, errorMessage = null)
         scope.launch(Dispatchers.IO) {
             when (type) {
+                StorageSourceType.UPNP_DLNA -> loadUpnpDirectory(path)
                 StorageSourceType.LOCAL_USB -> loadLocalDirectory(path)
                 StorageSourceType.ROUTER_SMB -> loadSmbDirectory(path)
                 StorageSourceType.ROUTER_FTP -> loadFtpDirectory(path)
             }
+        }
+    }
+
+    private suspend fun loadUpnpDirectory(objectId: String) {
+        val upnpDev = _state.value.devices.firstOrNull { it.type == StorageSourceType.UPNP_DLNA }
+        var controlUrl = upnpDev?.controlUrl.orEmpty()
+
+        if (controlUrl.isBlank()) {
+            val gatewayIp = detectRouterGatewayIp() ?: settings.upnpHost.ifBlank { "192.168.1.1" }
+            val server = UpnpDlnaClient.discover(gatewayIp)
+            if (server != null) {
+                controlUrl = server.controlUrl
+                val updatedDevices = _state.value.devices.map { dev ->
+                    if (dev.type == StorageSourceType.UPNP_DLNA) {
+                        dev.copy(
+                            titleAr = "📡 ${server.friendlyName}",
+                            titleEn = server.friendlyName,
+                            isConnected = true,
+                            host = server.host,
+                            port = server.port,
+                            controlUrl = server.controlUrl,
+                        )
+                    } else dev
+                }
+                _state.value = _state.value.copy(devices = updatedDevices)
+            }
+        }
+
+        if (controlUrl.isNotBlank()) {
+            val items = UpnpDlnaClient.browse(controlUrl, objectId)
+            _state.value = _state.value.copy(
+                isLoading = false,
+                items = items,
+                errorMessage = if (items.isEmpty()) "المجلد فارغ أو لا توجد ملفات وسائط متوافقة" else null
+            )
+        } else {
+            _state.value = _state.value.copy(
+                isLoading = false,
+                items = emptyList(),
+                errorMessage = "تعذر العثور على خادم الوسائط UPnP (H188A: Media Server:). تأكد من اتصال الشاشة بشبكة الراوتر وتفعيل مشاركة الوسائط بالراوتر"
+            )
         }
     }
 
@@ -401,8 +465,18 @@ class NetworkAndUsbStorageRepository(
             ftp.connectTimeout = 10000
             ftp.soTimeout = 10000
 
-            val targetPath = if (path.isBlank()) "/" else path
-            val files = ftp.listFiles(targetPath) ?: emptyArray()
+            var targetPath = if (path.isBlank()) "/" else path
+            var files = ftp.listFiles(targetPath) ?: emptyArray()
+            if (files.isEmpty() && (targetPath == "/" || targetPath.isEmpty())) {
+                for (fallback in listOf("/mnt", "/usb1_1", "/usb1", "/storage")) {
+                    val candidate = runCatching { ftp.listFiles(fallback) }.getOrNull()
+                    if (!candidate.isNullOrEmpty()) {
+                        targetPath = fallback
+                        files = candidate
+                        break
+                    }
+                }
+            }
             val items = files.map { f ->
                 val isDir = f.isDirectory
                 val name = f.name

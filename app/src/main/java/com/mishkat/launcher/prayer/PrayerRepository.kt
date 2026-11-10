@@ -134,6 +134,18 @@ class PrayerRepository(
         }
     }
 
+    /** Advances to next Dhikr for auto-cycling or manual next navigation. */
+    fun nextDhikr() {
+        val cur = _state.value
+        if (cur.windowAdhkar.isNotEmpty()) {
+            val nextIdx = (cur.currentDhikrIndex + 1) % cur.windowAdhkar.size
+            _state.value = cur.copy(
+                currentDhikrIndex = nextIdx,
+                currentDhikrCount = 0,
+            )
+        }
+    }
+
     fun dismissAdhanAlert() {
         AdhanSoundPlayer.stop()
         _state.value = _state.value.copy(activeAdhanAlert = null)

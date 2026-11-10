@@ -155,6 +155,12 @@ fun StorageExplorerOverlay(
 
                     // Source Tabs (D-Pad Navigable)
                     SourceTab(
+                        id = "tab:upnp",
+                        label = "📡 الشبكة UPnP (H188A)",
+                        isSelected = state.activeTab == StorageSourceType.UPNP_DLNA,
+                        onClick = { repository.selectTab(StorageSourceType.UPNP_DLNA) },
+                    )
+                    SourceTab(
                         id = "tab:usb",
                         label = "💾 USB والهارد",
                         isSelected = state.activeTab == StorageSourceType.LOCAL_USB,

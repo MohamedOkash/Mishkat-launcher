@@ -1,0 +1,22 @@
+{
+  "id": "sahara_dunes",
+  "name": "رمال الصحراء",
+  "nameEn": "Golden Sahara",
+  "builtin": true,
+  "palette": {
+    "primary": "#FBBF24",
+    "surface": "#1A140B",
+    "onSurface": "#FFFBEB",
+    "panelAccents": { "sleep": "#2B2113", "prayer": "#382C18", "tools": "#423218", "weather": "#291E10" }
+  },
+  "wallpaper": {
+    "type": "gradient",
+    "asset": "sand_ripples",
+    "parallax": 0.12,
+    "gradient": ["#362814", "#1A140B", "#0D0A05"],
+    "pattern": { "type": "sand_ripples", "alpha": 0.15, "cell": 110 }
+  },
+  "cards": { "radius": 18, "glass": 0.68, "strokeAlpha": 0.32 },
+  "icons": { "mask": "squircle_22", "pack": "mishkat_cute_v1" },
+  "motion": { "focusScale": 1.04, "enterMs": 220, "springDamping": 0.88 }
+}

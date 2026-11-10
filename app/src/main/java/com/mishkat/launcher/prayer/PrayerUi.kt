@@ -1,6 +1,11 @@
 package com.mishkat.launcher.prayer
 
 import androidx.activity.compose.BackHandler
+import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.core.tween
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.togetherWith
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -196,14 +201,22 @@ fun PrayerAndAdhkarRow(
             }
 
             if (dhikr != null) {
-                Text(
-                    text = dhikr.displayText(isArabic),
-                    color = tokens.onSurface,
-                    fontSize = if (compact) 12.sp else 14.sp,
-                    fontWeight = FontWeight.Medium,
-                    maxLines = 2,
-                    overflow = TextOverflow.Ellipsis,
-                )
+                AnimatedContent(
+                    targetState = dhikr,
+                    transitionSpec = {
+                        fadeIn(tween(350)) togetherWith fadeOut(tween(350))
+                    },
+                    label = "dhikr_rotation"
+                ) { targetDhikr ->
+                    Text(
+                        text = targetDhikr.displayText(isArabic),
+                        color = tokens.onSurface,
+                        fontSize = if (compact) 12.sp else 14.sp,
+                        fontWeight = FontWeight.Medium,
+                        maxLines = 2,
+                        overflow = TextOverflow.Ellipsis,
+                    )
+                }
             }
         }
 

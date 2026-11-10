@@ -1,0 +1,22 @@
+{
+  "id": "turqoise_dome",
+  "name": "القباب الفيروزية",
+  "nameEn": "Turquoise Dome",
+  "builtin": true,
+  "palette": {
+    "primary": "#22D3EE",
+    "surface": "#061A22",
+    "onSurface": "#ECFEFF",
+    "panelAccents": { "sleep": "#0E2B38", "prayer": "#123A4C", "tools": "#155E75", "weather": "#0D2733" }
+  },
+  "wallpaper": {
+    "type": "gradient",
+    "asset": "persian_dome",
+    "parallax": 0.15,
+    "gradient": ["#0E3C4E", "#061A22", "#02090C"],
+    "pattern": { "type": "persian_dome", "alpha": 0.18, "cell": 105 }
+  },
+  "cards": { "radius": 20, "glass": 0.78, "strokeAlpha": 0.36 },
+  "icons": { "mask": "squircle_22", "pack": "mishkat_cute_v1" },
+  "motion": { "focusScale": 1.04, "enterMs": 220, "springDamping": 0.88 }
+}

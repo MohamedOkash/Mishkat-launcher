@@ -42,11 +42,11 @@
 
 ---
 
-## 📦 حزم التوزيع المتاحة (Distribution Packages - v1.8.0)
+## 📦 حزم التوزيع المتاحة (Distribution Packages - v1.9.0)
 
 الملفات الجاهزة للتثبيت المباشر في مجلد `dist/`:
-- **تلفزيون أندرويد**: [`dist/MishkatLauncher-AndroidTV-v1.8.0.apk`](file:///d:/my%20projict/launcher%20tv/dist/MishkatLauncher-AndroidTV-v1.8.0.apk) (الحجم: ~9.9 MB)
-- **ريموت الموبايل**: [`dist/MishkatRemote-Mobile-v1.8.0.apk`](file:///d:/my%20projict/launcher%20tv/dist/MishkatRemote-Mobile-v1.8.0.apk) (الحجم: ~1.0 MB)
+- **تلفزيون أندرويد**: [`dist/MishkatLauncher-AndroidTV-v1.9.0.apk`](file:///d:/my%20projict/launcher%20tv/dist/MishkatLauncher-AndroidTV-v1.9.0.apk) (الحجم: ~10.5 MB)
+- **ريموت الموبايل**: [`dist/MishkatRemote-AndroidMobile-v1.9.0.apk`](file:///d:/my%20projict/launcher%20tv/dist/MishkatRemote-AndroidMobile-v1.9.0.apk) (الحجم: ~1.1 MB)
 - **شاشات سامسونج تايزن**: `dist/MishkatLauncher-Samsung-Tizen.wgt`
 - **شاشات إل جي ويب أو إس**: `dist/MishkatLauncher-LG-webOS.zip` & `dist/com.mishkat.launcher_1.8.0_all.ipk`
 

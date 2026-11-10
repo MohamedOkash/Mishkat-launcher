@@ -1,0 +1,22 @@
+{
+  "id": "andalus_arch",
+  "name": "عمارة الأندلس",
+  "nameEn": "Andalusian Arch",
+  "builtin": true,
+  "palette": {
+    "primary": "#F59E0B",
+    "surface": "#1C110C",
+    "onSurface": "#FFFBEB",
+    "panelAccents": { "sleep": "#2D1D16", "prayer": "#3B2418", "tools": "#451A03", "weather": "#331E14" }
+  },
+  "wallpaper": {
+    "type": "gradient",
+    "asset": "andalus_tiles",
+    "parallax": 0.12,
+    "gradient": ["#381F13", "#1C110C", "#0D0805"],
+    "pattern": { "type": "andalus_tiles", "alpha": 0.16, "cell": 104 }
+  },
+  "cards": { "radius": 18, "glass": 0.70, "strokeAlpha": 0.32 },
+  "icons": { "mask": "squircle_22", "pack": "mishkat_cute_v1" },
+  "motion": { "focusScale": 1.04, "enterMs": 220, "springDamping": 0.88 }
+}

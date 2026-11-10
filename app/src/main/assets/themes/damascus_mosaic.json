@@ -1,0 +1,22 @@
+{
+  "id": "damascus_mosaic",
+  "name": "فسيفساء دمشق",
+  "nameEn": "Damascus Mosaic",
+  "builtin": true,
+  "palette": {
+    "primary": "#2DD4BF",
+    "surface": "#08161E",
+    "onSurface": "#F0FDFA",
+    "panelAccents": { "sleep": "#0F2633", "prayer": "#133547", "tools": "#115E59", "weather": "#102B3B" }
+  },
+  "wallpaper": {
+    "type": "gradient",
+    "asset": "mosaic_arabesque",
+    "parallax": 0.14,
+    "gradient": ["#103548", "#08161E", "#030A0E"],
+    "pattern": { "type": "mosaic_arabesque", "alpha": 0.18, "cell": 96 }
+  },
+  "cards": { "radius": 20, "glass": 0.78, "strokeAlpha": 0.35 },
+  "icons": { "mask": "squircle_22", "pack": "mishkat_cute_v1" },
+  "motion": { "focusScale": 1.04, "enterMs": 220, "springDamping": 0.88 }
+}

@@ -68,6 +68,7 @@ fun DeviceToolsOverlay(
     val killerState by killer?.state?.collectAsState() ?: remember { mutableStateOf(BackgroundKillerState()) }
     var stats by remember { mutableStateOf(SystemStats()) }
     var lastCleanResult by remember { mutableStateOf<CleanResult?>(null) }
+    var lastApkCleanResult by remember { mutableStateOf<CleanResult?>(null) }
 
     LaunchedEffect(Unit) {
         repeat(4) {
@@ -80,6 +81,8 @@ fun DeviceToolsOverlay(
         }
     }
 
+    val scrollState = rememberScrollState()
+
     Box(
         modifier = Modifier
             .fillMaxSize()
@@ -87,8 +90,10 @@ fun DeviceToolsOverlay(
             .padding(horizontal = 56.dp, vertical = 36.dp),
     ) {
         Column(
-            modifier = Modifier.fillMaxSize(),
-            verticalArrangement = Arrangement.spacedBy(22.dp),
+            modifier = Modifier
+                .fillMaxSize()
+                .verticalScroll(scrollState),
+            verticalArrangement = Arrangement.spacedBy(18.dp),
         ) {
             Row(
                 modifier = Modifier.fillMaxWidth(),
@@ -302,6 +307,57 @@ fun DeviceToolsOverlay(
                     text = "OK",
                     color = tokens.primary,
                     fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold,
+                )
+            }
+
+            // Honest Downloaded APK & Installer Residue Cleaner
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .mishkatFocus(id = "tools:clean_apks")
+                    .clip(cardShape)
+                    .background(tokens.card)
+                    .border(BorderStroke(1.dp, tokens.stroke), cardShape)
+                    .clickable {
+                        scope.launch {
+                            lastApkCleanResult = HonestCleaner.cleanOldApks(context)
+                            stats = withContext(Dispatchers.IO) { SystemStatsReader.readSnapshot(context) }
+                        }
+                    }
+                    .padding(horizontal = 24.dp, vertical = 18.dp),
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Column(verticalArrangement = Arrangement.spacedBy(4.dp)) {
+                    Text(
+                        text = "🗑️ مسح ملفات الـ APK القديمة ومخلفات التحميل",
+                        color = tokens.onSurface,
+                        fontSize = 17.sp,
+                        fontWeight = FontWeight.Bold,
+                    )
+                    val apkRes = lastApkCleanResult
+                    val apkStatus = if (apkRes != null) {
+                        if (apkRes.deletedFilesCount > 0) {
+                            "تم حذف ${apkRes.deletedFilesCount} ملف APK وتحرير ${SystemStatsReader.formatBytes(apkRes.freedBytes)}"
+                        } else {
+                            "مجلد التحميلات نظيف تماماً، لا توجد ملفات APK متراكمة"
+                        }
+                    } else {
+                        "يفحص مجلد Download ويحذف حزم التثبيت المؤقتة لتوفير مساحة حقيقية"
+                    }
+                    Text(
+                        text = apkStatus,
+                        color = if (apkRes != null && apkRes.freedBytes > 0) tokens.primary else tokens.onSurfaceMuted,
+                        fontSize = 13.sp,
+                        fontWeight = FontWeight.Medium,
+                    )
+                }
+
+                Text(
+                    text = "مسح ❯",
+                    color = tokens.primary,
+                    fontSize = 15.sp,
                     fontWeight = FontWeight.Bold,
                 )
             }
