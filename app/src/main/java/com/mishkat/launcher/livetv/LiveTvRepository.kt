@@ -5,6 +5,8 @@ import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
+import androidx.datastore.preferences.core.stringSetPreferencesKey
+import kotlinx.serialization.encodeToString
 import androidx.media3.common.MediaItem
 import androidx.media3.common.PlaybackException
 import androidx.media3.common.Player
@@ -41,6 +43,7 @@ class LiveTvRepository(
 
     companion object {
         val KEY_LAST_CHANNEL_ID = stringPreferencesKey("livetv_last_played_channel_id")
+        val KEY_FAVORITE_CHANNELS = stringSetPreferencesKey("livetv_fav_channels")
         private const val GITHUB_CHANNELS_URL = "https://raw.githubusercontent.com/MohamedOkash/Mishkat-launcher/main/shared/channels.json"
     }
 
@@ -209,6 +212,51 @@ class LiveTvRepository(
 
     fun setSearchQuery(query: String) {
         _state.value = _state.value.copy(searchQuery = query)
+    }
+
+    fun addCustomChannel(channel: LiveChannel) {
+        val updated = listOf(channel) + _state.value.channels
+        _state.value = _state.value.copy(channels = updated)
+        scope.launch(Dispatchers.IO) {
+            persistChannels(updated)
+        }
+    }
+
+    fun moveChannel(channelId: String, delta: Int) {
+        val list = _state.value.channels.toMutableList()
+        val idx = list.indexOfFirst { it.id == channelId }
+        if (idx < 0) return
+        val targetIdx = (idx + delta).coerceIn(0, list.size - 1)
+        if (targetIdx == idx) return
+        val item = list.removeAt(idx)
+        list.add(targetIdx, item)
+        _state.value = _state.value.copy(channels = list)
+        scope.launch(Dispatchers.IO) {
+            persistChannels(list)
+        }
+    }
+
+    fun deleteChannel(channelId: String) {
+        val list = _state.value.channels.filter { it.id != channelId }
+        _state.value = _state.value.copy(channels = list)
+        scope.launch(Dispatchers.IO) {
+            persistChannels(list)
+        }
+    }
+
+    fun toggleFavorite(channelId: String) {
+        scope.launch(Dispatchers.IO) {
+            val favs = runCatching { prefs.data.first()[KEY_FAVORITE_CHANNELS].orEmpty() }.getOrDefault(emptySet())
+            val newFavs = if (favs.contains(channelId)) favs - channelId else favs + channelId
+            prefs.edit { it[KEY_FAVORITE_CHANNELS] = newFavs }
+        }
+    }
+
+    private suspend fun persistChannels(channels: List<LiveChannel>) = withContext(Dispatchers.IO) {
+        runCatching {
+            val cacheFile = File(context.filesDir, "channels_cloud_cache.json")
+            cacheFile.writeText(json.encodeToString(channels), Charsets.UTF_8)
+        }
     }
 
     fun jumpToChannelByNumber(number: Int) {

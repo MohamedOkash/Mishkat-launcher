@@ -15,7 +15,17 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableLongStateOf
+import androidx.compose.ui.graphics.Brush
+import androidx.media3.ui.AspectRatioFrameLayout
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
@@ -682,6 +692,9 @@ private fun MediaPlayerModal(
     val context = LocalContext.current
     val uriStr = item.streamUri ?: return
 
+    val resumePrefs = remember { context.getSharedPreferences("mishkat_resume_playback", Context.MODE_PRIVATE) }
+    val resumeKey = remember(item.path, item.name) { "resume_${(item.path.ifBlank { item.name }).hashCode()}" }
+
     val exoPlayer = remember(uriStr) {
         ExoPlayer.Builder(context).build().apply {
             setMediaItem(MediaItem.fromUri(Uri.parse(uriStr)))
@@ -690,65 +703,426 @@ private fun MediaPlayerModal(
         }
     }
 
+    var isOsdVisible by remember { mutableStateOf(true) }
+    var isPlaying by remember { mutableStateOf(true) }
+    var currentPos by remember { mutableLongStateOf(0L) }
+    var duration by remember { mutableLongStateOf(0L) }
+    var bufferedPos by remember { mutableLongStateOf(0L) }
+    var seekNotice by remember { mutableStateOf<String?>(null) }
+    var resumeNotice by remember { mutableStateOf<String?>(null) }
+    var resizeMode by remember { mutableIntStateOf(AspectRatioFrameLayout.RESIZE_MODE_FIT) }
+    var lastInteractionTime by remember { mutableLongStateOf(System.currentTimeMillis()) }
+    var consecutiveSeeks by remember { mutableIntStateOf(0) }
+    var lastSeekDir by remember { mutableIntStateOf(0) }
+    var lastSeekTime by remember { mutableLongStateOf(0L) }
+
+    val playBtnFocus = remember { FocusRequester() }
+    val modalFocus = remember { FocusRequester() }
+
     DisposableEffect(exoPlayer) {
+        val listener = object : androidx.media3.common.Player.Listener {
+            override fun onIsPlayingChanged(playing: Boolean) {
+                isPlaying = playing
+            }
+            override fun onPlaybackStateChanged(state: Int) {
+                if (state == androidx.media3.common.Player.STATE_READY) {
+                    duration = exoPlayer.duration.coerceAtLeast(0L)
+                    val saved = resumePrefs.getLong(resumeKey, 0L)
+                    if (saved > 15_000L && (duration <= 0L || saved < duration - 30_000L)) {
+                        exoPlayer.seekTo(saved)
+                        resumeNotice = "تم استئناف المشاهدة من ${formatMs(saved)}"
+                    }
+                }
+            }
+        }
+        exoPlayer.addListener(listener)
         onDispose {
+            val finalPos = exoPlayer.currentPosition
+            if (finalPos > 10_000L) {
+                resumePrefs.edit().putLong(resumeKey, finalPos).apply()
+            }
+            exoPlayer.removeListener(listener)
             exoPlayer.release()
         }
+    }
+
+    // Auto-update position & save resume
+    LaunchedEffect(exoPlayer) {
+        while (isActive) {
+            currentPos = exoPlayer.currentPosition.coerceAtLeast(0L)
+            duration = exoPlayer.duration.coerceAtLeast(0L)
+            bufferedPos = exoPlayer.bufferedPosition.coerceAtLeast(0L)
+            if (currentPos > 10_000L) {
+                resumePrefs.edit().putLong(resumeKey, currentPos).apply()
+            }
+            delay(500)
+        }
+    }
+
+    // Auto-hide OSD after 4 seconds of idle
+    LaunchedEffect(lastInteractionTime, isPlaying) {
+        if (isPlaying) {
+            delay(4000)
+            if (System.currentTimeMillis() - lastInteractionTime >= 4000) {
+                isOsdVisible = false
+                seekNotice = null
+            }
+        }
+    }
+
+    // Clear notices after 3s
+    LaunchedEffect(resumeNotice) {
+        if (resumeNotice != null) {
+            delay(3500)
+            resumeNotice = null
+        }
+    }
+
+    // Seek handler with accelerating leaps (+15s, +30s, +1m, +5m)
+    fun doSeek(forward: Boolean) {
+        val now = System.currentTimeMillis()
+        val dir = if (forward) 1 else -1
+        if (dir == lastSeekDir && now - lastSeekTime < 1200) {
+            consecutiveSeeks++
+        } else {
+            consecutiveSeeks = 1
+            lastSeekDir = dir
+        }
+        lastSeekTime = now
+        lastInteractionTime = now
+        isOsdVisible = true
+
+        val leapSeconds = when {
+            consecutiveSeeks >= 5 -> 300 // +5m
+            consecutiveSeeks >= 3 -> 60  // +1m
+            consecutiveSeeks >= 2 -> 30  // +30s
+            else -> 15                   // +15s
+        }
+        val leapMs = leapSeconds * 1000L
+        val target = if (forward) {
+            (exoPlayer.currentPosition + leapMs).coerceAtMost(duration.takeIf { it > 0 } ?: Long.MAX_VALUE)
+        } else {
+            (exoPlayer.currentPosition - leapMs).coerceAtLeast(0L)
+        }
+        exoPlayer.seekTo(target)
+        currentPos = target
+        seekNotice = if (forward) "⏩ +${formatMs(leapMs)} (${formatMs(target)})" else "⏪ -${formatMs(leapMs)} (${formatMs(target)})"
+    }
+
+    LaunchedEffect(Unit) {
+        withFrameNanos { }
+        runCatching { modalFocus.requestFocus() }
     }
 
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color.Black),
+            .background(Color.Black)
+            .focusRequester(modalFocus)
+            .focusable()
+            .onKeyEvent { keyEvent ->
+                if (keyEvent.type != KeyEventType.KeyUp) return@onKeyEvent false
+                when (keyEvent.key) {
+                    Key.Back -> {
+                        onClose()
+                        true
+                    }
+                    Key.DirectionCenter, Key.Enter, Key.NumPadEnter, Key.MediaPlayPause -> {
+                        if (exoPlayer.isPlaying) {
+                            exoPlayer.pause()
+                            isOsdVisible = true
+                        } else {
+                            exoPlayer.play()
+                        }
+                        lastInteractionTime = System.currentTimeMillis()
+                        true
+                    }
+                    Key.DirectionRight, Key.MediaFastForward -> {
+                        doSeek(forward = true)
+                        true
+                    }
+                    Key.DirectionLeft, Key.MediaRewind -> {
+                        doSeek(forward = false)
+                        true
+                    }
+                    Key.DirectionUp, Key.DirectionDown -> {
+                        isOsdVisible = !isOsdVisible
+                        lastInteractionTime = System.currentTimeMillis()
+                        if (isOsdVisible) {
+                            runCatching { playBtnFocus.requestFocus() }
+                        }
+                        true
+                    }
+                    else -> false
+                }
+            },
     ) {
         AndroidView(
             factory = { ctx ->
                 PlayerView(ctx).apply {
                     player = exoPlayer
-                    useController = true
+                    useController = false
+                    this.resizeMode = resizeMode
                     setShowBuffering(PlayerView.SHOW_BUFFERING_ALWAYS)
-                    isFocusable = true
-                    requestFocus()
                 }
+            },
+            update = { pv ->
+                pv.resizeMode = resizeMode
             },
             modifier = Modifier.fillMaxSize(),
         )
 
-        // Title and close button overlay
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(24.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Text(
-                text = item.name,
-                color = Color.White,
-                fontSize = 16.sp,
-                fontWeight = FontWeight.Bold,
-            )
-
+        // Floating Center Seek Notification HUD
+        seekNotice?.let { notice ->
             Box(
                 modifier = Modifier
-                    .mishkatFocus(id = "player:close_btn", radius = 10.dp)
-                    .focusable()
-                    .clip(CircleShape)
-                    .background(Color(0xCC000000))
-                    .border(1.dp, Color.White.copy(alpha = 0.5f), CircleShape)
-                    .onKeyEvent { keyEvent ->
-                        if (keyEvent.type == KeyEventType.KeyUp &&
-                            (keyEvent.key == Key.DirectionCenter || keyEvent.key == Key.Enter || keyEvent.key == Key.NumPadEnter)) {
-                            onClose()
-                            true
-                        } else false
-                    }
-                    .clickable { onClose() }
-                    .padding(horizontal = 16.dp, vertical = 8.dp),
+                    .align(Alignment.Center)
+                    .clip(RoundedCornerShape(16.dp))
+                    .background(Color(0xDD0B1220))
+                    .border(1.5.dp, Color(0xFFF59E0B), RoundedCornerShape(16.dp))
+                    .padding(horizontal = 28.dp, vertical = 14.dp),
             ) {
-                Text(text = "✕ خروج", color = Color.White, fontSize = 14.sp, fontWeight = FontWeight.Bold)
+                Text(
+                    text = notice,
+                    color = Color(0xFFF59E0B),
+                    fontSize = 22.sp,
+                    fontWeight = FontWeight.Bold,
+                )
             }
         }
+
+        // Resume notice pill at top center
+        resumeNotice?.let { notice ->
+            Box(
+                modifier = Modifier
+                    .align(Alignment.TopCenter)
+                    .padding(top = 28.dp)
+                    .clip(RoundedCornerShape(12.dp))
+                    .background(Color(0xEE1E293B))
+                    .border(1.dp, Color(0xFF10B981), RoundedCornerShape(12.dp))
+                    .padding(horizontal = 20.dp, vertical = 8.dp),
+            ) {
+                Text(
+                    text = "✦ $notice",
+                    color = Color(0xFF10B981),
+                    fontSize = 14.sp,
+                    fontWeight = FontWeight.Bold,
+                )
+            }
+        }
+
+        // Animated OSD Header & Footer
+        AnimatedVisibility(
+            visible = isOsdVisible,
+            enter = fadeIn(),
+            exit = fadeOut(),
+        ) {
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(
+                        Brush.verticalGradient(
+                            listOf(
+                                Color(0xCC000000),
+                                Color.Transparent,
+                                Color.Transparent,
+                                Color(0xEE000000),
+                            )
+                        )
+                    )
+                    .padding(horizontal = 32.dp, vertical = 24.dp),
+                verticalArrangement = Arrangement.SpaceBetween,
+            ) {
+                // Top Header Row
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Column {
+                        Text(
+                            text = item.name,
+                            color = Color.White,
+                            fontSize = 18.sp,
+                            fontWeight = FontWeight.Bold,
+                            maxLines = 1,
+                            overflow = TextOverflow.Ellipsis,
+                        )
+                        Text(
+                            text = "مشغل مشكاة السينمائي • ${if (resizeMode == AspectRatioFrameLayout.RESIZE_MODE_FILL) "ملء الشاشة" else "الأبعاد الأصلية"}",
+                            color = Color(0xFF94A3B8),
+                            fontSize = 12.sp,
+                        )
+                    }
+
+                    Box(
+                        modifier = Modifier
+                            .mishkatFocus(id = "player:close_btn", radius = 10.dp)
+                            .focusable()
+                            .clip(CircleShape)
+                            .background(Color(0x88000000))
+                            .border(1.dp, Color.White.copy(alpha = 0.6f), CircleShape)
+                            .clickable { onClose() }
+                            .padding(horizontal = 16.dp, vertical = 8.dp),
+                    ) {
+                        Text(text = "✕ خروج", color = Color.White, fontSize = 13.sp, fontWeight = FontWeight.Bold)
+                    }
+                }
+
+                // Bottom Controls & SeekBar
+                Column(
+                    modifier = Modifier.fillMaxWidth(),
+                    verticalArrangement = Arrangement.spacedBy(12.dp),
+                ) {
+                    // Time & Progress Bar
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(14.dp),
+                    ) {
+                        Text(
+                            text = formatMs(currentPos),
+                            color = Color.White,
+                            fontSize = 13.sp,
+                            fontWeight = FontWeight.SemiBold,
+                        )
+
+                        // Custom SeekBar
+                        Box(
+                            modifier = Modifier
+                                .weight(1f)
+                                .height(8.dp)
+                                .clip(RoundedCornerShape(4.dp))
+                                .background(Color(0x55FFFFFF)),
+                        ) {
+                            val progress = if (duration > 0) (currentPos.toFloat() / duration).coerceIn(0f, 1f) else 0f
+                            val buffered = if (duration > 0) (bufferedPos.toFloat() / duration).coerceIn(0f, 1f) else 0f
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxHeight()
+                                    .fillMaxWidth(buffered)
+                                    .background(Color(0x44F59E0B)),
+                            )
+                            Box(
+                                modifier = Modifier
+                                    .fillMaxHeight()
+                                    .fillMaxWidth(progress)
+                                    .background(Color(0xFFF59E0B)),
+                            )
+                        }
+
+                        Text(
+                            text = formatMs(duration),
+                            color = Color(0xFFCBD5E1),
+                            fontSize = 13.sp,
+                            fontWeight = FontWeight.SemiBold,
+                        )
+                    }
+
+                    // TV Remote OSD Action Buttons Row
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.Center,
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        OsdButton("player:rewind_10m", "⏪ -10د") {
+                            exoPlayer.seekTo((exoPlayer.currentPosition - 600_000L).coerceAtLeast(0L))
+                            lastInteractionTime = System.currentTimeMillis()
+                        }
+                        Spacer(Modifier.width(8.dp))
+                        OsdButton("player:rewind_15s", "⏪ -15ث") {
+                            doSeek(false)
+                        }
+                        Spacer(Modifier.width(12.dp))
+                        OsdButton(
+                            id = "player:play_pause",
+                            label = if (isPlaying) "⏸ إيقاف" else "▶ تشغيل",
+                            focusRequester = playBtnFocus,
+                            highlighted = true,
+                        ) {
+                            if (exoPlayer.isPlaying) exoPlayer.pause() else exoPlayer.play()
+                            lastInteractionTime = System.currentTimeMillis()
+                        }
+                        Spacer(Modifier.width(12.dp))
+                        OsdButton("player:forward_15s", "⏩ +15ث") {
+                            doSeek(true)
+                        }
+                        Spacer(Modifier.width(8.dp))
+                        OsdButton("player:forward_10m", "⏩ +10د") {
+                            exoPlayer.seekTo((exoPlayer.currentPosition + 600_000L).coerceAtMost(duration))
+                            lastInteractionTime = System.currentTimeMillis()
+                        }
+                        Spacer(Modifier.width(16.dp))
+                        OsdButton(
+                            id = "player:aspect",
+                            label = if (resizeMode == AspectRatioFrameLayout.RESIZE_MODE_FILL) "🔲 أبعاد أصلية" else "🔲 ملء الشاشة",
+                        ) {
+                            resizeMode = if (resizeMode == AspectRatioFrameLayout.RESIZE_MODE_FILL) {
+                                AspectRatioFrameLayout.RESIZE_MODE_FIT
+                            } else {
+                                AspectRatioFrameLayout.RESIZE_MODE_FILL
+                            }
+                            lastInteractionTime = System.currentTimeMillis()
+                        }
+                        Spacer(Modifier.width(8.dp))
+                        OsdButton("player:restart", "🔁 من البداية") {
+                            exoPlayer.seekTo(0L)
+                            exoPlayer.play()
+                            lastInteractionTime = System.currentTimeMillis()
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun OsdButton(
+    id: String,
+    label: String,
+    focusRequester: FocusRequester? = null,
+    highlighted: Boolean = false,
+    onClick: () -> Unit,
+) {
+    val fMod = if (focusRequester != null) Modifier.focusRequester(focusRequester) else Modifier
+    val shape = RoundedCornerShape(10.dp)
+    Box(
+        modifier = fMod
+            .mishkatFocus(id = id, radius = 10.dp)
+            .focusable()
+            .clip(shape)
+            .background(if (highlighted) Color(0xFFF59E0B) else Color(0x771E293B))
+            .border(1.dp, if (highlighted) Color(0xFFF59E0B) else Color(0x66FFFFFF), shape)
+            .onKeyEvent { keyEvent ->
+                if (keyEvent.type == KeyEventType.KeyUp &&
+                    (keyEvent.key == Key.DirectionCenter || keyEvent.key == Key.Enter || keyEvent.key == Key.NumPadEnter)) {
+                    onClick()
+                    true
+                } else false
+            }
+            .clickable { onClick() }
+            .padding(horizontal = 14.dp, vertical = 8.dp),
+    ) {
+        Text(
+            text = label,
+            color = if (highlighted) Color.Black else Color.White,
+            fontSize = 13.sp,
+            fontWeight = FontWeight.Bold,
+        )
+    }
+}
+
+private fun formatMs(ms: Long): String {
+    if (ms <= 0L) return "00:00"
+    val totalSec = ms / 1000
+    val sec = totalSec % 60
+    val min = (totalSec / 60) % 60
+    val hours = totalSec / 3600
+    return if (hours > 0) {
+        String.format(java.util.Locale.US, "%02d:%02d:%02d", hours, min, sec)
+    } else {
+        String.format(java.util.Locale.US, "%02d:%02d", min, sec)
     }
 }
 

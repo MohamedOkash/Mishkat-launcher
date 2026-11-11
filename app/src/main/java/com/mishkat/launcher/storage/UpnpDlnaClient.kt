@@ -26,15 +26,16 @@ data class UpnpServerInfo(
 
 object UpnpDlnaClient {
 
-    private val COMMON_PROBE_PORTS = listOf(8200, 49152, 1900, 5000, 80, 2869)
+    private val COMMON_PROBE_PORTS = listOf(52868, 8200, 49152, 1900, 5000, 80, 2869, 52869)
     private val COMMON_DESC_PATHS = listOf(
-        "/rootDesc.xml",
         "/description.xml",
+        "/rootDesc.xml",
         "/dms/description.xml",
         "/upnp/IGD.xml",
         "/dms.xml",
         "/miniupnpd.xml",
-        "/etc/linuxigd/gatedesc.xml"
+        "/etc/linuxigd/gatedesc.xml",
+        "/gatedesc.xml"
     )
 
     /**
@@ -68,34 +69,41 @@ object UpnpDlnaClient {
     }
 
     private fun ssdpDiscover(): UpnpServerInfo? {
-        val message = "M-SEARCH * HTTP/1.1\r\n" +
-                "HOST: 239.255.255.250:1900\r\n" +
-                "MAN: \"ssdp:discover\"\r\n" +
-                "MX: 2\r\n" +
-                "ST: urn:schemas-upnp-org:service:ContentDirectory:1\r\n\r\n"
+        val targets = listOf(
+            "urn:schemas-upnp-org:service:ContentDirectory:1",
+            "ssdp:all"
+        )
+        for (target in targets) {
+            val message = "M-SEARCH * HTTP/1.1\r\n" +
+                    "HOST: 239.255.255.250:1900\r\n" +
+                    "MAN: \"ssdp:discover\"\r\n" +
+                    "MX: 2\r\n" +
+                    "ST: $target\r\n\r\n"
 
-        return runCatching {
-            DatagramSocket().use { socket ->
-                socket.soTimeout = 1200
-                val group = InetAddress.getByName("239.255.255.250")
-                val sendPacket = DatagramPacket(message.toByteArray(), message.length, group, 1900)
-                socket.send(sendPacket)
+            val server = runCatching {
+                DatagramSocket().use { socket ->
+                    socket.soTimeout = 1000
+                    val group = InetAddress.getByName("239.255.255.250")
+                    val sendPacket = DatagramPacket(message.toByteArray(), message.length, group, 1900)
+                    socket.send(sendPacket)
 
-                val buf = ByteArray(2048)
-                val recvPacket = DatagramPacket(buf, buf.size)
-                socket.receive(recvPacket)
+                    val buf = ByteArray(2048)
+                    val recvPacket = DatagramPacket(buf, buf.size)
+                    socket.receive(recvPacket)
 
-                val response = String(recvPacket.data, 0, recvPacket.length)
-                val location = response.lines()
-                    .firstOrNull { it.startsWith("LOCATION:", ignoreCase = true) }
-                    ?.substringAfter(":")
-                    ?.trim()
+                    val response = String(recvPacket.data, 0, recvPacket.length)
+                    val locationLine = response.lines()
+                        .firstOrNull { it.startsWith("LOCATION:", ignoreCase = true) }
+                    val location = locationLine?.substringAfter(":")?.trim()
 
-                if (!location.isNullOrBlank()) {
-                    fetchAndParseDeviceDescription(location)
-                } else null
-            }
-        }.getOrNull()
+                    if (!location.isNullOrBlank()) {
+                        fetchAndParseDeviceDescription(location)
+                    } else null
+                }
+            }.getOrNull()
+            if (server != null) return server
+        }
+        return null
     }
 
     private fun probeHost(host: String): UpnpServerInfo? {
@@ -334,9 +342,17 @@ object UpnpDlnaClient {
                         when (parser.name) {
                             "container" -> {
                                 if (currentId.isNotBlank()) {
+                                    val friendlyName = when {
+                                        currentTitle.startsWith("/mnt/usb") -> "📁 فلاشة الراوتر ($currentTitle)"
+                                        currentTitle.equals("Video", ignoreCase = true) -> "🎬 جميع الفيديوهات (Video)"
+                                        currentTitle.equals("Music", ignoreCase = true) -> "🎵 الصوتيات (Music)"
+                                        currentTitle.equals("Photo", ignoreCase = true) -> "🖼️ الصور (Photo)"
+                                        currentTitle.equals("Folder", ignoreCase = true) -> "📂 مستعرض المجلدات (Folder)"
+                                        else -> currentTitle.ifBlank { "مجلد $currentId" }
+                                    }
                                     items.add(
                                         StorageItem(
-                                            name = currentTitle.ifBlank { "مجلد $currentId" },
+                                            name = friendlyName,
                                             path = currentId,
                                             isDirectory = true,
                                             category = FileCategory.FOLDER,

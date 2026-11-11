@@ -121,7 +121,7 @@ fun DropdownMenuDialog(
             ) {
                 val title = when (menu) {
                     ActiveDropdownMenu.INPUTS_AND_NETWORK -> if (isArabic) "📂 المداخل والشبكة" else "📂 Inputs & Network"
-                    ActiveDropdownMenu.TOOLS_AND_FEATURES -> if (isArabic) "🛠️ أدوات ومميزات" else "🛠️ Tools & Features"
+                    ActiveDropdownMenu.TOOLS_AND_FEATURES -> if (isArabic) "🛠️ الأدوات والرياضة" else "🛠️ Tools & Sports"
                     ActiveDropdownMenu.APPEARANCE_AND_SETTINGS -> if (isArabic) "🎨 المظهر والضبط" else "🎨 Appearance & Settings"
                     ActiveDropdownMenu.NONE -> ""
                 }

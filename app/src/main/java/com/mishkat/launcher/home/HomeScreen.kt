@@ -150,6 +150,7 @@ private enum class ActiveOverlay {
     NOTIFICATIONS,
     DEVELOPER_PROFILE,
     STORAGE_EXPLORER,
+    CHANNEL_MANAGER,
 }
 
 @Immutable
@@ -232,15 +233,9 @@ fun HomeScreen(
         )
     }
 
-    val orderedShelves = remember(appSettings.shelfOrder, stations.isNotEmpty()) {
-        appSettings.shelfOrder.filter { id ->
-            if (id == "sections") false
-            else if (id == "radio") stations.isNotEmpty()
-            else true
-        }
-    }
-
-    val firstCardFocus = orderedShelves.firstOrNull()?.let { shelfFocusMap[it] } ?: liveTvFocus
+    // Priority 1: Apps (at the top), Priority 2: Quran Radio + Prayer/Azkar, Priority 3: Satellite Live TV
+    val orderedShelves = remember { listOf("apps", "prayer", "livetv") }
+    val firstCardFocus = appsFocus
 
     // Single mutually-exclusive overlay state so two overlays can NEVER stack on top of each other!
     var activeOverlay by remember { mutableStateOf(ActiveOverlay.NONE) }
@@ -389,7 +384,7 @@ fun HomeScreen(
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .focusProperties { down = npFocus }
+                    .focusProperties { down = appsFocus }
             ) {
                 TopBar(
                     tokens = tokens,
@@ -401,34 +396,6 @@ fun HomeScreen(
                     onOpenDropdownTools = { activeDropdownMenu = ActiveDropdownMenu.TOOLS_AND_FEATURES },
                     onOpenDropdownAppearance = { activeDropdownMenu = ActiveDropdownMenu.APPEARANCE_AND_SETTINGS },
                     onOpenWeather = { activeOverlay = ActiveOverlay.WEATHER },
-                )
-            }
-
-            // Row 1: Persistent NowPlayingBar + SleepTimer integration (§9 / R13)
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .focusProperties {
-                        up = topBarFocus
-                        down = firstCardFocus
-                    }
-            ) {
-                NowPlayingBar(
-                    tokens = tokens,
-                    radioState = radioState,
-                    sleepState = sleepState,
-                    onTogglePlayPause = { graph.radioController.togglePlayPause() },
-                    onNext = { graph.radioController.next() },
-                    onPrev = { graph.radioController.previous() },
-                    onToggleFavorite = {
-                        radioState.currentStation?.let { graph.stationRepository.toggleFavorite(it.id) }
-                    },
-                    onCycleSleepTimer = { graph.sleepTimerRepository.cyclePreset() },
-                    onOpenRadioPanel = {
-                        returnToNowPlaying = true
-                        activeOverlay = ActiveOverlay.RADIO
-                    },
-                    panelTriggerFocus = npFocus,
                 )
             }
 
@@ -446,7 +413,7 @@ fun HomeScreen(
             ) {
                 orderedShelves.forEachIndexed { index, shelfId ->
                     val isFirstShelf = index == 0
-                    val shelfModifier = if (isFirstShelf) Modifier.focusProperties { up = npFocus } else Modifier
+                    val shelfModifier = if (isFirstShelf) Modifier.focusProperties { up = topBarFocus } else Modifier
 
                     item(key = shelfId) {
                         Column(
@@ -477,6 +444,9 @@ fun HomeScreen(
                                     onSyncCloud = {
                                         graph.liveTvRepository.syncFromCloudNow()
                                     },
+                                    onOpenManager = {
+                                        activeOverlay = ActiveOverlay.CHANNEL_MANAGER
+                                    },
                                 )
                                 "apps" -> AppsShelf(
                                     tokens = tokens,
@@ -496,21 +466,43 @@ fun HomeScreen(
                                     },
                                     onRetry = { graph.appsRepository.reload() },
                                 )
-                                "prayer" -> PrayerAndAdhkarRow(
-                                    tokens = tokens,
-                                    prayerState = prayerState,
-                                    use24Hour = appSettings.use24Hour,
-                                    firstFocusRequester = prayerFocus,
-                                    onOpenCityPicker = {
-                                        lastFocusedShelfId = "prayer"
-                                        activeOverlay = ActiveOverlay.CITY_PICKER
-                                    },
-                                    onIncrementTasbih = { graph.prayerRepository.incrementTasbih() },
-                                    onOpenAdhkarPanel = {
-                                        lastFocusedShelfId = "prayer"
-                                        activeOverlay = ActiveOverlay.ADHKAR
-                                    },
-                                )
+                                "prayer" -> Column(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    verticalArrangement = Arrangement.spacedBy(10.dp),
+                                ) {
+                                    NowPlayingBar(
+                                        tokens = tokens,
+                                        radioState = radioState,
+                                        sleepState = sleepState,
+                                        onTogglePlayPause = { graph.radioController.togglePlayPause() },
+                                        onNext = { graph.radioController.next() },
+                                        onPrev = { graph.radioController.previous() },
+                                        onToggleFavorite = {
+                                            radioState.currentStation?.let { graph.stationRepository.toggleFavorite(it.id) }
+                                        },
+                                        onCycleSleepTimer = { graph.sleepTimerRepository.cyclePreset() },
+                                        onOpenRadioPanel = {
+                                            returnToNowPlaying = true
+                                            activeOverlay = ActiveOverlay.RADIO
+                                        },
+                                        panelTriggerFocus = npFocus,
+                                    )
+                                    PrayerAndAdhkarRow(
+                                        tokens = tokens,
+                                        prayerState = prayerState,
+                                        use24Hour = appSettings.use24Hour,
+                                        firstFocusRequester = prayerFocus,
+                                        onOpenCityPicker = {
+                                            lastFocusedShelfId = "prayer"
+                                            activeOverlay = ActiveOverlay.CITY_PICKER
+                                        },
+                                        onIncrementTasbih = { graph.prayerRepository.incrementTasbih() },
+                                        onOpenAdhkarPanel = {
+                                            lastFocusedShelfId = "prayer"
+                                            activeOverlay = ActiveOverlay.ADHKAR
+                                        },
+                                    )
+                                }
                                 "sections" -> SectionsShelf(
                                     tokens = tokens,
                                     stationsCount = stations.size,
@@ -753,7 +745,10 @@ fun HomeScreen(
                         glassIntensity = appSettings.glassIntensity,
                         isLightMode = appSettings.isLightMode,
                         autoWallpaperManager = graph.autoWallpaperManager,
-                        onSelectTheme = { graph.themeRepository.select(it) },
+                        onSelectTheme = {
+                            graph.themeRepository.select(it)
+                            graph.localeRepository.setWallpaperStyle("auto")
+                        },
                         onSelectWallpaper = { graph.localeRepository.setWallpaperStyle(it) },
                         onCycleGlassIntensity = { graph.localeRepository.cycleGlassIntensity() },
                         onToggleLightMode = { graph.localeRepository.toggleLightMode() },
@@ -817,6 +812,12 @@ fun HomeScreen(
                     )
                     ActiveOverlay.STORAGE_EXPLORER -> com.mishkat.launcher.storage.StorageExplorerOverlay(
                         repository = graph.storageRepository,
+                        onDismiss = { activeOverlay = ActiveOverlay.NONE },
+                    )
+                    ActiveOverlay.CHANNEL_MANAGER -> com.mishkat.launcher.livetv.ChannelAndTransponderManagerModal(
+                        tokens = tokens,
+                        repository = graph.liveTvRepository,
+                        isArabic = isArabic,
                         onDismiss = { activeOverlay = ActiveOverlay.NONE },
                     )
                     ActiveOverlay.LOCK_SCREEN -> LockScreenOverlay(
@@ -976,10 +977,10 @@ private fun TopBar(
                     onClick = onOpenDropdownInputs,
                 )
 
-                // Dropdown 2: Tools & Features
+                // Dropdown 2: Tools & Sports
                 TopBarDropdownButton(
                     id = "topbar:btn_tools",
-                    label = if (isArabic) "🛠️ أدوات ومميزات ▾" else "🛠️ Tools & Features ▾",
+                    label = if (isArabic) "🛠️ الأدوات والرياضة ▾" else "🛠️ Tools & Sports ▾",
                     tokens = tokens,
                     glassIntensity = glass,
                     shape = pillShape,
@@ -1274,6 +1275,7 @@ private fun AppsShelf(
 ) {
     var manageMode by remember { mutableStateOf(false) }
     var selectedPkg by remember { mutableStateOf<String?>(null) }
+    val context = LocalContext.current
 
     val visibleApps = (state as? AppsState.Ready)?.visibleApps.orEmpty()
     val totalCount = (state as? AppsState.Ready)?.allApps?.size ?: 0
@@ -1356,6 +1358,36 @@ private fun AppsShelf(
                             val nextCandidate = visibleApps.firstOrNull { it.packageName != pkgToHide }?.packageName
                             selectedPkg = nextCandidate
                             onToggleHide(pkgToHide)
+                        },
+                    )
+                    QuickAppActionBtn(
+                        id = "app_act:settings",
+                        label = if (isArabic) "🧹 مسح الكاش وإيقاف" else "🧹 App Info",
+                        tokens = tokens,
+                        onClick = {
+                            runCatching {
+                                context.startActivity(
+                                    Intent(android.provider.Settings.ACTION_APPLICATION_DETAILS_SETTINGS).apply {
+                                        data = android.net.Uri.parse("package:${selectedApp.packageName}")
+                                        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                                    }
+                                )
+                            }
+                        },
+                    )
+                    QuickAppActionBtn(
+                        id = "app_act:uninstall",
+                        label = if (isArabic) "🗑️ إلغاء التثبيت" else "🗑️ Uninstall",
+                        tokens = tokens,
+                        onClick = {
+                            runCatching {
+                                context.startActivity(
+                                    Intent(Intent.ACTION_DELETE).apply {
+                                        data = android.net.Uri.parse("package:${selectedApp.packageName}")
+                                        addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                                    }
+                                )
+                            }
                         },
                     )
                     QuickAppActionBtn(

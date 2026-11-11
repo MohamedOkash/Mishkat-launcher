@@ -404,91 +404,119 @@ fun SportsPanelOverlay(
             }
 
             // Matches List
-            LazyColumn(
-                modifier = Modifier.fillMaxSize(),
-                verticalArrangement = Arrangement.spacedBy(8.dp),
-                contentPadding = PaddingValues(bottom = 18.dp),
-            ) {
-                items(
-                    items = filtered,
-                    key = { it.id },
-                    contentType = { "match_row" },
-                ) { match ->
-                    val shape = RoundedCornerShape(tokens.cardRadius)
-                    val winner = match.winnerName(isArabic)
-                    val statusBadge = when {
-                        match.isLive -> "● LIVE (${match.statusText})"
-                        winner != null -> stringResource(R.string.sports_winner_fmt, winner)
-                        match.isFinished -> stringResource(R.string.sports_draw_label)
-                        else -> match.statusText
-                    }
-
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .mishkatFocus(id = "match_row:${match.id}")
-                            .clip(shape)
-                            .liquidGlass(
-                                tokens = tokens,
-                                baseColor = if (match.isLive) tokens.cardFocused else tokens.card,
-                                radius = tokens.cardRadius,
-                                glassIntensity = glass,
-                                borderColor = if (match.isLive || winner != null) tokens.primary else tokens.glassRim,
-                            )
-                            .clickable { onSelectFavoriteTeam(match.homeEn) }
-                            .padding(horizontal = 18.dp, vertical = 12.dp),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically,
+            if (filtered.isEmpty()) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(1f)
+                        .padding(32.dp),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    Column(
+                        horizontalAlignment = Alignment.CenterHorizontally,
+                        verticalArrangement = Arrangement.spacedBy(16.dp),
                     ) {
-                        Column(
-                            modifier = Modifier.weight(1f),
-                            verticalArrangement = Arrangement.spacedBy(2.dp),
+                        Text(
+                            text = if (isArabic) "لا توجد مباريات جارية حالياً لهذا اليوم" else "No matches scheduled for today",
+                            color = tokens.onSurfaceMuted,
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.SemiBold,
+                        )
+                        val btnShape = RoundedCornerShape(12.dp)
+                        Box(
+                            modifier = Modifier
+                                .mishkatFocus(id = "sports:empty_refresh", radius = 12.dp)
+                                .clip(btnShape)
+                                .liquidGlass(tokens, tokens.cardFocused, 12.dp, glass, tokens.primary)
+                                .clickable { onRefresh() }
+                                .padding(horizontal = 20.dp, vertical = 10.dp),
                         ) {
                             Text(
-                                text = match.leagueName(isArabic),
+                                text = if (isArabic) "🔄 تحديث الجدول الآن" else "🔄 Refresh Schedule",
                                 color = tokens.primary,
-                                fontSize = 12.sp,
+                                fontSize = 14.sp,
                                 fontWeight = FontWeight.Bold,
                             )
-                            Text(
-                                text = "${match.homeName(isArabic)}  ×  ${match.awayName(isArabic)}",
-                                color = tokens.onSurface,
-                                fontSize = 16.sp,
-                                fontWeight = FontWeight.Bold,
-                                maxLines = 1,
-                                overflow = TextOverflow.Ellipsis,
-                            )
+                        }
+                    }
+                }
+            } else {
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize(),
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                    contentPadding = PaddingValues(bottom = 18.dp),
+                ) {
+                    items(
+                        items = filtered,
+                        key = { it.id },
+                        contentType = { "match_row" },
+                    ) { match ->
+                        val shape = RoundedCornerShape(tokens.cardRadius)
+                        val winner = match.winnerName(isArabic)
+                        val statusBadge = when {
+                            match.isLive -> "● LIVE (${match.statusText})"
+                            winner != null -> stringResource(R.string.sports_winner_fmt, winner)
+                            match.isFinished -> stringResource(R.string.sports_draw_label)
+                            else -> match.statusText
                         }
 
                         Row(
-                            horizontalArrangement = Arrangement.spacedBy(14.dp),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .mishkatFocus(id = "match_row:${match.id}")
+                                .clip(shape)
+                                .liquidGlass(
+                                    tokens = tokens,
+                                    baseColor = if (match.isLive) tokens.cardFocused else tokens.card,
+                                    radius = tokens.cardRadius,
+                                    glassIntensity = glass,
+                                    borderColor = if (match.isLive || winner != null) tokens.primary else tokens.glassRim,
+                                )
+                                .clickable { onSelectFavoriteTeam(match.homeEn) }
+                                .padding(horizontal = 18.dp, vertical = 12.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween,
                             verticalAlignment = Alignment.CenterVertically,
                         ) {
-                            Text(
-                                text = statusBadge,
-                                color = if (winner != null || match.isLive) tokens.primary else tokens.onSurfaceMuted,
-                                fontSize = 13.sp,
-                                fontWeight = FontWeight.SemiBold,
-                            )
-
-                            val scoreShape = RoundedCornerShape(10.dp)
-                            Box(
-                                modifier = Modifier
-                                    .clip(scoreShape)
-                                    .liquidGlass(tokens, tokens.cardFocused, 10.dp, glass, tokens.primary)
-                                    .padding(horizontal = 14.dp, vertical = 6.dp),
+                            Column(
+                                modifier = Modifier.weight(1f),
+                                verticalArrangement = Arrangement.spacedBy(2.dp),
                             ) {
                                 Text(
-                                    text = if (match.isUpcoming) {
-                                        "VS"
-                                    } else {
-                                        "${match.homeScore}  -  ${match.awayScore}"
-                                    },
+                                    text = match.leagueName(isArabic),
                                     color = tokens.primary,
-                                    fontSize = 15.sp,
-                                    fontWeight = FontWeight.Bold,
+                                    fontSize = 12.sp,
+                                    fontWeight = FontWeight.SemiBold,
                                 )
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                ) {
+                                    Text(
+                                        text = match.homeName(isArabic),
+                                        color = tokens.onSurface,
+                                        fontSize = 15.sp,
+                                        fontWeight = FontWeight.Bold,
+                                    )
+                                    Text(
+                                        text = if (match.isLive || match.isFinished) "${match.homeScore} - ${match.awayScore}" else "VS",
+                                        color = tokens.primary,
+                                        fontSize = 15.sp,
+                                        fontWeight = FontWeight.Bold,
+                                    )
+                                    Text(
+                                        text = match.awayName(isArabic),
+                                        color = tokens.onSurface,
+                                        fontSize = 15.sp,
+                                        fontWeight = FontWeight.Bold,
+                                    )
+                                }
                             }
+                            Text(
+                                text = statusBadge,
+                                color = if (match.isLive) Color(0xFFEF4444) else tokens.onSurfaceMuted,
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.Bold,
+                            )
                         }
                     }
                 }

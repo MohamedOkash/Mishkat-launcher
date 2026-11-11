@@ -110,7 +110,7 @@ class AppsRepository(
         scope.launch {
             val data = runCatching { prefs.data.first() }.getOrNull()
             pinnedSet = data?.get(KEY_PINNED).orEmpty()
-            hiddenSet = data?.get(KEY_HIDDEN).orEmpty()
+            hiddenSet = data?.get(KEY_HIDDEN).orEmpty() + DEFAULT_BLOCKED_PACKAGES
             customOrder = data?.get(KEY_CUSTOM_ORDER)
                 ?.split(",")
                 ?.map { it.trim() }
@@ -191,7 +191,7 @@ class AppsRepository(
             val intent = Intent(Intent.ACTION_MAIN).addCategory(category)
             for (ri in pm.queryIntentActivities(intent, 0)) {
                 val ai = ri.activityInfo ?: continue
-                if (ai.packageName == self) continue
+                if (ai.packageName == self || ai.packageName in DEFAULT_BLOCKED_PACKAGES) continue
                 if (!seen.add(ai.packageName)) continue
                 result += toEntry(pm, ri)
             }
@@ -272,5 +272,15 @@ class AppsRepository(
         val KEY_PINNED = stringSetPreferencesKey("pinned_packages")
         val KEY_HIDDEN = stringSetPreferencesKey("hidden_packages")
         val KEY_CUSTOM_ORDER = stringPreferencesKey("custom_app_order_csv")
+
+        val DEFAULT_BLOCKED_PACKAGES = setOf(
+            "com.google.android.youtube.tvmusic",
+            "com.google.android.videos",
+            "com.google.android.play.games",
+            "com.mitv.tvhome.atv",
+            "com.mitv.tvhome.oemtab",
+            "com.xiaomi.mitv.smartshare",
+            "com.xiaomi.statistic",
+        )
     }
 }

@@ -28,6 +28,11 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.ui.graphics.SolidColor
+import androidx.compose.ui.text.TextStyle
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -74,6 +79,7 @@ fun LiveTvQuickShelf(
     onOpenCategory: (ChannelCategory) -> Unit,
     onOpenSatellite: (SatelliteSource) -> Unit = {},
     onSyncCloud: () -> Unit = {},
+    onOpenManager: () -> Unit = {},
     modifier: Modifier = Modifier,
 ) {
     val scrollState = rememberScrollState()
@@ -100,6 +106,23 @@ fun LiveTvQuickShelf(
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
+                // Channel & Transponder Manager Button
+                Box(
+                    modifier = Modifier
+                        .mishkatFocus(id = "livetv:open_mgr", radius = 8.dp)
+                        .clip(RoundedCornerShape(8.dp))
+                        .liquidGlass(tokens, tokens.card, 8.dp, glassIntensity)
+                        .clickable { onOpenManager() }
+                        .padding(horizontal = 8.dp, vertical = 3.dp),
+                ) {
+                    Text(
+                        text = if (isArabic) "⚙️ إدارة الترددات" else "⚙️ Manage",
+                        color = tokens.primary,
+                        fontSize = 11.sp,
+                        fontWeight = FontWeight.SemiBold,
+                    )
+                }
+
                 // Cloud Freq Sync Button
                 Box(
                     modifier = Modifier
@@ -768,5 +791,432 @@ fun LiveTvPlayerOverlay(
                 }
             }
         }
+    }
+}
+
+@Composable
+fun ChannelAndTransponderManagerModal(
+    tokens: ThemeTokens,
+    repository: LiveTvRepository,
+    isArabic: Boolean,
+    onDismiss: () -> Unit,
+) {
+    val state by repository.state.collectAsState()
+    var isAddingChannel by remember { mutableStateOf(false) }
+
+    // Add Channel Form state
+    var newChannelName by remember { mutableStateOf("") }
+    var newFreq by remember { mutableStateOf("11747") }
+    var newPol by remember { mutableStateOf("V") }
+    var newSymbolRate by remember { mutableStateOf("27500") }
+    var newStreamUrl by remember { mutableStateOf("") }
+    var selectedSatellite by remember { mutableStateOf(SatelliteSource.NILESAT_7W) }
+    var selectedCategory by remember { mutableStateOf(ChannelCategory.EGYPT_GENERAL) }
+
+    val firstFocus = remember { FocusRequester() }
+
+    BackHandler {
+        if (isAddingChannel) {
+            isAddingChannel = false
+        } else {
+            onDismiss()
+        }
+    }
+
+    LaunchedEffect(Unit) {
+        delay(60)
+        runCatching { firstFocus.requestFocus() }
+    }
+
+    Dialog(
+        onDismissRequest = onDismiss,
+        properties = DialogProperties(
+            usePlatformDefaultWidth = false,
+            dismissOnBackPress = true,
+            decorFitsSystemWindows = false,
+        ),
+    ) {
+        Box(
+            modifier = Modifier
+                .fillMaxSize()
+                .background(Color(0xE6050A14))
+                .padding(horizontal = 40.dp, vertical = 24.dp),
+        ) {
+            val shape = RoundedCornerShape(16.dp)
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .clip(shape)
+                    .background(Color(0xF00A1020))
+                    .border(1.dp, tokens.primary.copy(alpha = 0.5f), shape)
+                    .padding(24.dp),
+                verticalArrangement = Arrangement.spacedBy(16.dp),
+            ) {
+                // Header
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    ) {
+                        Text(
+                            text = if (isArabic) "⚙️ إدارة القنوات وترددات الأقمار" else "⚙️ Channel & Transponder Manager",
+                            color = tokens.primary,
+                            fontSize = 20.sp,
+                            fontWeight = FontWeight.Bold,
+                        )
+                        Box(
+                            modifier = Modifier
+                                .clip(RoundedCornerShape(8.dp))
+                                .background(tokens.primary.copy(alpha = 0.15f))
+                                .padding(horizontal = 10.dp, vertical = 4.dp),
+                        ) {
+                            Text(
+                                text = if (isArabic) "${state.channels.size} قناة مسجلة" else "${state.channels.size} Channels",
+                                color = tokens.primary,
+                                fontSize = 12.sp,
+                                fontWeight = FontWeight.Bold,
+                            )
+                        }
+                    }
+
+                    Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                        // Toggle Add Form Button
+                        val addBtnShape = RoundedCornerShape(10.dp)
+                        Box(
+                            modifier = Modifier
+                                .mishkatFocus(id = "mgr:add_btn", radius = 10.dp)
+                                .focusRequester(firstFocus)
+                                .clip(addBtnShape)
+                                .background(if (isAddingChannel) Color(0xFFDC2626) else tokens.primary)
+                                .clickable { isAddingChannel = !isAddingChannel }
+                                .padding(horizontal = 14.dp, vertical = 7.dp),
+                        ) {
+                            Text(
+                                text = if (isAddingChannel) (if (isArabic) "✕ إلغاء الإضافة" else "✕ Cancel")
+                                       else (if (isArabic) "➕ إضافة تردد / قناة جديدة" else "➕ Add New Channel"),
+                                color = if (isAddingChannel) Color.White else Color.Black,
+                                fontSize = 13.sp,
+                                fontWeight = FontWeight.Bold,
+                            )
+                        }
+
+                        // Close Button
+                        Box(
+                            modifier = Modifier
+                                .mishkatFocus(id = "mgr:close_btn", radius = 10.dp)
+                                .clip(addBtnShape)
+                                .background(Color(0x33FFFFFF))
+                                .clickable { onDismiss() }
+                                .padding(horizontal = 14.dp, vertical = 7.dp),
+                        ) {
+                            Text(
+                                text = if (isArabic) "إغلاق" else "Close",
+                                color = Color.White,
+                                fontSize = 13.sp,
+                                fontWeight = FontWeight.Bold,
+                            )
+                        }
+                    }
+                }
+
+                if (isAddingChannel) {
+                    // Form to add custom channel/transponder
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .clip(RoundedCornerShape(12.dp))
+                            .background(Color(0xFF0F172A))
+                            .border(1.dp, tokens.primary.copy(alpha = 0.3f), RoundedCornerShape(12.dp))
+                            .padding(16.dp),
+                        verticalArrangement = Arrangement.spacedBy(12.dp),
+                    ) {
+                        Text(
+                            text = if (isArabic) "بيانات التردد والقناة الجديدة:" else "New Channel & Transponder Details:",
+                            color = tokens.primary,
+                            fontSize = 15.sp,
+                            fontWeight = FontWeight.Bold,
+                        )
+
+                        // Satellite Selector Row
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        ) {
+                            Text(
+                                text = if (isArabic) "القمر الصناعي:" else "Satellite:",
+                                color = Color.White,
+                                fontSize = 13.sp,
+                            )
+                            listOf(
+                                SatelliteSource.NILESAT_7W,
+                                SatelliteSource.BADR_26E,
+                                SatelliteSource.ESHAIL_25E,
+                                SatelliteSource.YAHSAT_52E,
+                            ).forEach { sat ->
+                                val sel = selectedSatellite == sat
+                                Box(
+                                    modifier = Modifier
+                                        .mishkatFocus(id = "sat_pick:${sat.id}", radius = 8.dp)
+                                        .clip(RoundedCornerShape(8.dp))
+                                        .background(if (sel) tokens.primary else Color(0x22FFFFFF))
+                                        .clickable { selectedSatellite = sat }
+                                        .padding(horizontal = 10.dp, vertical = 5.dp),
+                                ) {
+                                    Text(
+                                        text = if (isArabic) sat.titleAr else sat.titleEn,
+                                        color = if (sel) Color.Black else Color.White,
+                                        fontSize = 12.sp,
+                                        fontWeight = FontWeight.SemiBold,
+                                    )
+                                }
+                            }
+                        }
+
+                        // Form Inputs
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            horizontalArrangement = Arrangement.spacedBy(12.dp),
+                        ) {
+                            ManagerInputField(
+                                id = "mgr_in:name",
+                                label = if (isArabic) "اسم القناة" else "Channel Name",
+                                value = newChannelName,
+                                onValueChange = { newChannelName = it },
+                                modifier = Modifier.weight(1.5f),
+                            )
+                            ManagerInputField(
+                                id = "mgr_in:freq",
+                                label = if (isArabic) "التردد (Freq)" else "Frequency",
+                                value = newFreq,
+                                onValueChange = { newFreq = it },
+                                modifier = Modifier.weight(1f),
+                            )
+                            // Polarity toggle V / H
+                            Column(modifier = Modifier.weight(0.8f)) {
+                                Text(
+                                    text = if (isArabic) "الاستقطاب" else "Polarity",
+                                    color = Color(0xFF94A3B8),
+                                    fontSize = 11.sp,
+                                )
+                                Spacer(Modifier.height(4.dp))
+                                Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                                    listOf("V", "H").forEach { p ->
+                                        val pSel = newPol == p
+                                        Box(
+                                            modifier = Modifier
+                                                .mishkatFocus(id = "pol_pick:$p", radius = 6.dp)
+                                                .clip(RoundedCornerShape(6.dp))
+                                                .background(if (pSel) tokens.primary else Color(0x33FFFFFF))
+                                                .clickable { newPol = p }
+                                                .padding(horizontal = 12.dp, vertical = 8.dp),
+                                        ) {
+                                            Text(
+                                                text = p,
+                                                color = if (pSel) Color.Black else Color.White,
+                                                fontWeight = FontWeight.Bold,
+                                                fontSize = 13.sp,
+                                            )
+                                        }
+                                    }
+                                }
+                            }
+                            ManagerInputField(
+                                id = "mgr_in:sym",
+                                label = if (isArabic) "الترميز (Symbol Rate)" else "Symbol Rate",
+                                value = newSymbolRate,
+                                onValueChange = { newSymbolRate = it },
+                                modifier = Modifier.weight(1f),
+                            )
+                        }
+
+                        // Stream URL
+                        ManagerInputField(
+                            id = "mgr_in:url",
+                            label = if (isArabic) "رابط البث الحي (HLS / m3u8 stream URL)" else "Stream URL (m3u8)",
+                            value = newStreamUrl,
+                            onValueChange = { newStreamUrl = it },
+                            modifier = Modifier.fillMaxWidth(),
+                        )
+
+                        // Save Button
+                        Box(
+                            modifier = Modifier
+                                .align(Alignment.End)
+                                .mishkatFocus(id = "mgr_in:submit", radius = 10.dp)
+                                .clip(RoundedCornerShape(10.dp))
+                                .background(Color(0xFF10B981))
+                                .clickable {
+                                    if (newChannelName.isNotBlank() && newStreamUrl.isNotBlank()) {
+                                        val newChan = LiveChannel(
+                                            id = "custom_${System.currentTimeMillis()}",
+                                            nameAr = newChannelName,
+                                            nameEn = newChannelName,
+                                            category = selectedCategory.id,
+                                            subtitleAr = "$newFreq $newPol $newSymbolRate",
+                                            streamUrl = newStreamUrl,
+                                            glyph = "📺",
+                                            badge = "Custom",
+                                            satellite = selectedSatellite.id,
+                                            frequency = newFreq,
+                                            polarization = newPol,
+                                            symbolRate = newSymbolRate,
+                                            sourceType = "HLS_STREAM",
+                                        )
+                                        repository.addCustomChannel(newChan)
+                                        isAddingChannel = false
+                                        newChannelName = ""
+                                        newStreamUrl = ""
+                                    }
+                                }
+                                .padding(horizontal = 18.dp, vertical = 8.dp),
+                        ) {
+                            Text(
+                                text = if (isArabic) "💾 حفظ القناة في الذاكرة" else "💾 Save Channel",
+                                color = Color.Black,
+                                fontSize = 13.sp,
+                                fontWeight = FontWeight.Bold,
+                            )
+                        }
+                    }
+                }
+
+                // Channels Table
+                val scrollState = rememberScrollState()
+                Column(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(1f)
+                        .verticalScroll(scrollState),
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                ) {
+                    state.channels.forEachIndexed { index, channel ->
+                        ChannelManagerRow(
+                            index = index + 1,
+                            channel = channel,
+                            tokens = tokens,
+                            isArabic = isArabic,
+                            onMoveUp = { repository.moveChannel(channel.id, -1) },
+                            onMoveDown = { repository.moveChannel(channel.id, 1) },
+                            onDelete = { repository.deleteChannel(channel.id) },
+                            onPlay = {
+                                repository.playChannel(channel)
+                                onDismiss()
+                            },
+                        )
+                    }
+                }
+            }
+        }
+    }
+}
+
+@Composable
+private fun ManagerInputField(
+    id: String,
+    label: String,
+    value: String,
+    onValueChange: (String) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    Column(modifier = modifier) {
+        Text(text = label, color = Color(0xFF94A3B8), fontSize = 11.sp)
+        Spacer(Modifier.height(4.dp))
+        BasicTextField(
+            value = value,
+            onValueChange = onValueChange,
+            textStyle = TextStyle(color = Color.White, fontSize = 13.sp, fontWeight = FontWeight.SemiBold),
+            cursorBrush = SolidColor(Color.White),
+            modifier = Modifier
+                .fillMaxWidth()
+                .mishkatFocus(id = id, radius = 8.dp)
+                .clip(RoundedCornerShape(8.dp))
+                .background(Color(0xFF1E293B))
+                .border(1.dp, Color(0xFF334155), RoundedCornerShape(8.dp))
+                .padding(horizontal = 10.dp, vertical = 8.dp),
+        )
+    }
+}
+
+@Composable
+private fun ChannelManagerRow(
+    index: Int,
+    channel: LiveChannel,
+    tokens: ThemeTokens,
+    isArabic: Boolean,
+    onMoveUp: () -> Unit,
+    onMoveDown: () -> Unit,
+    onDelete: () -> Unit,
+    onPlay: () -> Unit,
+) {
+    val rowShape = RoundedCornerShape(10.dp)
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .mishkatFocus(id = "mgr_row:${channel.id}", radius = 10.dp)
+            .clip(rowShape)
+            .background(Color(0xFF131D33))
+            .border(0.8.dp, Color(0x33FFFFFF), rowShape)
+            .padding(horizontal = 12.dp, vertical = 8.dp),
+        verticalAlignment = Alignment.CenterVertically,
+        horizontalArrangement = Arrangement.SpaceBetween,
+    ) {
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(10.dp),
+            modifier = Modifier.weight(1f),
+        ) {
+            Text(text = "#$index", color = Color(0xFF94A3B8), fontSize = 12.sp, fontWeight = FontWeight.Bold)
+            Text(text = channel.glyph, fontSize = 18.sp)
+            Column {
+                Text(
+                    text = channel.displayName(isArabic),
+                    color = Color.White,
+                    fontSize = 13.sp,
+                    fontWeight = FontWeight.Bold,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                )
+                Text(
+                    text = "${channel.satellite} | ${channel.frequency} ${channel.polarization} ${channel.symbolRate}",
+                    color = tokens.primary,
+                    fontSize = 11.sp,
+                    maxLines = 1,
+                )
+            }
+        }
+
+        // Action Buttons Row
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(6.dp),
+        ) {
+            MgrActionBtn("mgr_btn:play_${channel.id}", "▶ تشغيل", Color(0xFF10B981), onPlay)
+            MgrActionBtn("mgr_btn:up_${channel.id}", "▲", Color(0x44FFFFFF), onMoveUp)
+            MgrActionBtn("mgr_btn:down_${channel.id}", "▼", Color(0x44FFFFFF), onMoveDown)
+            MgrActionBtn("mgr_btn:del_${channel.id}", "🗑️", Color(0x44EF4444), onDelete)
+        }
+    }
+}
+
+@Composable
+private fun MgrActionBtn(
+    id: String,
+    label: String,
+    bgColor: Color,
+    onClick: () -> Unit,
+) {
+    Box(
+        modifier = Modifier
+            .mishkatFocus(id = id, radius = 6.dp)
+            .clip(RoundedCornerShape(6.dp))
+            .background(bgColor)
+            .clickable { onClick() }
+            .padding(horizontal = 8.dp, vertical = 5.dp),
+    ) {
+        Text(text = label, color = Color.White, fontSize = 11.sp, fontWeight = FontWeight.Bold)
     }
 }

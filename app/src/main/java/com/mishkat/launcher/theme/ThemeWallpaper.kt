@@ -198,10 +198,14 @@ private fun isIslamicOrnamentStyle(effectiveStyle: String, themeId: String): Boo
     "arabesque_mandala",
     "islamic_arch",
     "kaaba_kiswah",
-    "desert_night",
-    "aurora_glass",
     -> true
-    else -> false
+    "sports_stadium", "cinema_imax", "winter_snow", "winter_rain", "storm_lightning", "spring_petals", "summer_waves", "autumn_leaves" -> false
+    else -> when (themeId) {
+        "kaaba_gold", "noor", "zomorod", "rimal", "layla", "rawda_sharifa",
+        "andalus_arch", "fajr_sky", "madinah_marble", "damascus_mosaic",
+        "turqoise_dome", "sahara_dunes" -> true
+        else -> false
+    }
 }
 
 /** Resolves the 1920x1080 Full HD photograph filename in `assets/wallpapers/`. */
@@ -227,6 +231,12 @@ fun resolveRealPhotoAsset(effectiveStyle: String, themeId: String): String = whe
         "kaaba_gold" -> "real_makkah_kaaba.jpg"
         "noor" -> "real_madinah_mosque.jpg"
         "zomorod" -> "real_islamic_mosque.jpg"
+        "rawda_sharifa", "madinah_marble", "fajr_sky" -> "real_madinah_mosque.jpg"
+        "andalus_arch", "damascus_mosaic", "turqoise_dome" -> "real_islamic_mosque.jpg"
+        "aurora_borealis" -> "real_storm_lightning.jpg"
+        "cyber_onyx" -> "real_cinema_night.jpg"
+        "ruby_velvet" -> "real_autumn_forest.jpg"
+        "sahara_dunes", "rimal", "layla" -> "real_desert_night.jpg"
         else -> "real_desert_night.jpg"
     }
 }
