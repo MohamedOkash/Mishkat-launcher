@@ -1,29 +1,37 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <widget xmlns="http://www.w3.org/ns/widgets" 
         xmlns:tizen="http://tizen.org/ns/widgets" 
-        id="http://mishkat.tv/launcher" 
-        version="1.8.0" 
+        id="http://mishkat.tv/MishkatLauncher" 
+        version="2.0.0" 
         viewmodes="fullscreen">
-    <tizen:application id="org.mishkat.launcher" 
-                       exec="index.html" 
-                       screen-orientation="landscape" 
-                       context-menu="enable" 
-                       taskswitcher="enable"/>
+
     <name>مشكاة لانشر</name>
-    <tizen:profile name="tv-samsung"/>
-    
-    <tizen:privilege name="http://tizen.org/privilege/tv.inputdevice"/>
-    <tizen:privilege name="http://tizen.org/privilege/internet"/>
-    <tizen:privilege name="http://tizen.org/privilege/application.launch"/>
-    <tizen:privilege name="http://tizen.org/privilege/mediacontroller.client"/>
-    <tizen:privilege name="http://developer.samsung.com/privilege/network.public"/>
-    
+    <description>Mishkat Smart TV Native Launcher</description>
     <icon src="icon.png"/>
-    <tizen:metadata key="http://samsung.com/tv/metadata/use.preview" value="true"/>
+    <content src="index.html"/>
+
+    <tizen:application id="Mishkat001.Launcher" 
+                       package="Mishkat001" 
+                       required_version="2.3"/>
+
+    <tizen:profile name="tv-samsung"/>
+
+    <feature name="http://tizen.org/feature/screen.size.all"/>
+
+    <tizen:privilege name="http://tizen.org/privilege/internet"/>
+    <tizen:privilege name="http://tizen.org/privilege/tv.inputdevice"/>
+    <tizen:privilege name="http://tizen.org/privilege/tv.audio"/>
+    <tizen:privilege name="http://tizen.org/privilege/tv.display"/>
+    <tizen:privilege name="http://tizen.org/privilege/application.launch"/>
+    <tizen:privilege name="http://tizen.org/privilege/application.info"/>
+    <tizen:privilege name="http://developer.samsung.com/privilege/network.public"/>
+
+    <access origin="*" subdomains="true"/>
+    <tizen:allow-navigation>*</tizen:allow-navigation>
+
     <tizen:setting screen-orientation="landscape" 
                    context-menu="enable" 
                    background-support="enable" 
                    encryption="disable" 
-                   install-location="auto" 
-                   hw-acceleration="enable"/>
+                   hwkey-event="enable"/>
 </widget>

@@ -5,8 +5,7 @@
     <meta name="viewport" content="width=1920, height=1080, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>مشكاة لانشر | Mishkat Smart TV</title>
     
-    <!-- Smart TV Platform Specific Scripts -->
-    <!-- Tizen Web API (Loaded conditionally on Samsung) -->
+    <!-- Tizen Web API Keys Registration -->
     <script>
         if (typeof tizen !== 'undefined') {
             try {
@@ -15,12 +14,14 @@
                 tizen.tvinputdevice.registerKey('MediaPlayPause');
                 tizen.tvinputdevice.registerKey('MediaFastForward');
                 tizen.tvinputdevice.registerKey('MediaRewind');
+                tizen.tvinputdevice.registerKey('ChannelUp');
+                tizen.tvinputdevice.registerKey('ChannelDown');
             } catch(e) {}
         }
     </script>
     
-    <!-- HLS.js for modern cross-platform video streaming -->
-    <script src="https://cdn.jsdelivr.net/npm/hls.js@latest"></script>
+    <!-- HLS.js for Live TV Streams (Bundled Offline) -->
+    <script src="js/hls.min.js"></script>
     
     <!-- Google Fonts: Cairo -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -28,226 +29,512 @@
     <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;600;700;800;900&display=swap" rel="stylesheet">
     
     <link rel="stylesheet" href="css/style.css">
+    
+    <!-- Embedded Offline-First Data (Zero-Fetch Failure) -->
+    <script src="js/embedded-data.js"></script>
 </head>
 <body class="tv-screen">
-    <!-- Background Ambient Layer -->
-    <div class="ambient-background"></div>
-    <div class="islamic-motif"></div>
+    <!-- Background Wallpaper Layer & Liquid Glass Scrim -->
+    <div class="wallpaper-layer" id="wallpaperLayer"></div>
+    <div class="wallpaper-layer next" id="wallpaperLayerNext" style="opacity: 0; z-index: 0; transition: opacity 0.6s ease-in-out;"></div>
+    <div class="liquid-glass-scrim"></div>
 
-    <!-- Main Container -->
-    <div class="tv-container" id="mainContainer">
+    <!-- Main TV UI Viewport -->
+    <div class="tv-viewport" id="mainContainer">
         <!-- 1. Top Bar -->
         <header class="top-bar">
-            <div class="top-left">
-                <div class="focusable pill-btn" id="btnDevProfile" tabindex="0">
-                    <span class="pill-icon">👨‍💻</span>
-                    <span class="pill-text">المطور</span>
+            <!-- Right Side (Brand, Time, Weather, Hijri) in RTL -->
+            <div class="brand-time-group">
+                <div class="brand-capsule">
+                    <span class="brand-dot">✦</span>
+                    <span class="brand-title">مِشكاة</span>
+                    <span class="brand-sub">TV 4K</span>
                 </div>
-                <div class="focusable pill-btn" id="btnNotif" tabindex="0">
-                    <span class="pill-icon">🔔</span>
-                    <span class="notif-badge">1</span>
-                </div>
-                <div class="time-widget">
-                    <span id="clockTime" class="clock-digits">11:58 ص</span>
-                    <span id="weatherTemp" class="weather-pill">☀️ 22°C</span>
-                </div>
-                <div class="focusable pill-btn" id="btnLang" tabindex="0">
-                    <span class="pill-text">EN</span>
+                <div class="time-weather-capsule">
+                    <span id="clockTime" class="clock-digits">11:58 م</span>
+                    <span class="separator">•</span>
+                    <span id="weatherTemp" class="weather-badge">🌙 21°C</span>
+                    <span class="separator">•</span>
+                    <span id="hijriDate" class="hijri-badge">١٤ شعبان ١٤٤٧ هـ</span>
                 </div>
             </div>
 
-            <div class="top-right">
-                <div class="focusable pill-btn" id="btnTheme" tabindex="0">
-                    <span class="pill-icon">✨</span>
-                    <span class="pill-text">رمال مذهّب</span>
-                </div>
-                <div class="focusable pill-btn" id="btnSettings" tabindex="0">
-                    <span class="pill-icon">⚙️</span>
-                    <span class="pill-text">الضبط</span>
-                </div>
-                <div class="brand-title">
-                    <span class="brand-name">مِشكاة</span>
-                </div>
+            <!-- Left Side (3 Luxury Dropdowns) in RTL -->
+            <div class="nav-dropdowns-group">
+                <button class="focusable nav-pill-btn" id="btnNavInputs" tabindex="0">
+                    <span class="pill-icon">📂</span>
+                    <span class="pill-label">المداخل والشبكة</span>
+                    <span class="arrow-down">▾</span>
+                </button>
+                <button class="focusable nav-pill-btn" id="btnNavTools" tabindex="0">
+                    <span class="pill-icon">🛠️</span>
+                    <span class="pill-label">الأدوات والرياضة</span>
+                    <span class="arrow-down">▾</span>
+                </button>
+                <button class="focusable nav-pill-btn" id="btnNavThemes" tabindex="0">
+                    <span class="pill-icon">🎨</span>
+                    <span class="pill-label" id="currentThemeLabel">المظهر والضبط</span>
+                    <span class="arrow-down">▾</span>
+                </button>
             </div>
         </header>
 
-        <!-- 2. Persistent Quran Radio Shelf -->
-        <section class="shelf-section radio-shelf">
-            <div class="glass-bar radio-bar">
-                <div class="radio-controls">
-                    <button class="focusable icon-btn" id="btnSleepTimer" tabindex="0">مؤقت النوم</button>
-                    <button class="focusable icon-btn" id="btnRadioFav" tabindex="0">★</button>
-                    <button class="focusable icon-btn" id="btnRadioPrev" tabindex="0">⏮</button>
-                    <button class="focusable play-btn" id="btnRadioPlay" tabindex="0">تشغيل</button>
-                    <button class="focusable icon-btn" id="btnRadioNext" tabindex="0">⏭</button>
-                </div>
-                <div class="radio-info">
-                    <div class="station-name" id="currentStationTitle">إذاعة القرآن الكريم - القاهرة (مباشر)</div>
-                    <div class="reciter-subtitle" id="currentReciterTitle">بث متواصل لأعلام القراء المصريين والعالم الإسلامي</div>
-                </div>
-                <div class="radio-glyph">📻</div>
-            </div>
-        </section>
-
-        <!-- 3. Live Satellite TV Shelf (NileSat) -->
-        <section class="shelf-section livetv-shelf">
-            <!-- Shelf Header -->
-            <div class="shelf-header">
-                <div class="shelf-title-wrap">
-                    <span class="shelf-icon">📺</span>
-                    <h2 class="shelf-title">دليل القنوات الفضائية والساتلايت (نايل سات • بدر • سهيل • ياه سات)</h2>
-                    <span class="live-pill">LIVE</span>
-                </div>
-                <div class="channel-count-pill" id="channelCountBadge">7 قنوات متاحة</div>
-            </div>
-
-            <!-- Category Pills Row -->
-            <div class="categories-row scroll-container" id="categoriesRow">
-                <!-- Dynamically populated categories -->
-            </div>
-
-            <!-- Channels Cards Row -->
-            <div class="channels-row scroll-container" id="channelsRow">
-                <!-- Dynamically populated channels -->
-            </div>
-        </section>
-
-        <!-- 4. Smart Apps Shelf -->
-        <section class="shelf-section apps-shelf">
-            <div class="shelf-header">
-                <h3 class="shelf-subtitle">التطبيقات والوسائط</h3>
-            </div>
-            <div class="apps-row scroll-container" id="appsRow">
-                <div class="focusable app-card app-youtube" tabindex="0" data-app="youtube">
-                    <div class="app-icon">▶️</div>
-                    <div class="app-title">YouTube</div>
-                </div>
-                <div class="focusable app-card app-iptv" tabindex="0" data-app="iptv">
-                    <div class="app-icon">📺</div>
-                    <div class="app-title">IPTV Smarters</div>
-                </div>
-                <div class="focusable app-card app-downloader" tabindex="0" data-app="downloader">
-                    <div class="app-icon">📥</div>
-                    <div class="app-title">Downloader</div>
-                </div>
-                <div class="focusable app-card app-browser" tabindex="0" data-app="browser">
-                    <div class="app-icon">🌐</div>
-                    <div class="app-title">Browser</div>
-                </div>
-                <div class="focusable app-card app-localsend" tabindex="0" data-app="localsend">
-                    <div class="app-icon">📡</div>
-                    <div class="app-title">LocalSend</div>
-                </div>
-                <div class="focusable app-card app-cast" tabindex="0" data-app="cast">
-                    <div class="app-icon">📱</div>
-                    <div class="app-title">Miracast</div>
-                </div>
-            </div>
-        </section>
-
-        <!-- 5. Prayer Times & Daily Adhkar Bar -->
-        <section class="shelf-section prayer-shelf">
-            <div class="glass-bar prayer-bar">
-                <div class="prayer-times-grid">
-                    <div class="prayer-slot" id="slotFajr">
-                        <span class="prayer-name">الفجر</span>
-                        <span class="prayer-time" id="timeFajr">04:46 ص</span>
+        <!-- 2. Main Content Shelves Container -->
+        <main class="shelves-container">
+            
+            <!-- SHELF 1: Samsung Smart Apps & Media Server (Top Priority) -->
+            <section class="shelf-section apps-shelf">
+                <div class="shelf-header">
+                    <div class="shelf-title-pill">
+                        <span class="pill-icon">🚀</span>
+                        <h2 class="shelf-heading">تطبيقات شاشة سامسونج والوسائط</h2>
                     </div>
-                    <div class="prayer-slot active" id="slotDhuhr">
-                        <span class="prayer-name">الظهر</span>
-                        <span class="prayer-time" id="timeDhuhr">11:40 ص</span>
+                    <span class="shelf-hint">اضغط OK لفتح التطبيق</span>
+                </div>
+                <div class="horizontal-shelf-row scroll-container" id="appsRow">
+                    <!-- Dynamic Samsung TV Apps populated from tizen.application.getAppsInfo() -->
+                </div>
+            </section>
+
+            <!-- SHELF 2: Persistent Quran Radio & Prayer Timings -->
+            <section class="shelf-section radio-prayer-shelf">
+                <!-- Radio Banner -->
+                <div class="glass-capsule radio-banner">
+                    <div class="radio-details">
+                        <div class="radio-icon-wrap">
+                            <span class="radio-anim-icon">📻</span>
+                        </div>
+                        <div class="radio-titles">
+                            <h3 class="station-heading" id="currentStationTitle">إذاعة القرآن الكريم - القاهرة (مباشر)</h3>
+                            <p class="reciter-sub" id="currentReciterTitle">بث متواصل على مدار اليوم لأعلام القراء المصريين</p>
+                        </div>
                     </div>
-                    <div class="prayer-slot" id="slotAsr">
-                        <span class="prayer-name">العصر</span>
-                        <span class="prayer-time" id="timeAsr">02:40 م</span>
-                    </div>
-                    <div class="prayer-slot" id="slotMaghrib">
-                        <span class="prayer-name">المغرب</span>
-                        <span class="prayer-time" id="timeMaghrib">05:02 م</span>
-                    </div>
-                    <div class="prayer-slot" id="slotIsha">
-                        <span class="prayer-name">العشاء</span>
-                        <span class="prayer-time" id="timeIsha">06:22 م</span>
+
+                    <div class="radio-actions">
+                        <button class="focusable action-btn" id="btnChooseReciter" tabindex="0">
+                            <span>📖 قائمة القراء (178)</span>
+                        </button>
+                        <button class="focusable action-btn" id="btnRadioPrev" tabindex="0">⏮</button>
+                        <button class="focusable action-btn play-toggle-btn" id="btnRadioPlay" tabindex="0">
+                            <span id="radioPlayIcon">▶ تشغيل</span>
+                        </button>
+                        <button class="focusable action-btn" id="btnRadioNext" tabindex="0">⏭</button>
                     </div>
                 </div>
 
-                <div class="next-prayer-banner">
-                    <div class="next-label">الصلاة القادمة: الظهر بعد</div>
-                    <div class="next-countdown" id="prayerCountdown">00:41:20</div>
+                <!-- Prayer Bar & Adhkar Row -->
+                <div class="prayer-adhkar-row">
+                    <div class="prayer-times-bar">
+                        <div class="prayer-card" id="slotFajr">
+                            <span class="p-name">الفجر</span>
+                            <span class="p-time" id="timeFajr">04:47 ص</span>
+                        </div>
+                        <div class="prayer-card active" id="slotDhuhr">
+                            <span class="p-name">الظهر</span>
+                            <span class="p-time" id="timeDhuhr">11:39 ص</span>
+                        </div>
+                        <div class="prayer-card" id="slotAsr">
+                            <span class="p-name">العصر</span>
+                            <span class="p-time" id="timeAsr">02:39 م</span>
+                        </div>
+                        <div class="prayer-card" id="slotMaghrib">
+                            <span class="p-name">المغرب</span>
+                            <span class="p-time" id="timeMaghrib">05:01 م</span>
+                        </div>
+                        <div class="prayer-card" id="slotIsha">
+                            <span class="p-name">العشاء</span>
+                            <span class="p-time" id="timeIsha">06:20 م</span>
+                        </div>
+                        <div class="countdown-badge">
+                            <span class="cd-label">الصلاة القادمة: الظهر بعد</span>
+                            <span class="cd-digits" id="prayerCountdown">00:38:15</span>
+                        </div>
+                    </div>
+
+                    <!-- Adhkar Cycling Card -->
+                    <div class="focusable adhkar-pill-card" id="adhkarCard" tabindex="0">
+                        <div class="adhkar-header-row">
+                            <span class="adhkar-icon">✨</span>
+                            <span class="adhkar-category" id="adhkarCategory">أذكار الصباح والمساء</span>
+                            <span class="adhkar-counter-badge" id="adhkarCounter">٠</span>
+                            <span class="adhkar-timer-indicator">اضغط للتسبيح • يتجدد كل 20ث</span>
+                        </div>
+                        <p class="adhkar-body" id="adhkarBodyText">
+                            «أَصْبَحْنَا وَأَصْبَحَ الْمُلْكُ لِلَّهِ، وَالْحَمْدُ لِلَّهِ، لَا إِلَهَ إِلَّا اللَّهُ وَحْدَهُ لَا شَرِيكَ لَهُ»
+                        </p>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SHELF 3: Live Satellite TV Channels (4 Satellites) -->
+            <section class="shelf-section channels-shelf">
+                <div class="shelf-header">
+                    <div class="shelf-title-pill">
+                        <span class="pill-icon">📺</span>
+                        <h2 class="shelf-heading">دليل القنوات الفضائية والساتلايت</h2>
+                    </div>
+
+                    <!-- 4 Satellites Selector Tabs -->
+                    <div class="satellites-tabs-group" id="satellitesTabs">
+                        <button class="focusable sat-tab active" data-sat="all" tabindex="0">📡 جميع الأقمار (56)</button>
+                        <button class="focusable sat-tab" data-sat="nilesat_7w" tabindex="0">نايل سات 7°W</button>
+                        <button class="focusable sat-tab" data-sat="badr_26e" tabindex="0">عرب سات / بدر 26°E</button>
+                        <button class="focusable sat-tab" data-sat="eshail_25e" tabindex="0">سهيل سات 25.5°E</button>
+                        <button class="focusable sat-tab" data-sat="yahsat_52e" tabindex="0">ياه سات 52.5°E</button>
+                    </div>
                 </div>
 
-                <div class="adhkar-interactive focusable" id="btnAdhkar" tabindex="0">
-                    <div class="adhkar-tag">أذكار الصباح • اضغط OK للتسبيح</div>
-                    <div class="adhkar-text" id="adhkarMainText">«أَصْبَحْنَا وَأَصْبَحَ المُلْكُ لِلَّهِ، وَالحَمْدُ لِلَّهِ لَا إِلَهَ إِلَّا اللَّهُ»</div>
-                    <div class="tasbeeh-pill" id="tasbeehCounter">١ / ٣٣</div>
+                <!-- Category Filter Pills -->
+                <div class="categories-filter-row" id="categoriesRow">
+                    <!-- Populated dynamically -->
                 </div>
-            </div>
-        </section>
+
+                <!-- Channels Grid / Horizontal Cards -->
+                <div class="horizontal-shelf-row" id="channelsRow">
+                    <!-- Populated dynamically from embedded-data.js -->
+                </div>
+            </section>
+
+        </main>
     </div>
 
-    <!-- 6. Fullscreen Live TV Player Overlay -->
+    <!-- 3. MODALS & OVERLAYS -->
+
+    <!-- Modal 1: Inputs & Network -->
+    <div class="modal-overlay" id="inputsModal">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h2>📂 المداخل والشبكة المحلية</h2>
+                <button class="focusable modal-close-btn" id="btnCloseInputs" tabindex="0">✕ إغلاق (Back)</button>
+            </div>
+            <div class="modal-grid">
+                <div class="focusable input-card" id="btnInputHdmi1" tabindex="0">
+                    <div class="card-icon">🔌</div>
+                    <div class="card-name">HDMI 1</div>
+                    <div class="card-desc">جهاز الاستقبال / ريسيفر خارجي</div>
+                </div>
+                <div class="focusable input-card" id="btnInputHdmi2" tabindex="0">
+                    <div class="card-icon">🎮</div>
+                    <div class="card-name">HDMI 2 (eARC)</div>
+                    <div class="card-desc">أجهزة الألعاب / ساوند بار</div>
+                </div>
+                <div class="focusable input-card" id="btnInputTv" tabindex="0">
+                    <div class="card-icon">📡</div>
+                    <div class="card-name">الريسيفر الداخلي (Live TV)</div>
+                    <div class="card-desc">بث الدش الهوائي المباشر للشاشة</div>
+                </div>
+                <div class="focusable input-card" id="btnInputRouterUPnP" tabindex="0">
+                    <div class="card-icon">💽</div>
+                    <div class="card-name">خادم وسائط الراوتر (H188A)</div>
+                    <div class="card-desc">تشغيل الأفلام من فلاشة الراوتر UPnP</div>
+                </div>
+                <div class="focusable input-card" id="btnInputNetwork" tabindex="0">
+                    <div class="card-icon">📶</div>
+                    <div class="card-name">حالة الشبكة (Wi-Fi)</div>
+                    <div class="card-desc" id="networkInfoText">192.168.1.8 • متصل بالإنترنت</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal 2: Tools & Sports -->
+    <div class="modal-overlay" id="toolsModal">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h2>🛠️ الأدوات والرياضة</h2>
+                <button class="focusable modal-close-btn" id="btnCloseTools" tabindex="0">✕ إغلاق (Back)</button>
+            </div>
+            <div class="modal-grid">
+                <div class="focusable input-card" id="btnToolSports" tabindex="0">
+                    <div class="card-icon">⚽</div>
+                    <div class="card-name">مركز المباريات المباشرة</div>
+                    <div class="card-desc">جدول مباريات اليوم والبطولات</div>
+                </div>
+                <div class="focusable input-card" id="btnToolCleaner" tabindex="0">
+                    <div class="card-icon">⚡</div>
+                    <div class="card-name">تنظيف وتسريع الذاكرة</div>
+                    <div class="card-desc">تفريغ الكاش وتسريع محرك الشاشة</div>
+                </div>
+                <div class="focusable input-card" id="btnToolLock" tabindex="0">
+                    <div class="card-icon">🌙</div>
+                    <div class="card-name">شاشة القفل الليلية</div>
+                    <div class="card-desc">ساعة ليلية خافتة ومواقيت الصلاة</div>
+                </div>
+                <div class="focusable input-card" id="btnToolSleep" tabindex="0">
+                    <div class="card-icon">⏱️</div>
+                    <div class="card-name">مؤقت النوم (Sleep Timer)</div>
+                    <div class="card-desc">إيقاف الراديو والشاشة تدريجياً</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal 3: Appearance & Settings -->
+    <div class="modal-overlay" id="appearanceModal">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h2>🎨 المظهر والضبط</h2>
+                <button class="focusable modal-close-btn" id="btnCloseAppearance" tabindex="0">✕ إغلاق (Back)</button>
+            </div>
+            <div class="modal-grid">
+                <div class="focusable input-card" id="btnOpenThemes" tabindex="0">
+                    <div class="card-icon">🎨</div>
+                    <div class="card-name">باقة الثيمات (20 ثيماً)</div>
+                    <div class="card-desc">تغيير الألوان والزجاج السائل</div>
+                </div>
+                <div class="focusable input-card" id="btnOpenPrayerSettings" tabindex="0">
+                    <div class="card-icon">🕌</div>
+                    <div class="card-name">المدينة وصوت المؤذن</div>
+                    <div class="card-desc">اختيار مدينتك والمؤذن المفضل</div>
+                </div>
+                <div class="focusable input-card" id="btnToggleLanguage" tabindex="0">
+                    <div class="card-icon">🌐</div>
+                    <div class="card-name">لغة الواجهة (Language)</div>
+                    <div class="card-desc">العربية / English</div>
+                </div>
+                <div class="focusable input-card" id="btnOpenDeveloperProfile" tabindex="0">
+                    <div class="card-icon">👨‍💻</div>
+                    <div class="card-name">ملف المطور والشهادات</div>
+                    <div class="card-desc">المهندس محمد عكاش • تيزن سامسونج</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal 4: Themes Pack & Wallpaper Studio (20 Themes) -->
+    <div class="modal-overlay" id="themesModal">
+        <div class="modal-card wide-modal">
+            <div class="modal-header">
+                <h2>🎨 باقة الثيمات والخلفيات الرسمية (20 ثيماً)</h2>
+                <div style="display: flex; gap: 8px;">
+                    <button class="focusable cycle-time-btn" data-minutes="5" tabindex="0">تدوير كل 5د</button>
+                    <button class="focusable cycle-time-btn active" data-minutes="15" tabindex="0">تدوير كل 15د</button>
+                    <button class="focusable cycle-time-btn" data-minutes="60" tabindex="0">تدوير كل ساعة</button>
+                    <button class="focusable modal-close-btn" id="btnCloseThemes" tabindex="0">✕ إغلاق (Back)</button>
+                </div>
+            </div>
+            <div class="themes-grid" id="themesGrid"></div>
+        </div>
+    </div>
+
+    <!-- Modal 5: Reciters & Quran Radio Directory (178 Reciters) -->
+    <div class="modal-overlay" id="recitersModal">
+        <div class="modal-card wide-modal">
+            <div class="modal-header">
+                <h2>📖 موسوعة القراء وإذاعات القرآن الكريم (178 قارئاً)</h2>
+                <button class="focusable modal-close-btn" id="btnCloseReciters" tabindex="0">✕ إغلاق (Back)</button>
+            </div>
+            <div class="modal-search-box">
+                <input type="text" id="recitersSearchInput" class="modal-search-input" placeholder="🔍 اكتب اسم القارئ أو الإذاعة...">
+            </div>
+            <div class="alphabet-bar" id="recitersAlphabetBar"></div>
+            <div class="reciters-grid" id="recitersGrid"></div>
+        </div>
+    </div>
+
+    <!-- Modal 6: Live Sports Center -->
+    <div class="modal-overlay" id="sportsModal">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h2>⚽ مركز المباريات والرياضة العالمية</h2>
+                <button class="focusable modal-close-btn" id="btnCloseSports" tabindex="0">✕ إغلاق (Back)</button>
+            </div>
+            <div class="sports-content">
+                <div class="match-card">
+                    <div class="team">الأهلي المصري</div>
+                    <div class="vs">VS</div>
+                    <div class="team">الزمالك</div>
+                    <div class="match-time">اليوم 08:00 م • نهائي السوبر المصري</div>
+                </div>
+                <div class="match-card">
+                    <div class="team">ريال مدريد</div>
+                    <div class="vs">VS</div>
+                    <div class="team">برشلونة</div>
+                    <div class="match-time">غداً 09:00 م • كلاسيكو الأرض</div>
+                </div>
+                <div class="match-card">
+                    <div class="team">ليفربول</div>
+                    <div class="vs">VS</div>
+                    <div class="team">مانشستر سيتي</div>
+                    <div class="match-time">الأحد 06:30 م • الدوري الإنجليزي</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal 7: City Picker (39 Cities) -->
+    <div class="modal-overlay" id="cityPickerModal">
+        <div class="modal-card wide-modal">
+            <div class="modal-header">
+                <h2>🕌 اختيار المدينة لحساب مواقيت الصلاة بدقة فلكية</h2>
+                <button class="focusable modal-close-btn" id="btnCloseCityPicker" tabindex="0">✕ إغلاق (Back)</button>
+            </div>
+            <div class="cities-grid" id="citiesGrid"></div>
+        </div>
+    </div>
+
+    <!-- Modal 8: Muadhin Voice Picker -->
+    <div class="modal-overlay" id="muadhinPickerModal">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h2>📢 اختيار صوت الأذان المفضل</h2>
+                <button class="focusable modal-close-btn" id="btnCloseMuadhin" tabindex="0">✕ إغلاق (Back)</button>
+            </div>
+            <div class="muadhin-list" id="muadhinList"></div>
+        </div>
+    </div>
+
+    <!-- Modal 9: Device Tools & Cache Cleaner -->
+    <div class="modal-overlay" id="deviceToolsModal">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h2>⚡ أدوات فحص وتسريع شاشة سامسونج</h2>
+                <button class="focusable modal-close-btn" id="btnCloseDeviceTools" tabindex="0">✕ إغلاق (Back)</button>
+            </div>
+            <div style="padding: 10px 0;">
+                <p id="cleanerStatusText" style="font-size: 18px; color: #CBD5E1; margin-bottom: 8px;">حالة النظام: الذاكرة مستقرة ومعالج الشاشة يعمل بسلاسة 4K.</p>
+                <div class="cleaner-progress-bar">
+                    <div class="cleaner-progress-fill" id="cleanerProgressFill"></div>
+                </div>
+                <div style="display: flex; gap: 14px; margin-top: 20px;">
+                    <button class="focusable action-btn play-toggle-btn" id="btnCleanRam" tabindex="0">🧹 تفريغ الكاش وتسريع الشاشة</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal 10: Storage Explorer (UPnP Media Server H188A & USB) -->
+    <div class="modal-overlay" id="storageExplorerModal">
+        <div class="modal-card wide-modal">
+            <div class="modal-header">
+                <div>
+                    <h2>💽 مستعرض وسائط الراوتر والـ USB (UPnP H188A)</h2>
+                    <p id="storageCurrentPath" style="font-size: 14px; color: var(--accent-gold); margin-top: 4px;">/ (المجلد الرئيسي)</p>
+                </div>
+                <div style="display: flex; gap: 8px;">
+                    <button class="focusable action-btn" id="btnStorageBackDir" tabindex="0">⬆ مجلد لأعلى</button>
+                    <button class="focusable action-btn" id="btnStorageRefresh" tabindex="0">🔄 تحديث</button>
+                    <button class="focusable modal-close-btn" id="btnCloseStorage" tabindex="0">✕ إغلاق (Back)</button>
+                </div>
+            </div>
+            <div class="storage-grid" id="storageGrid"></div>
+        </div>
+    </div>
+
+    <!-- Modal 11: Developer Profile Card -->
+    <div class="modal-overlay" id="developerProfileModal">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h2>👨‍💻 بطاقة المطور والشهادات المعتمدة</h2>
+                <button class="focusable modal-close-btn" id="btnCloseDevProfile" tabindex="0">✕ إغلاق (Back)</button>
+            </div>
+            <div style="padding: 20px; line-height: 1.8;">
+                <h3 style="font-size: 26px; color: var(--accent-gold); font-weight: 900;">Eng. Mohamed Okash (م/ محمد عكاش)</h3>
+                <p style="font-size: 18px; color: #FFF; margin-top: 6px;">مشروع مشكاة لانشر الذكي للشاشات التلفزيونية (Mishkat Smart TV)</p>
+                <p style="font-size: 15px; color: #94A3B8; margin-top: 10px;">• نظام التشغيل المستهدف: Samsung Tizen OS 6.0 (UA65AU7000UXEG)</p>
+                <p style="font-size: 15px; color: #94A3B8;">• معرف الشاشة الفريد (DUID): 43CB2NS2KWIGC</p>
+                <p style="font-size: 15px; color: #10B981; font-weight: 700; margin-top: 10px;">✅ الشهادات صادرة رسمياً وموقعة من خوادم سامسونج (svdca.samsungqbe.com)</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Overlay 12: Lock Screen (Dim Night Clock View) -->
+    <div class="lock-screen-overlay" id="lockScreenOverlay">
+        <div class="lock-clock-digits" id="lockClockDigits">11:58 م</div>
+        <div class="lock-sub-row">١٤ شعبان ١٤٤٧ هـ • القاهرة 21°C</div>
+        <p class="lock-quran-verse">«اللَّهُ نُورُ السَّمَاوَاتِ وَالْأَرْضِ مَثَلُ نُورِهِ كَمِشْكَاةٍ فِيهَا مِصْبَاحٌ»</p>
+        <button class="focusable action-btn play-toggle-btn" id="btnWakeFromLock" tabindex="0">استئناف الشاشة (OK / Back)</button>
+    </div>
+
+    <!-- Overlay 13: Fullscreen Adhan Announcement -->
+    <div class="adhan-overlay" id="adhanOverlay">
+        <span style="font-size: 80px;">🕌</span>
+        <h1 class="adhan-title-main" id="adhanPrayerName">حان الآن موعد أذان الصلاة</h1>
+        <p style="font-size: 24px; color: #CBD5E1;">حي على الصلاة • حي على الفلاح</p>
+        <button class="focusable action-btn play-toggle-btn" id="btnDismissAdhan" tabindex="0">إغلاق وتخطي (Back)</button>
+    </div>
+
+    <!-- Overlay 14: Cinema Movie Player Overlay -->
+    <div class="cinema-player-overlay" id="cinemaPlayerOverlay">
+        <video id="cinemaVideoPlayer" class="video-element" controls="false"></video>
+        <div class="player-hud" id="cinemaPlayerHud">
+            <div class="hud-top">
+                <button class="focusable hud-close-btn" id="btnExitCinema" tabindex="0">✕ خروج (Back)</button>
+                <div>
+                    <h1 class="hud-title" id="cinemaTitle">اسم الفيلم</h1>
+                    <p class="hud-sub" id="cinemaSub">4K HDR • 5.1 Surround</p>
+                </div>
+            </div>
+            <div class="hud-controller-bar">
+                <div class="cinema-scrubber-bar">
+                    <div class="cinema-scrubber-fill" id="cinemaScrubberFill"></div>
+                </div>
+                <div id="cinemaTimeDigits" style="font-size: 16px; color: #FFF; font-weight: 700;">00:00 / 00:00</div>
+                <div class="hud-action-row">
+                    <button class="focusable hud-btn" id="btnCinemaRew60" tabindex="0">⏮ -1د</button>
+                    <button class="focusable hud-btn" id="btnCinemaRew15" tabindex="0">⏪ -15ث</button>
+                    <button class="focusable hud-btn hud-play-pause" id="btnCinemaPlayPause" tabindex="0">⏸ إيقاف مؤقت</button>
+                    <button class="focusable hud-btn" id="btnCinemaFwd15" tabindex="0">⏩ +15ث</button>
+                    <button class="focusable hud-btn" id="btnCinemaFwd60" tabindex="0">⏭ +1د</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Overlay 15: Fullscreen Live TV Player Overlay with Side Channel Quick-List -->
     <div class="tv-player-overlay" id="playerOverlay">
         <video id="tvVideoPlayer" class="video-element" autoplay playsinline></video>
         
-        <!-- Player HUD (Heads-Up Display) -->
+        <!-- Video Heads-Up Display (OSD) -->
         <div class="player-hud" id="playerHud">
             <div class="hud-top">
                 <button class="focusable hud-close-btn" id="btnExitPlayer" tabindex="0">✕ خروج (Back)</button>
                 <div class="hud-channel-info">
-                    <span class="hud-badge">LIVE • HLS • 1080p</span>
+                    <span class="hud-badge" id="hudBadge">1080p HD • LIVE</span>
                     <h1 class="hud-title" id="hudChannelTitle">سبيس تون (Spacetoon)</h1>
-                    <p class="hud-sub" id="hudChannelSub">قناة شباب المستقبل - بث مباشر</p>
+                    <p class="hud-sub" id="hudChannelSub">نايل سات 7°W • 11785 V 27500</p>
+                    <div id="hudChannelNumIndicator" style="display: none; background: #E11D48; color: #FFF; padding: 4px 12px; border-radius: 6px; font-weight: 900; margin-top: 6px;"></div>
                 </div>
             </div>
-            
-            <div class="hud-bottom">
-                <span class="hud-hint">▲ / ▼ تقليب القنوات • OK قائمة القنوات السريعة</span>
+
+            <!-- Custom TV Video OSD Controller -->
+            <div class="hud-controller-bar">
+                <div class="hud-action-row">
+                    <button class="focusable hud-btn" id="btnHudRewind" tabindex="0">⏪ -15ث</button>
+                    <button class="focusable hud-btn hud-play-pause" id="btnHudPlayPause" tabindex="0">⏸ إيقاف مؤقت</button>
+                    <button class="focusable hud-btn" id="btnHudForward" tabindex="0">⏩ +15ث</button>
+                    <button class="focusable hud-btn" id="btnHudPrevChannel" tabindex="0">⏮ القناة السابقة</button>
+                    <button class="focusable hud-btn" id="btnHudNextChannel" tabindex="0">⏭ القناة التالية</button>
+                    <button class="focusable hud-btn" id="btnHudChannelList" tabindex="0">📋 قائمة القنوات</button>
+                    <button class="focusable hud-btn" id="btnHudAspect" tabindex="0">🔲 أبعاد الشاشة (16:9)</button>
+                </div>
+                <div class="hud-hint-bar">
+                    <span>الريموت: OK للتشغيل/الإيقاف • ◀ ▶ للتقديم والتأخير • CH+/CH- لتغيير القنوات • 0-9 للانتقال المباشر • Back للرجوع</span>
+                </div>
             </div>
         </div>
 
-        <!-- Player Quick Side Drawer Menu -->
-        <div class="player-quick-menu" id="playerQuickMenu">
-            <div class="quick-menu-header">
-                <h3>📺 قائمة القنوات المباشرة</h3>
+        <!-- Side Channel Quick-List -->
+        <div class="player-side-list" id="playerSideList">
+            <div class="side-list-header">
+                <h3>📋 دليل القنوات السريع (56)</h3>
             </div>
-            <div class="quick-menu-categories" id="quickMenuCategories"></div>
-            <div class="quick-menu-list scroll-container" id="quickMenuList"></div>
-        </div>
-    </div>
-
-    <!-- 7. Developer Profile Dialog -->
-    <div class="modal-overlay" id="devProfileModal">
-        <div class="glass-dialog dev-dialog">
-            <div class="dialog-header">
-                <div class="dev-avatar">👨‍💻</div>
-                <div class="dev-header-text">
-                    <h2 class="dev-name">Eng. Mohamed Okash</h2>
-                    <p class="dev-role">هندسة النظم والبنية التحتية (IT Infrastructure) والسلامة المهنية (HSE)</p>
-                </div>
-                <button class="focusable close-dialog-btn" id="btnCloseDev" tabindex="0">✕ إغلاق</button>
-            </div>
-            <div class="dialog-body">
-                <div class="dev-bio">
-                    <p>مهندس نظم واتصالات متخصص في البنية الرقمية، ومطور حلول التلفزيون الذكي وأنظمة Android TV & Smart TV المتقدمة.</p>
-                    <div class="dev-links">
-                        <div class="link-item">🌐 <strong>الموقع:</strong> mohamed-okash.web.app</div>
-                        <div class="link-item">📧 <strong>البريد:</strong> mohamed.okash1998@gmail.com</div>
-                    </div>
-                </div>
-                <div class="qr-container">
-                    <div class="qr-box">
-                        <img src="https://api.qrserver.com/v1/create-qr-code/?size=160x160&data=https://mohamed-okash.web.app" alt="QR Code">
-                    </div>
-                    <span class="qr-hint">امسح الكود بكاميرا الموبايل لفتح الموقع</span>
-                </div>
-            </div>
+            <div class="side-list-content" id="playerSideListContent"></div>
         </div>
     </div>
 
-    <!-- Scripts -->
-    <script src="js/prayer.js"></script>
-    <script src="js/spatial-nav.js"></script>
-    <script src="js/player.js"></script>
-    <script src="js/app.js"></script>
+    <!-- Application Modular Architecture (ES6 Pure / Chromium 76 Safe) -->
+    <script src="js/embedded-data.js"></script>
+    <script src="js/hls.min.js"></script>
+    <script src="js/core/theme-engine.js"></script>
+    <script src="js/input/spatial-nav.js"></script>
+    <script src="js/home/dropdown-menus.js"></script>
+    <script src="js/home/home-screen.js"></script>
+    <script src="js/livetv/livetv-module.js"></script>
+    <script src="js/radio/radio-module.js"></script>
+    <script src="js/prayer/prayer-module.js"></script>
+    <script src="js/storage/storage-explorer.js"></script>
+    <script src="js/overlays/modals-module.js"></script>
+    <script src="js/main.js"></script>
 </body>
 </html>

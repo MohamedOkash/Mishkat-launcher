@@ -15,7 +15,12 @@ captures/
 *.log
 *.tmp
 .env*
+*.exe
+__pycache__/
 dist/
 *.wgt
 *.ipk
+node_modules/
+tizen/stage/
+tv-web/js/_legacy_monolith/
 
