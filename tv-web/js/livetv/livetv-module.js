@@ -104,8 +104,15 @@
 
         if (!this.videoEl) return;
 
-        // Try Hls.js first if available; fall back to native Tizen HTML5 video
-        if (window.Hls && typeof window.Hls.isSupported === 'function' && window.Hls.isSupported()) {
+        // On Samsung Tizen Smart TVs, native HTML5 video element decodes HLS via hardware GStreamer
+        var canPlayNativeHls = this.videoEl.canPlayType('application/vnd.apple.mpegurl') || 
+                               this.videoEl.canPlayType('application/x-mpegURL');
+
+        if (canPlayNativeHls) {
+            console.log('Using Tizen native hardware HLS player for:', streamUrl);
+            this.videoEl.src = streamUrl;
+            this.videoEl.play().catch(function(e){ console.warn('Native play error:', e); });
+        } else if (window.Hls && typeof window.Hls.isSupported === 'function' && window.Hls.isSupported()) {
             if (this.hls) {
                 this.hls.destroy();
                 this.hls = null;
@@ -123,7 +130,7 @@
                     }
                 });
             } catch(e) {
-                console.warn('Hls.js failed, using native video element:', e);
+                console.warn('Hls.js failed, using native video element fallback:', e);
                 this.videoEl.src = streamUrl;
                 this.videoEl.play().catch(function(){});
             }

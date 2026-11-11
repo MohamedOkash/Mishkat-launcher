@@ -11,7 +11,6 @@
         this.currentFocus = null;
         this.lastHomeFocus = null;
         this.modalStack = [];
-        this.isRTL = true;
 
         this.KEYS = {
             LEFT: 37,
@@ -120,7 +119,7 @@
             return;
         }
 
-        // 3. Normal Launcher Home Navigation
+        // 3. Normal Launcher Home Navigation (Pure Geometric Screen Coordinates)
         switch (code) {
             case this.KEYS.UP:
                 this.moveFocus('up');
@@ -131,13 +130,13 @@
                 e.preventDefault();
                 break;
             case this.KEYS.LEFT:
-                // In RTL, LEFT moves forward/next
-                this.moveFocus(this.isRTL ? 'right-spatial' : 'left-spatial');
+                // Physical screen Left is ALWAYS screen Left
+                this.moveFocus('left');
                 e.preventDefault();
                 break;
             case this.KEYS.RIGHT:
-                // In RTL, RIGHT moves backwards/prev
-                this.moveFocus(this.isRTL ? 'left-spatial' : 'right-spatial');
+                // Physical screen Right is ALWAYS screen Right
+                this.moveFocus('right');
                 e.preventDefault();
                 break;
             case this.KEYS.ENTER:
@@ -170,27 +169,22 @@
                 e.preventDefault();
                 break;
             case this.KEYS.RED:
-                // Red Key: Open Apps Manager
                 if (window.ModalsModule) window.ModalsModule.openAppManager();
                 e.preventDefault();
                 break;
             case this.KEYS.GREEN:
-                // Green Key: Open Live Sports Center
                 if (window.ModalsModule) window.ModalsModule.openSports();
                 e.preventDefault();
                 break;
             case this.KEYS.YELLOW:
-                // Yellow Key: Open Reciters Encyclopedia
                 if (window.RadioModule) window.RadioModule.openRecitersModal();
                 e.preventDefault();
                 break;
             case this.KEYS.BLUE:
-                // Blue Key: Open Themes & Wallpapers
                 if (window.ModalsModule) window.ModalsModule.openThemes();
                 e.preventDefault();
                 break;
             default:
-                // Numeric keys 0-9 for channel jumps
                 if (code >= this.KEYS.NUM_0 && code <= this.KEYS.NUM_9) {
                     var digit = code - this.KEYS.NUM_0;
                     if (window.LiveTvPlayer) {
@@ -235,11 +229,11 @@
                 e.preventDefault();
                 break;
             case this.KEYS.LEFT:
-                this.moveFocusInContainer(this.isRTL ? 'right-spatial' : 'left-spatial', modal);
+                this.moveFocusInContainer('left', modal);
                 e.preventDefault();
                 break;
             case this.KEYS.RIGHT:
-                this.moveFocusInContainer(this.isRTL ? 'left-spatial' : 'right-spatial', modal);
+                this.moveFocusInContainer('right', modal);
                 e.preventDefault();
                 break;
         }
@@ -274,7 +268,6 @@
             if (active) active.classList.remove('active');
         }
 
-        // Restore focus to previous element
         if (this.modalStack.length > 0) {
             var topModal = this.modalStack[this.modalStack.length - 1];
             var f = topModal.querySelector('.focusable');
@@ -291,7 +284,6 @@
         if (this.modalStack.length > 0 || this.getActiveModal()) {
             this.closeTopModal();
         } else {
-            // Confirm exit dialog or lock screen
             if (window.ModalsModule) {
                 window.ModalsModule.openLockScreen();
             }
@@ -324,6 +316,9 @@
         }
 
         var currentRect = this.currentFocus.getBoundingClientRect();
+        var curCenterX = currentRect.left + currentRect.width / 2;
+        var curCenterY = currentRect.top + currentRect.height / 2;
+
         var bestCandidate = null;
         var minDistance = Infinity;
 
@@ -332,31 +327,52 @@
             if (candidate === this.currentFocus) continue;
 
             var r = candidate.getBoundingClientRect();
+            var candCenterX = r.left + r.width / 2;
+            var candCenterY = r.top + r.height / 2;
 
             var isValid = false;
             var primaryDiff = 0;
             var secondaryDiff = 0;
 
             if (direction === 'up') {
-                isValid = r.bottom <= currentRect.top + 8;
-                primaryDiff = currentRect.top - r.bottom;
-                secondaryDiff = Math.abs((currentRect.left + currentRect.width / 2) - (r.left + r.width / 2));
+                // Must be physically higher on screen
+                isValid = (candCenterY < curCenterY - 10) || (r.bottom <= currentRect.top + 8);
+                if (isValid) {
+                    primaryDiff = curCenterY - candCenterY;
+                    secondaryDiff = Math.abs(curCenterX - candCenterX);
+                }
             } else if (direction === 'down') {
-                isValid = r.top >= currentRect.bottom - 8;
-                primaryDiff = r.top - currentRect.bottom;
-                secondaryDiff = Math.abs((currentRect.left + currentRect.width / 2) - (r.left + r.width / 2));
-            } else if (direction === 'left-spatial') {
-                isValid = r.right <= currentRect.left + 8;
-                primaryDiff = currentRect.left - r.right;
-                secondaryDiff = Math.abs((currentRect.top + currentRect.height / 2) - (r.top + r.height / 2));
-            } else if (direction === 'right-spatial') {
-                isValid = r.left >= currentRect.right - 8;
-                primaryDiff = r.left - currentRect.right;
-                secondaryDiff = Math.abs((currentRect.top + currentRect.height / 2) - (r.top + r.height / 2));
+                // Must be physically lower on screen
+                isValid = (candCenterY > curCenterY + 10) || (r.top >= currentRect.bottom - 8);
+                if (isValid) {
+                    primaryDiff = candCenterY - curCenterY;
+                    secondaryDiff = Math.abs(curCenterX - candCenterX);
+                }
+            } else if (direction === 'left') {
+                // Physical screen Left: center is to the left of current center
+                isValid = (candCenterX < curCenterX - 8) || (r.right <= currentRect.left + 8);
+                if (isValid) {
+                    primaryDiff = curCenterX - candCenterX;
+                    secondaryDiff = Math.abs(curCenterY - candCenterY);
+                }
+            } else if (direction === 'right') {
+                // Physical screen Right: center is to the right of current center
+                isValid = (candCenterX > curCenterX + 8) || (r.left >= currentRect.right - 8);
+                if (isValid) {
+                    primaryDiff = candCenterX - curCenterX;
+                    secondaryDiff = Math.abs(curCenterY - candCenterY);
+                }
             }
 
             if (isValid) {
-                var distance = primaryDiff * 1.0 + secondaryDiff * 1.8;
+                // Weighted distance formula: penalize perpendicular deviation to prefer elements in same row/column
+                var distance = 0;
+                if (direction === 'left' || direction === 'right') {
+                    distance = primaryDiff * 1.0 + secondaryDiff * 3.0;
+                } else {
+                    distance = primaryDiff * 1.0 + secondaryDiff * 1.8;
+                }
+
                 if (distance < minDistance) {
                     minDistance = distance;
                     bestCandidate = candidate;

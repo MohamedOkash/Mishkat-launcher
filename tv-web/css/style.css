@@ -58,9 +58,9 @@ body.tv-screen {
     inset: 0;
     width: 100%;
     height: 100%;
-    background: linear-gradient(180deg, rgba(4, 9, 20, 0.78) 0%, rgba(6, 13, 26, 0.90) 100%);
-    backdrop-filter: blur(10px);
-    -webkit-backdrop-filter: blur(10px);
+    background: radial-gradient(circle at 50% 20%, rgba(6, 12, 26, 0.85) 0%, rgba(3, 7, 16, 0.95) 55%, rgba(2, 4, 10, 0.98) 100%);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
     z-index: 1;
     pointer-events: none;
 }
@@ -71,7 +71,7 @@ body.tv-screen {
     z-index: 2;
     width: 1920px;
     height: 1080px;
-    padding: 32px 50px;
+    padding: 24px 48px 28px 48px;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
@@ -261,10 +261,10 @@ body.tv-screen {
 
 /* APP CARDS (Samsung Apps & UPnP) */
 .app-card {
-    min-width: 250px;
-    max-width: 250px;
-    height: 140px;
-    background: rgba(15, 23, 42, 0.88);
+    min-width: 260px;
+    max-width: 260px;
+    height: 150px;
+    background: rgba(13, 20, 36, 0.92);
     border: 1.5px solid var(--glass-border);
     border-radius: 20px;
     padding: 16px 18px;
@@ -276,18 +276,38 @@ body.tv-screen {
     overflow: hidden;
 }
 
+.app-card-featured {
+    border-color: rgba(56, 189, 248, 0.45);
+    background: linear-gradient(145deg, rgba(14, 30, 56, 0.95) 0%, rgba(10, 18, 34, 0.95) 100%);
+}
+
 .app-card-top {
     display: flex;
     justify-content: space-between;
     align-items: center;
 }
 
+.app-icon-wrap {
+    width: 58px;
+    height: 58px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.app-svg-icon {
+    width: 54px;
+    height: 54px;
+    border-radius: 14px;
+    filter: drop-shadow(0 4px 10px rgba(0, 0, 0, 0.45));
+}
+
 .app-icon-img {
     width: 54px;
     height: 54px;
-    border-radius: 12px;
+    border-radius: 14px;
     object-fit: cover;
-    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
 }
 
 .app-icon-emoji {
@@ -301,6 +321,13 @@ body.tv-screen {
     color: #FFF;
     padding: 3px 8px;
     border-radius: 6px;
+    letter-spacing: 0.5px;
+}
+
+.app-badge-pill.badge-cyan {
+    background: rgba(2, 132, 199, 0.25);
+    border: 1px solid rgba(56, 189, 248, 0.5);
+    color: #38BDF8;
 }
 
 .app-title {
@@ -558,13 +585,13 @@ body.tv-screen {
 
 /* CHANNEL CARDS */
 .channel-card {
-    min-width: 270px;
-    max-width: 270px;
-    height: 155px;
-    background: linear-gradient(145deg, rgba(30, 41, 59, 0.75) 0%, rgba(15, 23, 42, 0.85) 100%);
+    min-width: 280px;
+    max-width: 280px;
+    height: 195px;
+    background: linear-gradient(145deg, rgba(20, 30, 48, 0.90) 0%, rgba(11, 17, 30, 0.96) 100%);
     border: 1.5px solid var(--glass-border);
     border-radius: 20px;
-    padding: 16px;
+    padding: 18px;
     display: flex;
     flex-direction: column;
     justify-content: space-between;
@@ -580,21 +607,21 @@ body.tv-screen {
 }
 
 .channel-glyph {
-    font-size: 40px;
+    font-size: 50px;
 }
 
 .channel-badge {
     background: rgba(245, 158, 11, 0.2);
     border: 1px solid rgba(245, 158, 11, 0.4);
     color: var(--accent-gold);
-    font-size: 12px;
+    font-size: 13px;
     font-weight: 800;
-    padding: 3px 8px;
+    padding: 4px 10px;
     border-radius: 6px;
 }
 
 .channel-title {
-    font-size: 19px;
+    font-size: 20px;
     font-weight: 800;
     color: #FFF;
     white-space: nowrap;
@@ -603,7 +630,7 @@ body.tv-screen {
 }
 
 .channel-freq {
-    font-size: 13px;
+    font-size: 14px;
     color: var(--text-muted);
 }
 

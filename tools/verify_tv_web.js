@@ -206,6 +206,22 @@ async function runVerification() {
         }
     }
 
+    // Assertion 5: Real UPnP Router Media Server items assertion
+    if (window.StorageExplorer) {
+        window.StorageExplorer.open('router_upnp');
+        // Wait 300ms for directory load
+        await new Promise(resolve => setTimeout(resolve, 300));
+        const storageItems = document.querySelectorAll('#storageGrid .storage-item-card');
+        console.log(`   • Router UPnP Storage Items Count: ${storageItems.length}`);
+        if (storageItems.length >= 10) {
+            console.log(`   ✅ PASS: Router UPnP explorer rendered ${storageItems.length} real items from ZTE H188A`);
+        } else {
+            console.error(`   ❌ FAIL: Expected >= 10 real router items, found ${storageItems.length}`);
+            allPassed = false;
+        }
+        window.StorageExplorer.close();
+    }
+
     console.log('\n====================================================');
     if (allPassed && navigated) {
         console.log('🎉 ALL PRE-DEPLOY VERIFICATION TESTS PASSED (100%)!');
