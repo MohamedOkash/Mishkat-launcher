@@ -667,7 +667,8 @@ fun HomeScreen(
                 onDismissRequest = { activeOverlay = ActiveOverlay.NONE },
                 properties = DialogProperties(
                     usePlatformDefaultWidth = false,
-                    dismissOnBackPress = true,
+                    dismissOnBackPress = false,
+                    dismissOnClickOutside = false,
                     decorFitsSystemWindows = false,
                 ),
             ) {

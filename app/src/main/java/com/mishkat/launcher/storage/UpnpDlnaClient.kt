@@ -291,6 +291,8 @@ object UpnpDlnaClient {
             var currentId = ""
             var currentTitle = ""
             var currentResUrl = ""
+            var currentProtocolInfo = ""
+            var currentUpnpClass = ""
             var currentSize = 0L
 
             while (eventType != XmlPullParser.END_DOCUMENT) {
@@ -301,21 +303,30 @@ object UpnpDlnaClient {
                                 inContainer = true
                                 currentId = parser.getAttributeValue(null, "id") ?: ""
                                 currentTitle = ""
+                                currentUpnpClass = ""
                             }
                             "item" -> {
                                 inItem = true
                                 currentId = parser.getAttributeValue(null, "id") ?: ""
                                 currentTitle = ""
                                 currentResUrl = ""
+                                currentProtocolInfo = ""
+                                currentUpnpClass = ""
                                 currentSize = 0L
                             }
                             "title", "dc:title" -> {
                                 val t = parser.nextText().trim()
                                 if (t.isNotBlank()) currentTitle = t
                             }
+                            "class", "upnp:class" -> {
+                                val c = parser.nextText().trim()
+                                if (c.isNotBlank()) currentUpnpClass = c
+                            }
                             "res" -> {
                                 currentSize = parser.getAttributeValue(null, "size")?.toLongOrNull() ?: 0L
-                                currentResUrl = parser.nextText().trim()
+                                currentProtocolInfo = parser.getAttributeValue(null, "protocolInfo").orEmpty()
+                                val url = parser.nextText().trim()
+                                if (url.isNotBlank()) currentResUrl = url
                             }
                         }
                     }
@@ -336,7 +347,12 @@ object UpnpDlnaClient {
                             }
                             "item" -> {
                                 if (currentId.isNotBlank()) {
-                                    val cat = categorizeName(currentTitle)
+                                    val cat = determineCategory(
+                                        name = currentTitle,
+                                        resUrl = currentResUrl,
+                                        upnpClass = currentUpnpClass,
+                                        protocolInfo = currentProtocolInfo,
+                                    )
                                     items.add(
                                         StorageItem(
                                             name = currentTitle.ifBlank { "ملف $currentId" },
@@ -360,6 +376,40 @@ object UpnpDlnaClient {
         }
 
         return items.sortedWith(compareBy({ !it.isDirectory }, { it.name.lowercase() }))
+    }
+
+    private fun determineCategory(
+        name: String,
+        resUrl: String,
+        upnpClass: String,
+        protocolInfo: String,
+    ): FileCategory {
+        val upnpLower = upnpClass.lowercase()
+        val protoLower = protocolInfo.lowercase()
+        val urlLower = resUrl.lowercase()
+        val nameLower = name.lowercase()
+
+        return when {
+            upnpLower.contains("video") || protoLower.contains("video") ||
+                urlLower.matches(Regex(".*\\.(mp4|mkv|avi|mov|ts|m2ts|webm|flv|wmv)($|\\?.*)")) ||
+                nameLower.matches(Regex(".*\\.(mp4|mkv|avi|mov|ts|m2ts|webm|flv|wmv)($|\\?.*)")) ||
+                nameLower.contains("720p") || nameLower.contains("1080p") || nameLower.contains("2160p") ||
+                nameLower.contains("4k") || nameLower.contains("bluray") || nameLower.contains("x264") ||
+                nameLower.contains("x265") || nameLower.contains("web-dl") || nameLower.contains("hdrip") -> FileCategory.VIDEO
+
+            upnpLower.contains("audio") || protoLower.contains("audio") ||
+                urlLower.matches(Regex(".*\\.(mp3|m4a|aac|flac|wav|ogg|wma)($|\\?.*)")) ||
+                nameLower.matches(Regex(".*\\.(mp3|m4a|aac|flac|wav|ogg|wma)($|\\?.*)")) -> FileCategory.AUDIO
+
+            upnpLower.contains("image") || protoLower.contains("image") ||
+                urlLower.matches(Regex(".*\\.(jpg|jpeg|png|webp|gif|bmp)($|\\?.*)")) ||
+                nameLower.matches(Regex(".*\\.(jpg|jpeg|png|webp|gif|bmp)($|\\?.*)")) -> FileCategory.IMAGE
+
+            nameLower.endsWith(".apk") -> FileCategory.APK
+            nameLower.matches(Regex(".*\\.(pdf|txt|doc|docx|srt|sub)($|\\?.*)")) -> FileCategory.DOCUMENT
+            resUrl.isNotBlank() -> FileCategory.VIDEO
+            else -> FileCategory.OTHER
+        }
     }
 
     private fun categorizeName(name: String): FileCategory {

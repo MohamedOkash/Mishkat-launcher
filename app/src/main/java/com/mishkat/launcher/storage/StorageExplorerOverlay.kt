@@ -384,7 +384,7 @@ fun StorageExplorerOverlay(
 
         // Active Media Player Modal (Video / Audio)
         state.activeMediaItem?.let { media ->
-            if (media.category == FileCategory.VIDEO || media.category == FileCategory.AUDIO) {
+            if (!media.streamUri.isNullOrBlank() || media.category == FileCategory.VIDEO || media.category == FileCategory.AUDIO) {
                 MediaPlayerModal(
                     item = media,
                     onClose = { repository.playMediaItem(null) },
@@ -439,14 +439,15 @@ private fun StorageItemCard(
     onClick: () -> Unit,
 ) {
     val tokens = LocalThemeTokens.current
-    val icon = when (item.category) {
-        FileCategory.FOLDER -> "📁"
-        FileCategory.VIDEO -> "🎬"
-        FileCategory.AUDIO -> "🎵"
-        FileCategory.IMAGE -> "🖼️"
-        FileCategory.APK -> "📦"
-        FileCategory.DOCUMENT -> "📄"
-        FileCategory.OTHER -> "📎"
+    val icon = when {
+        item.isDirectory -> "📁"
+        item.category == FileCategory.VIDEO -> "🎬"
+        item.category == FileCategory.AUDIO -> "🎵"
+        item.category == FileCategory.IMAGE -> "🖼️"
+        item.category == FileCategory.APK -> "📦"
+        item.category == FileCategory.DOCUMENT -> "📄"
+        !item.streamUri.isNullOrBlank() -> "🎬"
+        else -> "📎"
     }
 
     val focusMod = if (focusRequester != null) Modifier.focusRequester(focusRequester) else Modifier
@@ -705,6 +706,9 @@ private fun MediaPlayerModal(
                 PlayerView(ctx).apply {
                     player = exoPlayer
                     useController = true
+                    setShowBuffering(PlayerView.SHOW_BUFFERING_ALWAYS)
+                    isFocusable = true
+                    requestFocus()
                 }
             },
             modifier = Modifier.fillMaxSize(),
@@ -749,6 +753,10 @@ private fun MediaPlayerModal(
 }
 
 private fun handleItemClick(context: Context, item: StorageItem, repo: NetworkAndUsbStorageRepository) {
+    if (!item.streamUri.isNullOrBlank()) {
+        repo.playMediaItem(item)
+        return
+    }
     when (item.category) {
         FileCategory.VIDEO, FileCategory.AUDIO -> {
             repo.playMediaItem(item)
