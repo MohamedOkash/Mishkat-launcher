@@ -112,6 +112,14 @@
             }
         }
 
+        // 1-B. Cinema Movie Player & VLC Flexible Scrubber Navigation
+        if (window.StorageExplorer && window.StorageExplorer.isCinemaActive()) {
+            if (window.StorageExplorer.handleCinemaKey(code, e)) {
+                e.preventDefault();
+                return;
+            }
+        }
+
         // 2. Active Modal / Overlay Trapping
         var activeModal = this.getActiveModal();
         if (activeModal) {
@@ -196,7 +204,7 @@
     };
 
     SpatialNav.prototype.getActiveModal = function() {
-        var modals = document.querySelectorAll('.modal-overlay.active, .drawer-overlay.active, .app-overlay.active');
+        var modals = document.querySelectorAll('.modal-overlay.active, .drawer-overlay.active, .app-overlay.active, .fx-action-menu-modal.active');
         if (modals && modals.length > 0) {
             return modals[modals.length - 1];
         }

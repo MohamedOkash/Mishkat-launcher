@@ -301,11 +301,11 @@
         </div>
     </div>
 
-    <!-- Modal 4: Themes Pack & Wallpaper Studio (20 Themes) -->
+    <!-- Modal 4: Themes Pack & Wallpaper Studio (30 Themes & 22 4K Wallpapers) -->
     <div class="modal-overlay" id="themesModal">
         <div class="modal-card wide-modal">
             <div class="modal-header">
-                <h2>🎨 باقة الثيمات والخلفيات الرسمية (20 ثيماً)</h2>
+                <h2>🎨 باقة الثيمات والخلفيات فائقة الدقة 4K (30 ثيماً و 22 خلفية 4K)</h2>
                 <div style="display: flex; gap: 8px;">
                     <button class="focusable cycle-time-btn" data-minutes="5" tabindex="0">تدوير كل 5د</button>
                     <button class="focusable cycle-time-btn active" data-minutes="15" tabindex="0">تدوير كل 15د</button>
@@ -403,21 +403,87 @@
         </div>
     </div>
 
-    <!-- Modal 10: Storage Explorer (UPnP Media Server H188A & USB) -->
+    <!-- Modal 10: FX File Commander & Universal Router Cloud Storage (ZTE, Huawei, TP-Link, SMB, FTP, USB) -->
     <div class="modal-overlay" id="storageExplorerModal">
         <div class="modal-card wide-modal">
             <div class="modal-header">
                 <div>
-                    <h2>💽 مستعرض وسائط الراوتر والـ USB (UPnP H188A)</h2>
+                    <h2>📁 مدير ملفات مشكاة وشبكات الراوتر (FX File Commander)</h2>
                     <p id="storageCurrentPath" style="font-size: 14px; color: var(--accent-gold); margin-top: 4px;">/ (المجلد الرئيسي)</p>
                 </div>
-                <div style="display: flex; gap: 8px;">
+                <div style="display: flex; gap: 8px; align-items: center;">
                     <button class="focusable action-btn" id="btnStorageBackDir" tabindex="0">⬆ مجلد لأعلى</button>
-                    <button class="focusable action-btn" id="btnStorageRefresh" tabindex="0">🔄 تحديث</button>
+                    <button class="focusable action-btn" id="btnStorageNewFolder" tabindex="0">➕ مجلد جديد</button>
+                    <button class="focusable action-btn" id="btnStoragePaste" tabindex="0" style="display: none;">📋 لصق</button>
+                    <button class="focusable action-btn" id="btnStorageRefresh" tabindex="0">🔄 فحص الشبكة</button>
                     <button class="focusable modal-close-btn" id="btnCloseStorage" tabindex="0">✕ إغلاق (Back)</button>
                 </div>
             </div>
+
+            <!-- FX Storage Usage Meter Bar -->
+            <div class="fx-storage-meter">
+                <div class="fx-meter-header">
+                    <span id="fxMeterSourceLabel">وحدة التخزين النشطة: خادم وسائط الراوتر والذاكرة</span>
+                    <span id="fxMeterUsageDigits" style="color: var(--accent-gold);">24.8 GB مستخدمة من 32 GB • متبقي 7.2 GB (77%)</span>
+                </div>
+                <div class="fx-meter-track">
+                    <div class="fx-meter-fill" id="fxMeterFill" style="width: 77%;"></div>
+                </div>
+            </div>
+
+            <!-- Router Profiles & Storage Sources Selector Bar -->
+            <div class="router-profiles-bar" id="routerProfilesBar">
+                <button class="focusable router-tab active" data-profile="auto_detect" tabindex="0">🌐 فحص واكتشاف الراوترات (Auto)</button>
+                <button class="focusable router-tab" data-profile="zte" tabindex="0">📡 راوتر ZTE (H188A / ZXHN)</button>
+                <button class="focusable router-tab" data-profile="huawei" tabindex="0">📡 راوتر Huawei (HG658 / DN8245)</button>
+                <button class="focusable router-tab" data-profile="tplink" tabindex="0">📡 راوتر TP-Link / D-Link</button>
+                <button class="focusable router-tab" data-profile="smb" tabindex="0">💻 مشاركة شبكة SMB (Samba)</button>
+                <button class="focusable router-tab" data-profile="ftp" tabindex="0">⚡ خادم FTP الراوتر</button>
+                <button class="focusable router-tab" data-profile="local_usb" tabindex="0">📱 الذاكرة وفلاشات USB</button>
+            </div>
+
+            <!-- Fast Media Categories Filter (FX Style) -->
+            <div class="fx-categories-bar">
+                <button class="focusable fx-cat-pill active" data-cat="all" tabindex="0">📁 الكل (All)</button>
+                <button class="focusable fx-cat-pill" data-cat="video" tabindex="0">🎬 فيديوهات وأفلام</button>
+                <button class="focusable fx-cat-pill" data-cat="audio" tabindex="0">🎵 قرآن وصوتيات</button>
+                <button class="focusable fx-cat-pill" data-cat="image" tabindex="0">🖼️ صور وخلفيات</button>
+                <button class="focusable fx-cat-pill" data-cat="apk" tabindex="0">📦 تطبيقات وحزم APK</button>
+            </div>
+
             <div class="storage-grid" id="storageGrid"></div>
+        </div>
+    </div>
+
+    <!-- Modal 10-B: FX File Actions Dialog (Context Menu for Selected File) -->
+    <div class="fx-action-menu-modal" id="fxActionModal">
+        <div class="fx-action-dialog">
+            <div class="modal-header">
+                <div>
+                    <h3 id="fxActionItemTitle" style="font-size: 20px; color: #FFF; font-weight: 800;">خيارات الملف</h3>
+                    <p id="fxActionItemSub" style="font-size: 13px; color: var(--text-muted);"></p>
+                </div>
+                <button class="focusable modal-close-btn" id="btnCloseFxAction" tabindex="0">✕ إلغاء</button>
+            </div>
+            <div class="fx-action-buttons-grid">
+                <button class="focusable fx-action-btn" id="btnFxPlay" tabindex="0">▶ تشغيل / فتح (Play)</button>
+                <button class="focusable fx-action-btn" id="btnFxCopy" tabindex="0">📋 نسخ (Copy)</button>
+                <button class="focusable fx-action-btn" id="btnFxMove" tabindex="0">✂ قص ونقل (Cut)</button>
+                <button class="focusable fx-action-btn" id="btnFxRename" tabindex="0">✏ إعادة تسمية (Rename)</button>
+                <button class="focusable fx-action-btn" id="btnFxDelete" tabindex="0" style="color: #F87171;">🗑 حذف (Delete)</button>
+                <button class="focusable fx-action-btn" id="btnFxProperties" tabindex="0">ℹ خصائص الملف (Info)</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal 10-C: File Properties Dialog -->
+    <div class="fx-action-menu-modal" id="fxPropertiesModal">
+        <div class="fx-action-dialog" style="width: 550px;">
+            <div class="modal-header">
+                <h3 style="font-size: 22px; color: var(--accent-gold); font-weight: 800;">ℹ خصائص وتفاصيل الملف</h3>
+                <button class="focusable modal-close-btn" id="btnCloseProperties" tabindex="0">✕ إغلاق</button>
+            </div>
+            <div id="fxPropertiesContent" style="font-size: 16px; line-height: 2; color: #CBD5E1;"></div>
         </div>
     </div>
 
@@ -466,10 +532,28 @@
                 </div>
             </div>
             <div class="hud-controller-bar">
-                <div class="cinema-scrubber-bar">
-                    <div class="cinema-scrubber-fill" id="cinemaScrubberFill"></div>
+                <!-- VLC-Style Flexible Scrubber Track with D-Pad & Thumb & Tooltip -->
+                <div class="cinema-scrubber-container">
+                    <div class="cinema-time-row">
+                        <span id="cinemaCurrentTimeDigits">00:00:00</span>
+                        <span id="cinemaScrubStatus" style="font-size: 15px; color: var(--accent-gold); font-weight: 800;">(تحكم مرن بالأسهم ◄ ► أو أرقام الريموت 0-9)</span>
+                        <span id="cinemaTotalTimeDigits">00:00:00</span>
+                    </div>
+                    <div class="focusable cinema-scrubber-track" id="cinemaScrubberTrack" tabindex="0" role="slider" aria-label="شريط تقديم وتأخير الفيديو مرن VLC">
+                        <div class="cinema-scrubber-fill" id="cinemaScrubberFill"></div>
+                        <div class="cinema-scrubber-thumb" id="cinemaScrubberThumb"></div>
+                        <div class="scrubber-tooltip" id="cinemaScrubberTooltip">00:00 (50%)</div>
+                    </div>
+                    <!-- Quick Percentage Jump Pills (VLC Parity) -->
+                    <div class="cinema-quick-jumps">
+                        <span class="quick-jump-label">قفز سريع:</span>
+                        <button class="focusable jump-pill" data-pct="0" tabindex="0">⏮ البداية (0%)</button>
+                        <button class="focusable jump-pill" data-pct="25" tabindex="0">¼ الربع (25%)</button>
+                        <button class="focusable jump-pill" data-pct="50" tabindex="0">½ النصف (50%)</button>
+                        <button class="focusable jump-pill" data-pct="75" tabindex="0">¾ ثلاثة أرباع (75%)</button>
+                    </div>
                 </div>
-                <div id="cinemaTimeDigits" style="font-size: 16px; color: #FFF; font-weight: 700;">00:00 / 00:00</div>
+
                 <div class="hud-action-row">
                     <button class="focusable hud-btn" id="btnCinemaRew60" tabindex="0">⏮ -1د</button>
                     <button class="focusable hud-btn" id="btnCinemaRew15" tabindex="0">⏪ -15ث</button>

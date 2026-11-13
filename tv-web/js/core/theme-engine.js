@@ -10,18 +10,39 @@
     function ThemeEngine() {
         this.themes = [];
         this.wallpapers = [
-            { id: 'makkah_kaaba', name: 'الكعبة المشرفة - مكة المكرمة', path: 'assets/wallpapers/real_makkah_kaaba.jpg' },
-            { id: 'madinah_mosque', name: 'المسجد النبوي - المدينة المنورة', path: 'assets/wallpapers/real_madinah_mosque.jpg' },
-            { id: 'islamic_mosque', name: 'عمارة المساجد الإسلامية', path: 'assets/wallpapers/real_islamic_mosque.jpg' },
-            { id: 'desert_night', name: 'صحراء العرب والنجوم ليلاً', path: 'assets/wallpapers/real_desert_night.jpg' },
-            { id: 'autumn_forest', name: 'الغابات وأوراق الخريف', path: 'assets/wallpapers/real_autumn_forest.jpg' },
-            { id: 'summer_sunset', name: 'شاطئ البحر وغروب الشمس', path: 'assets/wallpapers/real_summer_sunset.jpg' },
-            { id: 'spring_blossom', name: 'زهور الربيع والطبيعة', path: 'assets/wallpapers/real_spring_blossom.jpg' },
-            { id: 'winter_snow', name: 'ثلوج الشتاء النقية', path: 'assets/wallpapers/real_winter_snow.jpg' },
-            { id: 'winter_rain', name: 'أمطار الشتاء وأضواء الليل', path: 'assets/wallpapers/real_winter_rain.jpg' },
-            { id: 'cinema_night', name: 'سينما وأضواء هادئة', path: 'assets/wallpapers/real_cinema_night.jpg' },
-            { id: 'sports_stadium', name: 'الملاعب والرياضة الحماسية', path: 'assets/wallpapers/real_sports_stadium.jpg' },
-            { id: 'storm_lightning', name: 'عواصف وبروق الطبيعة', path: 'assets/wallpapers/real_storm_lightning.jpg' }
+            // Four Seasons 4K
+            { id: 'season_spring_4k', name: 'ربيع الطبيعة والزهور 4K', path: 'assets/wallpapers/season_spring_4k.jpg', cat: 'seasons' },
+            { id: 'season_summer_4k', name: 'شمس وأمواج الصيف 4K', path: 'assets/wallpapers/season_summer_4k.jpg', cat: 'seasons' },
+            { id: 'season_autumn_4k', name: 'خريف الغابات الذهبية 4K', path: 'assets/wallpapers/season_autumn_4k.jpg', cat: 'seasons' },
+            { id: 'season_winter_4k', name: 'شتاء وثلوج نقية 4K', path: 'assets/wallpapers/season_winter_4k.jpg', cat: 'seasons' },
+
+            // Nature 4K
+            { id: 'nature_mountains_4k', name: 'قمم الجبال الساحرة 4K', path: 'assets/wallpapers/nature_mountains_4k.jpg', cat: 'nature' },
+            { id: 'nature_waterfall_4k', name: 'شلالات الطبيعة العذبة 4K', path: 'assets/wallpapers/nature_waterfall_4k.jpg', cat: 'nature' },
+
+            // Dark OLED Luxury 4K
+            { id: 'dark_luxury_onyx_4k', name: 'أونيكس أسود فاخر OLED 4K', path: 'assets/wallpapers/dark_luxury_onyx_4k.jpg', cat: 'dark' },
+            { id: 'dark_carbon_mesh_4k', name: 'ألياف الكربون المظلمة 4K', path: 'assets/wallpapers/dark_carbon_mesh_4k.jpg', cat: 'dark' },
+
+            // Birds & Wildlife 4K
+            { id: 'birds_falcon_eagle_4k', name: 'صقور ونسور الجبال 4K', path: 'assets/wallpapers/birds_falcon_eagle_4k.jpg', cat: 'birds' },
+            { id: 'birds_colorful_kingfisher_4k', name: 'طيور ملونة وببغاوات 4K', path: 'assets/wallpapers/birds_colorful_kingfisher_4k.jpg', cat: 'birds' },
+
+            // Classic Islamic & Landmarks
+            { id: 'real_makkah_kaaba', name: 'الكعبة المشرفة - مكة المكرمة', path: 'assets/wallpapers/real_makkah_kaaba.jpg', cat: 'islamic' },
+            { id: 'real_madinah_mosque', name: 'المسجد النبوي - المدينة المنورة', path: 'assets/wallpapers/real_madinah_mosque.jpg', cat: 'islamic' },
+            { id: 'real_islamic_mosque', name: 'عمارة المساجد الإسلامية', path: 'assets/wallpapers/real_islamic_mosque.jpg', cat: 'islamic' },
+            { id: 'real_desert_night', name: 'صحراء العرب والنجوم ليلاً', path: 'assets/wallpapers/real_desert_night.jpg', cat: 'nature' },
+
+            // Classic Ambients
+            { id: 'real_autumn_forest', name: 'ألوان أوراق الخريف الكلاسيكية', path: 'assets/wallpapers/real_autumn_forest.jpg', cat: 'seasons' },
+            { id: 'real_summer_sunset', name: 'شاطئ البحر وغروب الشمس', path: 'assets/wallpapers/real_summer_sunset.jpg', cat: 'seasons' },
+            { id: 'real_spring_blossom', name: 'زهور الربيع الخضراء', path: 'assets/wallpapers/real_spring_blossom.jpg', cat: 'seasons' },
+            { id: 'real_winter_snow', name: 'ثلوج الشتاء النقية', path: 'assets/wallpapers/real_winter_snow.jpg', cat: 'seasons' },
+            { id: 'real_winter_rain', name: 'أمطار الشتاء وأضواء الليل', path: 'assets/wallpapers/real_winter_rain.jpg', cat: 'seasons' },
+            { id: 'real_cinema_night', name: 'سينما وأجواء الأفلام', path: 'assets/wallpapers/real_cinema_night.jpg', cat: 'ambient' },
+            { id: 'real_sports_stadium', name: 'الملاعب والرياضة الحماسية', path: 'assets/wallpapers/real_sports_stadium.jpg', cat: 'ambient' },
+            { id: 'real_storm_lightning', name: 'عواصف وبروق الطبيعة', path: 'assets/wallpapers/real_storm_lightning.jpg', cat: 'nature' }
         ];
 
         this.currentTheme = null;
@@ -69,15 +90,19 @@
         localStorage.setItem('mishkat_active_theme', found.id);
 
         // Update Wallpaper
-        this.setWallpaper(found.wallpaper);
+        if (found.wallpaper) {
+            this.setWallpaper(found.wallpaper);
+        }
 
-        // Apply Theme Tokens to CSS Variables
+        // Apply Theme Tokens to CSS Variables (Primary, glow, surface, glass blur)
         var root = document.documentElement;
         if (root && root.style) {
-            root.style.setProperty('--accent-gold', found.primary || '#F59E0B');
-            root.style.setProperty('--accent-gold-glow', (found.primary || '#F59E0B') + '73');
-            root.style.setProperty('--glass-border-focus', found.primary || '#F59E0B');
-            root.style.setProperty('--theme-surface', found.surface || '#070B14');
+            var primary = found.primary || '#F59E0B';
+            var surface = found.surface || '#070B14';
+            root.style.setProperty('--accent-gold', primary);
+            root.style.setProperty('--accent-gold-glow', primary + '73');
+            root.style.setProperty('--glass-border-focus', primary);
+            root.style.setProperty('--theme-surface', surface);
         }
 
         // Update Top Bar Label

@@ -679,16 +679,30 @@ body.tv-screen {
 }
 
 .modal-header h2 {
-    font-size: 28px;
+    font-size: 26px;
     font-weight: 800;
     color: var(--accent-gold);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    min-width: 0;
+    flex: 1;
+    padding-left: 16px;
 }
 
 .modal-close-btn {
-    background: rgba(255, 255, 255, 0.1);
-    border: 1.5px solid rgba(255, 255, 255, 0.2);
+    display: inline-flex !important;
+    flex-direction: row !important;
+    align-items: center !important;
+    justify-content: center !important;
+    gap: 8px !important;
+    white-space: nowrap !important;
+    flex-shrink: 0 !important;
+    min-width: 145px !important;
+    background: rgba(255, 255, 255, 0.12);
+    border: 1.5px solid rgba(255, 255, 255, 0.25);
     color: #FFF;
-    padding: 8px 20px;
+    padding: 8px 22px;
     border-radius: 12px;
     font-size: 16px;
     font-weight: 700;
@@ -1057,20 +1071,338 @@ body.tv-screen {
     display: block;
 }
 
-.cinema-scrubber-bar {
-    width: 80%;
-    height: 8px;
-    background: rgba(255, 255, 255, 0.2);
-    border-radius: 4px;
-    overflow: hidden;
-    margin: 8px 0;
+/* VLC-Style Cinema Movie Scrubber & Flexible Seeking */
+.cinema-scrubber-container {
+    width: 90%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    margin: 10px 0;
+}
+
+.cinema-scrubber-track {
+    position: relative;
+    width: 100%;
+    height: 12px;
+    background: rgba(255, 255, 255, 0.22);
+    border-radius: 999px;
+    cursor: pointer;
+    transition: height 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s ease, border-color 0.2s ease;
+    border: 2px solid transparent;
+}
+
+.cinema-scrubber-track:focus,
+.cinema-scrubber-track.focused {
+    height: 18px;
+    border-color: var(--accent-gold) !important;
+    box-shadow: 0 0 25px rgba(245, 158, 11, 0.8), 0 0 45px rgba(245, 158, 11, 0.4) !important;
+    transform: scale(1.01);
 }
 
 .cinema-scrubber-fill {
-    width: 0%;
+    position: absolute;
+    top: 0;
+    right: 0; /* In RTL */
     height: 100%;
-    background: var(--accent-gold);
-    transition: width 0.3s ease;
+    width: 0%;
+    background: linear-gradient(90deg, #F59E0B 0%, #FBBF24 100%);
+    border-radius: 999px;
+    pointer-events: none;
+    transition: width 0.15s ease-out;
+}
+
+.cinema-scrubber-thumb {
+    position: absolute;
+    top: 50%;
+    right: 0%;
+    transform: translate(50%, -50%);
+    width: 24px;
+    height: 24px;
+    background: #FFF;
+    border: 3px solid var(--accent-gold);
+    border-radius: 50%;
+    box-shadow: 0 0 15px rgba(0, 0, 0, 0.8), 0 0 12px var(--accent-gold);
+    pointer-events: none;
+    transition: right 0.15s ease-out;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.scrubber-tooltip {
+    position: absolute;
+    bottom: 34px;
+    background: rgba(15, 23, 42, 0.95);
+    border: 1.5px solid var(--accent-gold);
+    color: #FFF;
+    padding: 6px 14px;
+    border-radius: 10px;
+    font-size: 16px;
+    font-weight: 800;
+    white-space: nowrap;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.7);
+    pointer-events: none;
+    display: none;
+}
+
+.cinema-scrubber-track:focus .scrubber-tooltip,
+.cinema-scrubber-track.focused .scrubber-tooltip,
+.cinema-scrubber-track.scrubbing .scrubber-tooltip {
+    display: block;
+}
+
+.cinema-time-row {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 18px;
+    font-weight: 800;
+    color: #F8FAFC;
+    padding: 0 4px;
+}
+
+.cinema-quick-jumps {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 4px;
+}
+
+.quick-jump-label {
+    font-size: 15px;
+    font-weight: 700;
+    color: var(--accent-gold);
+    margin-left: 6px;
+}
+
+.jump-pill {
+    background: rgba(30, 41, 59, 0.85);
+    border: 1.5px solid rgba(255, 255, 255, 0.18);
+    color: #F1F5F9;
+    padding: 6px 16px;
+    border-radius: 999px;
+    font-size: 15px;
+    font-weight: 800;
+    cursor: pointer;
+    backdrop-filter: blur(12px);
+    transition: all 0.2s ease;
+}
+
+.jump-pill:focus,
+.jump-pill.focused {
+    background: var(--accent-gold) !important;
+    color: #000 !important;
+    border-color: var(--accent-gold) !important;
+    transform: scale(1.08) !important;
+    box-shadow: 0 0 20px rgba(245, 158, 11, 0.7) !important;
+}
+
+/* FX File Commander & Universal Router Storage */
+.fx-storage-meter {
+    background: rgba(15, 23, 42, 0.85);
+    border: 1.5px solid var(--glass-border);
+    border-radius: 16px;
+    padding: 12px 20px;
+    margin-bottom: 14px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.fx-meter-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 15px;
+    font-weight: 700;
+}
+
+.fx-meter-track {
+    width: 100%;
+    height: 10px;
+    background: rgba(255, 255, 255, 0.12);
+    border-radius: 999px;
+    overflow: hidden;
+}
+
+.fx-meter-fill {
+    height: 100%;
+    width: 65%;
+    background: linear-gradient(90deg, #10B981 0%, #38BDF8 60%, #F59E0B 100%);
+    border-radius: 999px;
+}
+
+/* Multi-Router Profiles Selector Bar */
+.router-profiles-bar {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    overflow-x: auto;
+    padding: 4px 2px 12px 2px;
+    scrollbar-width: none;
+    border-bottom: 1.5px solid rgba(255, 255, 255, 0.08);
+    margin-bottom: 12px;
+}
+
+.router-tab {
+    display: inline-flex;
+    align-items: center;
+    gap: 8px;
+    background: rgba(30, 41, 59, 0.7);
+    border: 1.5px solid rgba(255, 255, 255, 0.14);
+    color: #CBD5E1;
+    padding: 8px 18px;
+    border-radius: 999px;
+    font-size: 15px;
+    font-weight: 700;
+    white-space: nowrap;
+    flex-shrink: 0;
+}
+
+.router-tab.active {
+    background: linear-gradient(135deg, rgba(245, 158, 11, 0.25) 0%, rgba(15, 23, 42, 0.9) 100%);
+    border-color: var(--accent-gold);
+    color: var(--accent-gold);
+    font-weight: 900;
+}
+
+/* Categories Filter Bar */
+.fx-categories-bar {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 14px;
+}
+
+.fx-cat-pill {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    color: #94A3B8;
+    padding: 6px 16px;
+    border-radius: 999px;
+    font-size: 14px;
+    font-weight: 700;
+    cursor: pointer;
+}
+
+.fx-cat-pill.active {
+    background: rgba(56, 189, 248, 0.2);
+    border-color: #38BDF8;
+    color: #38BDF8;
+}
+
+/* FX File Cards */
+.fx-file-card {
+    height: 150px;
+    background: rgba(15, 23, 42, 0.90);
+    border: 1.5px solid var(--glass-border);
+    border-radius: 18px;
+    padding: 16px;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.fx-card-top {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+}
+
+.fx-card-icon {
+    font-size: 42px;
+}
+
+.fx-badge-group {
+    display: flex;
+    gap: 6px;
+}
+
+.fx-card-badge {
+    font-size: 11px;
+    font-weight: 800;
+    padding: 3px 8px;
+    border-radius: 6px;
+    background: rgba(255, 255, 255, 0.12);
+    color: #FFF;
+}
+
+.fx-card-badge.badge-folder { background: rgba(56, 189, 248, 0.2); color: #38BDF8; }
+.fx-card-badge.badge-video { background: rgba(239, 68, 68, 0.25); color: #F87171; }
+.fx-card-badge.badge-audio { background: rgba(16, 185, 129, 0.25); color: #34D399; }
+.fx-card-badge.badge-image { background: rgba(245, 158, 11, 0.25); color: #FBBF24; }
+.fx-card-badge.badge-apk { background: rgba(168, 85, 247, 0.25); color: #C084FC; }
+
+.fx-file-title {
+    font-size: 17px;
+    font-weight: 800;
+    color: #FFF;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.fx-file-meta {
+    font-size: 13px;
+    color: var(--text-muted);
+    display: flex;
+    justify-content: space-between;
+    margin-top: 2px;
+}
+
+/* File Actions Context Menu / Dialog */
+.fx-action-menu-modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.75);
+    z-index: 250;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    backdrop-filter: blur(15px);
+}
+
+.fx-action-menu-modal.active {
+    display: flex;
+}
+
+.fx-action-dialog {
+    width: 600px;
+    background: rgba(15, 23, 42, 0.96);
+    border: 2px solid var(--accent-gold);
+    border-radius: 24px;
+    padding: 26px;
+    box-shadow: 0 25px 60px rgba(0, 0, 0, 0.9);
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.fx-action-buttons-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+}
+
+.fx-action-btn {
+    background: rgba(30, 41, 59, 0.85);
+    border: 1.5px solid rgba(255, 255, 255, 0.15);
+    color: #FFF;
+    padding: 12px 18px;
+    border-radius: 14px;
+    font-size: 16px;
+    font-weight: 800;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    cursor: pointer;
+}
+
+.cinema-scrubber-bar {
+    display: none;
 }
 
 /* Lock Screen Overlay (Dim Night Clock) */

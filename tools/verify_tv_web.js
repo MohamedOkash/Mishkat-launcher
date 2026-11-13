@@ -222,6 +222,64 @@ async function runVerification() {
         window.StorageExplorer.close();
     }
 
+    // Assertion 6: All 22 Wallpapers Exist on Disk and in ThemeEngine
+    const wpDir = path.resolve(__dirname, '../tv-web/assets/wallpapers');
+    const expectedWps = [
+        'season_spring_4k.jpg', 'season_summer_4k.jpg', 'season_autumn_4k.jpg', 'season_winter_4k.jpg',
+        'nature_mountains_4k.jpg', 'nature_waterfall_4k.jpg',
+        'dark_luxury_onyx_4k.jpg', 'dark_carbon_mesh_4k.jpg',
+        'birds_falcon_eagle_4k.jpg', 'birds_colorful_kingfisher_4k.jpg',
+        'real_makkah_kaaba.jpg', 'real_madinah_mosque.jpg', 'real_islamic_mosque.jpg', 'real_desert_night.jpg',
+        'real_autumn_forest.jpg', 'real_summer_sunset.jpg', 'real_spring_blossom.jpg', 'real_winter_snow.jpg',
+        'real_winter_rain.jpg', 'real_cinema_night.jpg', 'real_sports_stadium.jpg', 'real_storm_lightning.jpg'
+    ];
+    let wpPass = true;
+    for (const wp of expectedWps) {
+        const fullWp = path.join(wpDir, wp);
+        if (!fs.existsSync(fullWp) || fs.statSync(fullWp).size < 50000) {
+            console.error(`   ❌ FAIL: Missing or invalid wallpaper asset: ${wp}`);
+            wpPass = false;
+            allPassed = false;
+        }
+    }
+    if (wpPass) {
+        console.log(`   ✅ PASS: All 22 4K high-res wallpapers verified on disk (> 50KB each)!`);
+    }
+
+    // Assertion 7: 30 Themes loaded in ThemeEngine
+    if (window.MISHKAT_DATA && window.MISHKAT_DATA.themes) {
+        const themeCount = window.MISHKAT_DATA.themes.length;
+        console.log(`   • Total Themes in Database: ${themeCount}`);
+        if (themeCount === 30) {
+            console.log(`   ✅ PASS: Exactly 30 official themes verified in database`);
+        } else {
+            console.error(`   ❌ FAIL: Expected 30 themes, found ${themeCount}`);
+            allPassed = false;
+        }
+    }
+
+    // Assertion 8: FX File Commander router profile selector & categories
+    const routerTabs = document.querySelectorAll('#routerProfilesBar .router-tab');
+    const catPills = document.querySelectorAll('.fx-categories-bar .fx-cat-pill');
+    console.log(`   • Router Profiles Tabs Count: ${routerTabs.length}`);
+    console.log(`   • Categories Filter Pills Count: ${catPills.length}`);
+    if (routerTabs.length >= 7 && catPills.length === 5) {
+        console.log(`   ✅ PASS: FX File Commander router profiles (${routerTabs.length}) and categories (${catPills.length}) verified`);
+    } else {
+        console.error(`   ❌ FAIL: Router profiles or categories missing`);
+        allPassed = false;
+    }
+
+    // Assertion 9: VLC-Style Flexible Scrubber & Quick Jump Pills
+    const scrubberTrack = document.getElementById('cinemaScrubberTrack');
+    const jumpPills = document.querySelectorAll('.cinema-quick-jumps .jump-pill');
+    if (scrubberTrack && jumpPills.length === 4) {
+        console.log(`   ✅ PASS: VLC Flexible Scrubber Track and ${jumpPills.length} quick-jump pills (0%, 25%, 50%, 75%) verified`);
+    } else {
+        console.error(`   ❌ FAIL: VLC Scrubber elements missing from Cinema HUD`);
+        allPassed = false;
+    }
+
     console.log('\n====================================================');
     if (allPassed && navigated) {
         console.log('🎉 ALL PRE-DEPLOY VERIFICATION TESTS PASSED (100%)!');
