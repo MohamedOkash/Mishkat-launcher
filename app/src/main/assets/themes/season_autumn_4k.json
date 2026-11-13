@@ -1,0 +1,46 @@
+{
+  "id": "season_autumn_4k",
+  "name": "خريف الغابات الذهبية 4K",
+  "nameEn": "Autumn Forest 4K",
+  "builtin": true,
+  "palette": {
+    "primary": "#EA580C",
+    "surface": "#1B0F07",
+    "onSurface": "#FFF7ED",
+    "panelAccents": {
+      "sleep": "#2D180B",
+      "prayer": "#251308",
+      "tools": "#381E0D",
+      "weather": "#2B160A"
+    }
+  },
+  "wallpaper": {
+    "type": "gradient",
+    "asset": "season_autumn_4k",
+    "parallax": 0.15,
+    "gradient": [
+      "#2D180B",
+      "#1B0F07",
+      "#0F0703"
+    ],
+    "pattern": {
+      "type": "autumn_leaves",
+      "alpha": 0.18,
+      "cell": 100
+    }
+  },
+  "cards": {
+    "radius": 18,
+    "glass": 0.72,
+    "strokeAlpha": 0.32
+  },
+  "icons": {
+    "mask": "squircle_22",
+    "pack": "mishkat_cute_v1"
+  },
+  "motion": {
+    "focusScale": 1.04,
+    "enterMs": 220,
+    "springDamping": 0.88
+  }
+}

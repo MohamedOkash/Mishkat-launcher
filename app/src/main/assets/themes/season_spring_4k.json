@@ -1,0 +1,46 @@
+{
+  "id": "season_spring_4k",
+  "name": "ربيع الطبيعة والزهور 4K",
+  "nameEn": "Spring Blossom 4K",
+  "builtin": true,
+  "palette": {
+    "primary": "#4ADE80",
+    "surface": "#0C1F15",
+    "onSurface": "#F0FDF4",
+    "panelAccents": {
+      "sleep": "#133522",
+      "prayer": "#0F2E1D",
+      "tools": "#17402A",
+      "weather": "#113B24"
+    }
+  },
+  "wallpaper": {
+    "type": "gradient",
+    "asset": "season_spring_4k",
+    "parallax": 0.15,
+    "gradient": [
+      "#163824",
+      "#0C1F15",
+      "#06120C"
+    ],
+    "pattern": {
+      "type": "spring_petals",
+      "alpha": 0.18,
+      "cell": 100
+    }
+  },
+  "cards": {
+    "radius": 18,
+    "glass": 0.72,
+    "strokeAlpha": 0.32
+  },
+  "icons": {
+    "mask": "squircle_22",
+    "pack": "mishkat_cute_v1"
+  },
+  "motion": {
+    "focusScale": 1.04,
+    "enterMs": 220,
+    "springDamping": 0.88
+  }
+}

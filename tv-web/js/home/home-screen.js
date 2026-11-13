@@ -117,7 +117,7 @@
                 '<span class="app-badge-pill badge-cyan">ROUTER UPnP</span>' +
             '</div>' +
             '<div>' +
-                '<div class="app-title">أفلام فلاشة الراوتر (H188A)</div>' +
+                '<div class="app-title">أفلام فلاشة الراوتر (UPnP)</div>' +
                 '<div class="app-desc">خادم وسائط UPnP • 192.168.1.1:52868</div>' +
             '</div>';
 

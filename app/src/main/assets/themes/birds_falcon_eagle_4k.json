@@ -1,0 +1,46 @@
+{
+  "id": "birds_falcon_eagle_4k",
+  "name": "صقور ونسور الجبال 4K",
+  "nameEn": "Royal Falcon 4K",
+  "builtin": true,
+  "palette": {
+    "primary": "#FBBF24",
+    "surface": "#161108",
+    "onSurface": "#FEF3C7",
+    "panelAccents": {
+      "sleep": "#271E10",
+      "prayer": "#20180B",
+      "tools": "#302514",
+      "weather": "#261C0D"
+    }
+  },
+  "wallpaper": {
+    "type": "gradient",
+    "asset": "birds_falcon_eagle_4k",
+    "parallax": 0.15,
+    "gradient": [
+      "#271E10",
+      "#161108",
+      "#0B0803"
+    ],
+    "pattern": {
+      "type": "arabesque_mandala",
+      "alpha": 0.15,
+      "cell": 100
+    }
+  },
+  "cards": {
+    "radius": 18,
+    "glass": 0.72,
+    "strokeAlpha": 0.32
+  },
+  "icons": {
+    "mask": "squircle_22",
+    "pack": "mishkat_cute_v1"
+  },
+  "motion": {
+    "focusScale": 1.04,
+    "enterMs": 220,
+    "springDamping": 0.88
+  }
+}

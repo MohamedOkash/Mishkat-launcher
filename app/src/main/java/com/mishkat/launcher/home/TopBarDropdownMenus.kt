@@ -137,11 +137,23 @@ fun DropdownMenuDialog(
                         fontSize = 17.sp,
                         fontWeight = FontWeight.Bold,
                     )
-                    Text(
-                        text = "Esc / Back ✕",
-                        color = tokens.onSurfaceMuted,
-                        fontSize = 11.sp,
-                    )
+                    Row(
+                        modifier = Modifier
+                            .clip(RoundedCornerShape(8.dp))
+                            .background(Color(0x33FFFFFF))
+                            .clickable { onDismiss() }
+                            .padding(horizontal = 10.dp, vertical = 4.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Text(
+                            text = "✕ إغلاق (Back)",
+                            color = Color.White,
+                            fontSize = 11.sp,
+                            fontWeight = FontWeight.SemiBold,
+                            maxLines = 1,
+                            softWrap = false,
+                        )
+                    }
                 }
 
                 Spacer(modifier = Modifier.height(4.dp))
@@ -151,8 +163,8 @@ fun DropdownMenuDialog(
                         DropdownItemRow(
                             id = "drop:upnp",
                             icon = "📡",
-                            title = if (isArabic) "الشبكة المحلية UPnP / DLNA (H188A)" else "Local UPnP / DLNA (H188A)",
-                            subtitle = if (isArabic) "فلاشة الراوتر ومحتوى الوسائط المشترك" else "Router media server & shared streams",
+                            title = if (isArabic) "راوترات وسيرفرات UPnP / DLNA (ZTE / Huawei / TP-Link)" else "Universal UPnP / DLNA Routers (ZTE / Huawei / TP-Link)",
+                            subtitle = if (isArabic) "تشغيل وسائط فلاشات جميع الراوترات والكمبيوتر" else "Shared media across all router brands & PC",
                             focusRequester = firstFocus,
                             tokens = tokens,
                             onClick = { onDismiss(); onOpenUpnpStorage() },
@@ -160,16 +172,16 @@ fun DropdownMenuDialog(
                         DropdownItemRow(
                             id = "drop:smb",
                             icon = "🖴",
-                            title = if (isArabic) "فلاشة / هارد الراوتر (Samba SMB)" else "Router Storage (Samba SMB)",
-                            subtitle = if (isArabic) "مشاركة ملفات ويندوز والراوتر" else "Windows & Router file sharing",
+                            title = if (isArabic) "مشاركة شبكة SMB (Samba) لجميع الأجهزة والراوترات" else "Universal Network Storage (Samba SMB)",
+                            subtitle = if (isArabic) "مشاركة ملفات ويندوز ولينكس وراوترات ZTE و Huawei" else "Windows, Linux, ZTE & Huawei network storage",
                             tokens = tokens,
                             onClick = { onDismiss(); onOpenSmbStorage() },
                         )
                         DropdownItemRow(
                             id = "drop:ftp",
                             icon = "🌐",
-                            title = if (isArabic) "خادم ملفات الراوتر (FTP Server)" else "Router FTP Server",
-                            subtitle = if (isArabic) "اتصال مباشر بمنفذ 21" else "Direct port 21 file transfer",
+                            title = if (isArabic) "خادم ملفات FTP لجميع الراوترات والأجهزة" else "Universal FTP File Server (ZTE / Huawei / TP-Link)",
+                            subtitle = if (isArabic) "اتصال مباشر بمنفذ 21 لجميع أنواع الراوترات" else "Direct port 21 across all router models",
                             tokens = tokens,
                             onClick = { onDismiss(); onOpenFtpStorage() },
                         )
@@ -247,8 +259,8 @@ fun DropdownMenuDialog(
                         DropdownItemRow(
                             id = "drop:themes",
                             icon = "🎨",
-                            title = if (isArabic) "باقة الثيمات الفاخرة (20 ثيم)" else "Themes Palette (20 Themes)",
-                            subtitle = if (isArabic) "ثيمات إسلامية وجمالية سائلة متطورة" else "Hand-crafted Islamic and liquid themes",
+                            title = if (isArabic) "باقة الثيمات الفاخرة وخلفيات 4K (30 ثيماً)" else "Luxury Themes & 4K Wallpapers (30 Themes)",
+                            subtitle = if (isArabic) "فصول السنة، طبيعة، دارك OLED، طيور مع تدوير تلقائي" else "Four seasons, nature, dark OLED, birds & auto-rotate",
                             focusRequester = firstFocus,
                             tokens = tokens,
                             onClick = { onDismiss(); onOpenThemes() },

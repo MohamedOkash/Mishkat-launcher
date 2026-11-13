@@ -93,14 +93,14 @@ class NetworkAndUsbStorageRepository(
         // 1. Discover router gateway IP
         val gatewayIp = detectRouterGatewayIp() ?: settings.smbHost.ifBlank { "192.168.1.1" }
 
-        // 2. UPnP / DLNA Media Server (e.g. H188A: Media Server:)
+        // 2. UPnP / DLNA Media Server (ZTE / Huawei / TP-Link / D-Link)
         val upnpHost = settings.upnpHost.ifBlank { gatewayIp }
         val upnpServer = UpnpDlnaClient.discover(upnpHost)
         devices.add(
             StorageDevice(
                 id = "router_upnp",
-                titleAr = if (upnpServer != null) "📡 ${upnpServer.friendlyName}" else "📡 الشبكة المحلية UPnP (H188A)",
-                titleEn = if (upnpServer != null) upnpServer.friendlyName else "UPnP Media Server (H188A)",
+                titleAr = if (upnpServer != null) "📡 ${upnpServer.friendlyName}" else "📡 خادم وسائط الراوتر UPnP (ZTE / Huawei / TP-Link)",
+                titleEn = if (upnpServer != null) upnpServer.friendlyName else "Router UPnP Media Server (Universal)",
                 type = StorageSourceType.UPNP_DLNA,
                 isConnected = upnpServer != null,
                 host = upnpServer?.host ?: upnpHost,

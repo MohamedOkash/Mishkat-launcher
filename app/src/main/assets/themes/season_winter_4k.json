@@ -1,0 +1,46 @@
+{
+  "id": "season_winter_4k",
+  "name": "شتاء وثلوج نقية 4K",
+  "nameEn": "Winter Snow 4K",
+  "builtin": true,
+  "palette": {
+    "primary": "#38BDF8",
+    "surface": "#081827",
+    "onSurface": "#F0F9FF",
+    "panelAccents": {
+      "sleep": "#13293D",
+      "prayer": "#0E2133",
+      "tools": "#17344D",
+      "weather": "#112B40"
+    }
+  },
+  "wallpaper": {
+    "type": "gradient",
+    "asset": "season_winter_4k",
+    "parallax": 0.15,
+    "gradient": [
+      "#142B3E",
+      "#081827",
+      "#040D16"
+    ],
+    "pattern": {
+      "type": "winter_snow",
+      "alpha": 0.2,
+      "cell": 100
+    }
+  },
+  "cards": {
+    "radius": 18,
+    "glass": 0.75,
+    "strokeAlpha": 0.35
+  },
+  "icons": {
+    "mask": "squircle_22",
+    "pack": "mishkat_cute_v1"
+  },
+  "motion": {
+    "focusScale": 1.04,
+    "enterMs": 220,
+    "springDamping": 0.88
+  }
+}

@@ -171,6 +171,86 @@ val WALLPAPER_PRESETS = listOf(
         assetFile = "real_makkah_kaaba.jpg",
     ),
     WallpaperPreset(
+        id = "season_spring_4k",
+        titleAr = "ربيع الطبيعة والزهور 4K",
+        titleEn = "Spring Blossom 4K",
+        subtitleAr = "أزهار الربيع والطبيعة الخضراء الفاتنة بدقة 4K",
+        subtitleEn = "High-definition 4K vibrant green spring landscape",
+        assetFile = "season_spring_4k.jpg",
+    ),
+    WallpaperPreset(
+        id = "season_summer_4k",
+        titleAr = "شمس وأمواج الصيف 4K",
+        titleEn = "Summer Coast 4K",
+        subtitleAr = "شاطئ البحر الذهبي وأمواج الصيف الساحرة بدقة 4K",
+        subtitleEn = "High-definition 4K golden summer sea coast",
+        assetFile = "season_summer_4k.jpg",
+    ),
+    WallpaperPreset(
+        id = "season_autumn_4k",
+        titleAr = "خريف الغابات الذهبية 4K",
+        titleEn = "Autumn Forest 4K",
+        subtitleAr = "غابات الخريف وسحر الأوراق المتساقطة بدقة 4K",
+        subtitleEn = "High-definition 4K golden autumn forest scenery",
+        assetFile = "season_autumn_4k.jpg",
+    ),
+    WallpaperPreset(
+        id = "season_winter_4k",
+        titleAr = "شتاء وثلوج نقية 4K",
+        titleEn = "Winter Snow 4K",
+        subtitleAr = "ثلوج الشتاء النقية والسكينة البيضاء بدقة 4K",
+        subtitleEn = "High-definition 4K pure winter snow scenery",
+        assetFile = "season_winter_4k.jpg",
+    ),
+    WallpaperPreset(
+        id = "nature_mountains_4k",
+        titleAr = "قمم الجبال الساحرة 4K",
+        titleEn = "Majestic Mountains 4K",
+        subtitleAr = "جبال الألب والبحيرات الفيروزية الطبيعية بدقة 4K",
+        subtitleEn = "High-definition 4K majestic alpine mountain lake",
+        assetFile = "nature_mountains_4k.jpg",
+    ),
+    WallpaperPreset(
+        id = "nature_waterfall_4k",
+        titleAr = "شلالات الطبيعة العذبة 4K",
+        titleEn = "Crystal Waterfall 4K",
+        subtitleAr = "شلالات المياه العذبة بين أحضان الطبيعة بدقة 4K",
+        subtitleEn = "High-definition 4K crystal waterfall in lush nature",
+        assetFile = "nature_waterfall_4k.jpg",
+    ),
+    WallpaperPreset(
+        id = "dark_luxury_onyx_4k",
+        titleAr = "أونيكس أسود فاخر OLED 4K",
+        titleEn = "Onyx Luxury OLED 4K",
+        subtitleAr = "أمواج الأونيكس الداكنة والعميقة لشاشات OLED بدقة 4K",
+        subtitleEn = "High-definition 4K deep onyx dark luxury texture",
+        assetFile = "dark_luxury_onyx_4k.jpg",
+    ),
+    WallpaperPreset(
+        id = "dark_carbon_mesh_4k",
+        titleAr = "ألياف الكربون المظلمة 4K",
+        titleEn = "Carbon Dark Mesh 4K",
+        subtitleAr = "شبكة ألياف الكربون التكنولوجية المظلمة بدقة 4K",
+        subtitleEn = "High-definition 4K stealth carbon fiber mesh",
+        assetFile = "dark_carbon_mesh_4k.jpg",
+    ),
+    WallpaperPreset(
+        id = "birds_falcon_eagle_4k",
+        titleAr = "صقور ونسور الجبال 4K",
+        titleEn = "Royal Falcon 4K",
+        subtitleAr = "هيبة الصقور والنسور الجارحة في قمم الجبال بدقة 4K",
+        subtitleEn = "High-definition 4K royal mountain eagle portrait",
+        assetFile = "birds_falcon_eagle_4k.jpg",
+    ),
+    WallpaperPreset(
+        id = "birds_colorful_kingfisher_4k",
+        titleAr = "طيور ملونة وببغاوات 4K",
+        titleEn = "Tropical Birds 4K",
+        subtitleAr = "ألوان الطيور الاستوائية والببغاوات البديعة بدقة 4K",
+        subtitleEn = "High-definition 4K vibrant exotic tropical bird",
+        assetFile = "birds_colorful_kingfisher_4k.jpg",
+    ),
+    WallpaperPreset(
         id = "mihrab_arch",
         titleAr = "المسجد النبوي الشريف بالمدينة 🕌 (صورة 1080p)",
         titleEn = "Prophet's Mosque in Madinah 🕌 (1080p Photo)",
@@ -199,7 +279,11 @@ private fun isIslamicOrnamentStyle(effectiveStyle: String, themeId: String): Boo
     "islamic_arch",
     "kaaba_kiswah",
     -> true
-    "sports_stadium", "cinema_imax", "winter_snow", "winter_rain", "storm_lightning", "spring_petals", "summer_waves", "autumn_leaves" -> false
+    "sports_stadium", "cinema_imax", "winter_snow", "winter_rain", "storm_lightning", "spring_petals", "summer_waves", "autumn_leaves",
+    "season_spring_4k", "season_summer_4k", "season_autumn_4k", "season_winter_4k",
+    "nature_mountains_4k", "nature_waterfall_4k",
+    "dark_luxury_onyx_4k", "dark_carbon_mesh_4k",
+    "birds_falcon_eagle_4k", "birds_colorful_kingfisher_4k" -> false
     else -> when (themeId) {
         "kaaba_gold", "noor", "zomorod", "rimal", "layla", "rawda_sharifa",
         "andalus_arch", "fajr_sky", "madinah_marble", "damascus_mosaic",
@@ -210,6 +294,16 @@ private fun isIslamicOrnamentStyle(effectiveStyle: String, themeId: String): Boo
 
 /** Resolves the 1920x1080 Full HD photograph filename in `assets/wallpapers/`. */
 fun resolveRealPhotoAsset(effectiveStyle: String, themeId: String): String = when (effectiveStyle) {
+    "season_spring_4k" -> "season_spring_4k.jpg"
+    "season_summer_4k" -> "season_summer_4k.jpg"
+    "season_autumn_4k" -> "season_autumn_4k.jpg"
+    "season_winter_4k" -> "season_winter_4k.jpg"
+    "nature_mountains_4k" -> "nature_mountains_4k.jpg"
+    "nature_waterfall_4k" -> "nature_waterfall_4k.jpg"
+    "dark_luxury_onyx_4k" -> "dark_luxury_onyx_4k.jpg"
+    "dark_carbon_mesh_4k" -> "dark_carbon_mesh_4k.jpg"
+    "birds_falcon_eagle_4k" -> "birds_falcon_eagle_4k.jpg"
+    "birds_colorful_kingfisher_4k" -> "birds_colorful_kingfisher_4k.jpg"
     "winter_snow" -> "real_winter_snow.jpg"
     "winter_rain" -> "real_winter_rain.jpg"
     "storm_lightning" -> "real_storm_lightning.jpg"
@@ -225,7 +319,17 @@ fun resolveRealPhotoAsset(effectiveStyle: String, themeId: String): String = whe
     else -> when (themeId) {
         "sports_arena" -> "real_sports_stadium.jpg"
         "cinema_action" -> "real_cinema_night.jpg"
-        "winter_snow" -> "real_winter_snow.jpg"
+        "season_spring_4k" -> "season_spring_4k.jpg"
+    "season_summer_4k" -> "season_summer_4k.jpg"
+    "season_autumn_4k" -> "season_autumn_4k.jpg"
+    "season_winter_4k" -> "season_winter_4k.jpg"
+    "nature_mountains_4k" -> "nature_mountains_4k.jpg"
+    "nature_waterfall_4k" -> "nature_waterfall_4k.jpg"
+    "dark_luxury_onyx_4k" -> "dark_luxury_onyx_4k.jpg"
+    "dark_carbon_mesh_4k" -> "dark_carbon_mesh_4k.jpg"
+    "birds_falcon_eagle_4k" -> "birds_falcon_eagle_4k.jpg"
+    "birds_colorful_kingfisher_4k" -> "birds_colorful_kingfisher_4k.jpg"
+    "winter_snow" -> "real_winter_snow.jpg"
         "spring_blossom" -> "real_spring_blossom.jpg"
         "summer_sunset" -> "real_summer_sunset.jpg"
         "kaaba_gold" -> "real_makkah_kaaba.jpg"

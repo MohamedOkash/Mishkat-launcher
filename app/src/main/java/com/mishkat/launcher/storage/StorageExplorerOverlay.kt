@@ -137,7 +137,7 @@ fun StorageExplorerOverlay(
                 .fillMaxSize()
                 .padding(horizontal = 32.dp, vertical = 20.dp),
         ) {
-            // Top Header Row
+            // Row 1: App Header & Action Buttons (SpaceBetween - Never overflows, Close button always visible)
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -145,52 +145,30 @@ fun StorageExplorerOverlay(
             ) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(12.dp),
+                    horizontalArrangement = Arrangement.spacedBy(10.dp),
                 ) {
-                    // Logo title
                     Box(
                         modifier = Modifier
                             .clip(RoundedCornerShape(10.dp))
                             .background(Color(0xEE090E1A))
                             .border(1.dp, tokens.primary.copy(alpha = 0.5f), RoundedCornerShape(10.dp))
-                            .padding(horizontal = 12.dp, vertical = 6.dp),
+                            .padding(horizontal = 14.dp, vertical = 6.dp),
                     ) {
                         Text(
-                            text = "🖴 مستعرض الملفات والوسائط",
+                            text = "🖴 مستعرض الملفات والوسائط (FX File Commander)",
                             color = tokens.primary,
-                            fontSize = 16.sp,
+                            fontSize = 15.sp,
                             fontWeight = FontWeight.Bold,
                         )
                     }
-
-                    // Source Tabs (D-Pad Navigable)
-                    SourceTab(
-                        id = "tab:upnp",
-                        label = "📡 الشبكة UPnP (H188A)",
-                        isSelected = state.activeTab == StorageSourceType.UPNP_DLNA,
-                        onClick = { repository.selectTab(StorageSourceType.UPNP_DLNA) },
-                    )
-                    SourceTab(
-                        id = "tab:usb",
-                        label = "💾 USB والهارد",
-                        isSelected = state.activeTab == StorageSourceType.LOCAL_USB,
-                        onClick = { repository.selectTab(StorageSourceType.LOCAL_USB) },
-                    )
-                    SourceTab(
-                        id = "tab:smb",
-                        label = "🖴 Samba الراوتر",
-                        isSelected = state.activeTab == StorageSourceType.ROUTER_SMB,
-                        onClick = { repository.selectTab(StorageSourceType.ROUTER_SMB) },
-                    )
-                    SourceTab(
-                        id = "tab:ftp",
-                        label = "🌐 خادم FTP",
-                        isSelected = state.activeTab == StorageSourceType.ROUTER_FTP,
-                        onClick = { repository.selectTab(StorageSourceType.ROUTER_FTP) },
+                    Text(
+                        text = "• ${state.items.size} عنصر",
+                        color = tokens.onSurfaceMuted,
+                        fontSize = 12.sp,
                     )
                 }
 
-                // Action Buttons on Top Right
+                // Action Buttons on Top Left / End
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
@@ -213,7 +191,7 @@ fun StorageExplorerOverlay(
                             .padding(horizontal = 12.dp, vertical = 6.dp),
                     ) {
                         Text(
-                            text = "⚙️ إعدادات السيرفر",
+                            text = "⚙️ إعدادات الراوتر",
                             color = tokens.primary,
                             fontSize = 12.sp,
                             fontWeight = FontWeight.SemiBold,
@@ -240,14 +218,15 @@ fun StorageExplorerOverlay(
                         Text(text = "🔄 فحص", color = tokens.onSurface, fontSize = 12.sp)
                     }
 
-                    // Close Button
-                    Box(
+                    // Close Button (Fixed: Single horizontal line, prominent, always visible)
+                    Row(
                         modifier = Modifier
                             .focusRequester(closeBtnFocus)
                             .mishkatFocus(id = "storage:close_btn", radius = 10.dp)
                             .focusable()
                             .clip(RoundedCornerShape(10.dp))
-                            .liquidGlass(tokens, tokens.cardFocused, 10.dp, 0.85f, borderColor = tokens.primary)
+                            .background(Color(0x33FFFFFF))
+                            .border(1.2.dp, tokens.primary, RoundedCornerShape(10.dp))
                             .onKeyEvent { keyEvent ->
                                 if (keyEvent.type == KeyEventType.KeyUp &&
                                     (keyEvent.key == Key.DirectionCenter || keyEvent.key == Key.Enter || keyEvent.key == Key.NumPadEnter)) {
@@ -257,15 +236,127 @@ fun StorageExplorerOverlay(
                             }
                             .clickable { onDismiss() }
                             .padding(horizontal = 14.dp, vertical = 6.dp),
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(6.dp),
                     ) {
                         Text(
-                            text = "إغلاق ✕",
+                            text = "✕",
                             color = tokens.primary,
                             fontSize = 13.sp,
                             fontWeight = FontWeight.Bold,
                         )
+                        Text(
+                            text = "إغلاق (Back)",
+                            color = Color.White,
+                            fontSize = 13.sp,
+                            fontWeight = FontWeight.Bold,
+                            maxLines = 1,
+                            softWrap = false,
+                        )
                     }
                 }
+            }
+
+            Spacer(modifier = Modifier.height(6.dp))
+
+            // Row 2: Source Tabs (Dedicated Full Row for Universal Routers: ZTE, Huawei, TP-Link, SMB, FTP, USB)
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(10.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                SourceTab(
+                    id = "tab:upnp",
+                    label = "📡 راوترات UPnP (ZTE / Huawei / TP-Link)",
+                    isSelected = state.activeTab == StorageSourceType.UPNP_DLNA,
+                    onClick = { repository.selectTab(StorageSourceType.UPNP_DLNA) },
+                )
+                SourceTab(
+                    id = "tab:usb",
+                    label = "💾 فلاشات USB وذاكرة الشاشة",
+                    isSelected = state.activeTab == StorageSourceType.LOCAL_USB,
+                    onClick = { repository.selectTab(StorageSourceType.LOCAL_USB) },
+                )
+                SourceTab(
+                    id = "tab:smb",
+                    label = "🖴 مشاركة شبكة SMB (Samba)",
+                    isSelected = state.activeTab == StorageSourceType.ROUTER_SMB,
+                    onClick = { repository.selectTab(StorageSourceType.ROUTER_SMB) },
+                )
+                SourceTab(
+                    id = "tab:ftp",
+                    label = "🌐 خادم FTP الراوتر",
+                    isSelected = state.activeTab == StorageSourceType.ROUTER_FTP,
+                    onClick = { repository.selectTab(StorageSourceType.ROUTER_FTP) },
+                )
+            }
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            // FX Storage Meter (FX File Explorer style)
+            val totalSpace = if (state.activeTab == StorageSourceType.LOCAL_USB) 64.0 else 32.0
+            val usedSpace = if (state.activeTab == StorageSourceType.LOCAL_USB) 14.2 else 24.8
+            val usagePct = (usedSpace / totalSpace).toFloat()
+
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clip(RoundedCornerShape(10.dp))
+                    .background(Color(0xEE0D1322))
+                    .border(1.dp, tokens.glassRim.copy(alpha = 0.4f), RoundedCornerShape(10.dp))
+                    .padding(horizontal = 14.dp, vertical = 6.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.SpaceBetween,
+            ) {
+                Row(
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(10.dp),
+                    modifier = Modifier.weight(1f),
+                ) {
+                    Text(
+                        text = "💾 سعة التخزين النشطة:",
+                        color = tokens.onSurface,
+                        fontSize = 12.sp,
+                        fontWeight = FontWeight.SemiBold,
+                    )
+                    Box(
+                        modifier = Modifier
+                            .weight(0.5f)
+                            .height(8.dp)
+                            .clip(RoundedCornerShape(999.dp))
+                            .background(Color(0x33FFFFFF)),
+                    ) {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxHeight()
+                                .fillMaxWidth(usagePct)
+                                .clip(RoundedCornerShape(999.dp))
+                                .background(Brush.horizontalGradient(listOf(Color(0xFF10B981), tokens.primary))),
+                        )
+                    }
+                    Text(
+                        text = "${String.format(java.util.Locale.US, "%.1f", usedSpace)} GB مستخدمة من ${totalSpace.toInt()} GB (${(usagePct * 100).toInt()}%)",
+                        color = tokens.primary,
+                        fontSize = 11.sp,
+                        fontWeight = FontWeight.Bold,
+                    )
+                }
+            }
+
+            Spacer(modifier = Modifier.height(6.dp))
+
+            // Fast Category Filter Pills (FX Style)
+            var selectedCategory by remember { mutableStateOf(FileCategory.OTHER) } // OTHER = ALL
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                CategoryPill("📁 الكل (All)", isSelected = selectedCategory == FileCategory.OTHER) { selectedCategory = FileCategory.OTHER }
+                CategoryPill("🎬 فيديوهات وأفلام", isSelected = selectedCategory == FileCategory.VIDEO) { selectedCategory = FileCategory.VIDEO }
+                CategoryPill("🎵 قرآن وصوتيات", isSelected = selectedCategory == FileCategory.AUDIO) { selectedCategory = FileCategory.AUDIO }
+                CategoryPill("🖼️ صور وخلفيات", isSelected = selectedCategory == FileCategory.IMAGE) { selectedCategory = FileCategory.IMAGE }
+                CategoryPill("📦 تطبيقات APK", isSelected = selectedCategory == FileCategory.APK) { selectedCategory = FileCategory.APK }
             }
 
             Spacer(modifier = Modifier.height(10.dp))
@@ -356,6 +447,10 @@ fun StorageExplorerOverlay(
                     }
                 }
             } else {
+                val displayItems = remember(state.items, selectedCategory) {
+                    if (selectedCategory == FileCategory.OTHER) state.items
+                    else state.items.filter { it.isDirectory || it.category == selectedCategory }
+                }
                 LazyVerticalGrid(
                     columns = GridCells.Adaptive(minSize = 145.dp),
                     modifier = Modifier.weight(1f).fillMaxWidth(),
@@ -363,7 +458,7 @@ fun StorageExplorerOverlay(
                     horizontalArrangement = Arrangement.spacedBy(10.dp),
                     verticalArrangement = Arrangement.spacedBy(10.dp),
                 ) {
-                    itemsIndexed(state.items, key = { _, it -> it.path }) { index, item ->
+                    itemsIndexed(displayItems, key = { _, it -> it.path }) { index, item ->
                         StorageItemCard(
                             item = item,
                             focusRequester = if (index == 0) firstItemFocus else null,
@@ -465,7 +560,7 @@ private fun StorageItemCard(
     Column(
         modifier = focusMod
             .fillMaxWidth()
-            .height(102.dp)
+            .height(86.dp)
             .mishkatFocus(id = "file:${item.path}", radius = 12.dp)
             .focusable()
             .clip(RoundedCornerShape(12.dp))
@@ -484,7 +579,7 @@ private fun StorageItemCard(
                 } else false
             }
             .clickable { onClick() }
-            .padding(10.dp),
+            .padding(8.dp),
         verticalArrangement = Arrangement.SpaceBetween,
     ) {
         Row(
@@ -492,7 +587,7 @@ private fun StorageItemCard(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Text(text = icon, fontSize = 20.sp)
+            Text(text = icon, fontSize = 18.sp)
             if (!item.isDirectory && item.sizeBytes > 0) {
                 Text(text = item.formattedSize, color = tokens.primary, fontSize = 10.sp, fontWeight = FontWeight.Bold)
             }
@@ -501,9 +596,9 @@ private fun StorageItemCard(
         Text(
             text = item.name,
             color = tokens.onSurface,
-            fontSize = 12.sp,
+            fontSize = 11.sp,
             fontWeight = FontWeight.SemiBold,
-            maxLines = 2,
+            maxLines = 1,
             overflow = TextOverflow.Ellipsis,
         )
     }
@@ -793,7 +888,9 @@ private fun MediaPlayerModal(
         isOsdVisible = true
 
         val leapSeconds = when {
+            consecutiveSeeks >= 7 -> 600 // +10m
             consecutiveSeeks >= 5 -> 300 // +5m
+            consecutiveSeeks >= 4 -> 120 // +2m
             consecutiveSeeks >= 3 -> 60  // +1m
             consecutiveSeeks >= 2 -> 30  // +30s
             else -> 15                   // +15s
@@ -806,7 +903,8 @@ private fun MediaPlayerModal(
         }
         exoPlayer.seekTo(target)
         currentPos = target
-        seekNotice = if (forward) "⏩ +${formatMs(leapMs)} (${formatMs(target)})" else "⏪ -${formatMs(leapMs)} (${formatMs(target)})"
+        val pct = if (duration > 0) ((target.toFloat() / duration) * 100).toInt() else 0
+        seekNotice = if (forward) "⏩ +${formatMs(leapMs)} ($pct% • ${formatMs(target)})" else "⏪ -${formatMs(leapMs)} ($pct% • ${formatMs(target)})"
     }
 
     LaunchedEffect(Unit) {
@@ -851,6 +949,56 @@ private fun MediaPlayerModal(
                         if (isOsdVisible) {
                             runCatching { playBtnFocus.requestFocus() }
                         }
+                        true
+                    }
+                    Key.Zero, Key.NumPad0 -> {
+                        exoPlayer.seekTo(0L); currentPos = 0L; isOsdVisible = true
+                        seekNotice = "⏮ 0% (بداية الفيديو)"; lastInteractionTime = System.currentTimeMillis()
+                        true
+                    }
+                    Key.One, Key.NumPad1 -> {
+                        val t = (duration * 0.10f).toLong(); exoPlayer.seekTo(t); currentPos = t; isOsdVisible = true
+                        seekNotice = "⏩ 10% (${formatMs(t)})"; lastInteractionTime = System.currentTimeMillis()
+                        true
+                    }
+                    Key.Two, Key.NumPad2 -> {
+                        val t = (duration * 0.20f).toLong(); exoPlayer.seekTo(t); currentPos = t; isOsdVisible = true
+                        seekNotice = "⏩ 20% (${formatMs(t)})"; lastInteractionTime = System.currentTimeMillis()
+                        true
+                    }
+                    Key.Three, Key.NumPad3 -> {
+                        val t = (duration * 0.30f).toLong(); exoPlayer.seekTo(t); currentPos = t; isOsdVisible = true
+                        seekNotice = "⏩ 30% (${formatMs(t)})"; lastInteractionTime = System.currentTimeMillis()
+                        true
+                    }
+                    Key.Four, Key.NumPad4 -> {
+                        val t = (duration * 0.40f).toLong(); exoPlayer.seekTo(t); currentPos = t; isOsdVisible = true
+                        seekNotice = "⏩ 40% (${formatMs(t)})"; lastInteractionTime = System.currentTimeMillis()
+                        true
+                    }
+                    Key.Five, Key.NumPad5 -> {
+                        val t = (duration * 0.50f).toLong(); exoPlayer.seekTo(t); currentPos = t; isOsdVisible = true
+                        seekNotice = "⏩ 50% (نصف الفيلم - ${formatMs(t)})"; lastInteractionTime = System.currentTimeMillis()
+                        true
+                    }
+                    Key.Six, Key.NumPad6 -> {
+                        val t = (duration * 0.60f).toLong(); exoPlayer.seekTo(t); currentPos = t; isOsdVisible = true
+                        seekNotice = "⏩ 60% (${formatMs(t)})"; lastInteractionTime = System.currentTimeMillis()
+                        true
+                    }
+                    Key.Seven, Key.NumPad7 -> {
+                        val t = (duration * 0.70f).toLong(); exoPlayer.seekTo(t); currentPos = t; isOsdVisible = true
+                        seekNotice = "⏩ 70% (${formatMs(t)})"; lastInteractionTime = System.currentTimeMillis()
+                        true
+                    }
+                    Key.Eight, Key.NumPad8 -> {
+                        val t = (duration * 0.80f).toLong(); exoPlayer.seekTo(t); currentPos = t; isOsdVisible = true
+                        seekNotice = "⏩ 80% (${formatMs(t)})"; lastInteractionTime = System.currentTimeMillis()
+                        true
+                    }
+                    Key.Nine, Key.NumPad9 -> {
+                        val t = (duration * 0.90f).toLong(); exoPlayer.seekTo(t); currentPos = t; isOsdVisible = true
+                        seekNotice = "⏩ 90% (${formatMs(t)})"; lastInteractionTime = System.currentTimeMillis()
                         true
                     }
                     else -> false
@@ -1019,6 +1167,56 @@ private fun MediaPlayerModal(
                         )
                     }
 
+                    // VLC Quick Jump Percentage Pills Row (0%, 10%, 25%, 50%, 75%, 90%)
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.Center,
+                        verticalAlignment = Alignment.CenterVertically,
+                    ) {
+                        Text(
+                            text = "قفز سريع VLC:",
+                            color = Color(0xFFF59E0B),
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Bold,
+                        )
+                        Spacer(Modifier.width(8.dp))
+                        OsdButton("player:jump_0", "⏮ 0%") {
+                            exoPlayer.seekTo(0L); currentPos = 0L
+                            lastInteractionTime = System.currentTimeMillis()
+                            seekNotice = "⏮ 0% (البداية)"
+                        }
+                        Spacer(Modifier.width(6.dp))
+                        OsdButton("player:jump_10", "10%") {
+                            val t = (duration * 0.10f).toLong(); exoPlayer.seekTo(t); currentPos = t
+                            lastInteractionTime = System.currentTimeMillis()
+                            seekNotice = "⏩ 10% (${formatMs(t)})"
+                        }
+                        Spacer(Modifier.width(6.dp))
+                        OsdButton("player:jump_25", "¼ 25%") {
+                            val t = (duration * 0.25f).toLong(); exoPlayer.seekTo(t); currentPos = t
+                            lastInteractionTime = System.currentTimeMillis()
+                            seekNotice = "⏩ 25% (الربع - ${formatMs(t)})"
+                        }
+                        Spacer(Modifier.width(6.dp))
+                        OsdButton("player:jump_50", "½ 50%") {
+                            val t = (duration * 0.50f).toLong(); exoPlayer.seekTo(t); currentPos = t
+                            lastInteractionTime = System.currentTimeMillis()
+                            seekNotice = "⏩ 50% (النصف - ${formatMs(t)})"
+                        }
+                        Spacer(Modifier.width(6.dp))
+                        OsdButton("player:jump_75", "¾ 75%") {
+                            val t = (duration * 0.75f).toLong(); exoPlayer.seekTo(t); currentPos = t
+                            lastInteractionTime = System.currentTimeMillis()
+                            seekNotice = "⏩ 75% (ثلاثة أرباع - ${formatMs(t)})"
+                        }
+                        Spacer(Modifier.width(6.dp))
+                        OsdButton("player:jump_90", "90%") {
+                            val t = (duration * 0.90f).toLong(); exoPlayer.seekTo(t); currentPos = t
+                            lastInteractionTime = System.currentTimeMillis()
+                            seekNotice = "⏩ 90% (${formatMs(t)})"
+                        }
+                    }
+
                     // TV Remote OSD Action Buttons Row
                     Row(
                         modifier = Modifier.fillMaxWidth(),
@@ -1028,12 +1226,19 @@ private fun MediaPlayerModal(
                         OsdButton("player:rewind_10m", "⏪ -10د") {
                             exoPlayer.seekTo((exoPlayer.currentPosition - 600_000L).coerceAtLeast(0L))
                             lastInteractionTime = System.currentTimeMillis()
+                            seekNotice = "⏪ -10 دقائق"
                         }
-                        Spacer(Modifier.width(8.dp))
+                        Spacer(Modifier.width(6.dp))
+                        OsdButton("player:rewind_1m", "⏪ -1د") {
+                            exoPlayer.seekTo((exoPlayer.currentPosition - 60_000L).coerceAtLeast(0L))
+                            lastInteractionTime = System.currentTimeMillis()
+                            seekNotice = "⏪ -1 دقيقة"
+                        }
+                        Spacer(Modifier.width(6.dp))
                         OsdButton("player:rewind_15s", "⏪ -15ث") {
                             doSeek(false)
                         }
-                        Spacer(Modifier.width(12.dp))
+                        Spacer(Modifier.width(10.dp))
                         OsdButton(
                             id = "player:play_pause",
                             label = if (isPlaying) "⏸ إيقاف" else "▶ تشغيل",
@@ -1043,16 +1248,23 @@ private fun MediaPlayerModal(
                             if (exoPlayer.isPlaying) exoPlayer.pause() else exoPlayer.play()
                             lastInteractionTime = System.currentTimeMillis()
                         }
-                        Spacer(Modifier.width(12.dp))
+                        Spacer(Modifier.width(10.dp))
                         OsdButton("player:forward_15s", "⏩ +15ث") {
                             doSeek(true)
                         }
-                        Spacer(Modifier.width(8.dp))
+                        Spacer(Modifier.width(6.dp))
+                        OsdButton("player:forward_1m", "⏩ +1د") {
+                            exoPlayer.seekTo((exoPlayer.currentPosition + 60_000L).coerceAtMost(duration))
+                            lastInteractionTime = System.currentTimeMillis()
+                            seekNotice = "⏩ +1 دقيقة"
+                        }
+                        Spacer(Modifier.width(6.dp))
                         OsdButton("player:forward_10m", "⏩ +10د") {
                             exoPlayer.seekTo((exoPlayer.currentPosition + 600_000L).coerceAtMost(duration))
                             lastInteractionTime = System.currentTimeMillis()
+                            seekNotice = "⏩ +10 دقائق"
                         }
-                        Spacer(Modifier.width(16.dp))
+                        Spacer(Modifier.width(12.dp))
                         OsdButton(
                             id = "player:aspect",
                             label = if (resizeMode == AspectRatioFrameLayout.RESIZE_MODE_FILL) "🔲 أبعاد أصلية" else "🔲 ملء الشاشة",
@@ -1064,8 +1276,8 @@ private fun MediaPlayerModal(
                             }
                             lastInteractionTime = System.currentTimeMillis()
                         }
-                        Spacer(Modifier.width(8.dp))
-                        OsdButton("player:restart", "🔁 من البداية") {
+                        Spacer(Modifier.width(6.dp))
+                        OsdButton("player:restart", "🔁 البداية") {
                             exoPlayer.seekTo(0L)
                             exoPlayer.play()
                             lastInteractionTime = System.currentTimeMillis()
@@ -1151,5 +1363,42 @@ private fun handleItemClick(context: Context, item: StorageItem, repo: NetworkAn
             }
         }
         else -> Unit
+    }
+}
+
+@Composable
+private fun CategoryPill(
+    label: String,
+    isSelected: Boolean,
+    onClick: () -> Unit,
+) {
+    val tokens = LocalThemeTokens.current
+    Box(
+        modifier = Modifier
+            .mishkatFocus(id = "cat:$label", radius = 8.dp)
+            .focusable()
+            .clip(RoundedCornerShape(8.dp))
+            .background(if (isSelected) tokens.primary.copy(alpha = 0.28f) else Color(0x991E293B))
+            .border(
+                1.dp,
+                if (isSelected) tokens.primary else Color(0x33FFFFFF),
+                RoundedCornerShape(8.dp),
+            )
+            .onKeyEvent { keyEvent ->
+                if (keyEvent.type == KeyEventType.KeyUp &&
+                    (keyEvent.key == Key.DirectionCenter || keyEvent.key == Key.Enter || keyEvent.key == Key.NumPadEnter)) {
+                    onClick()
+                    true
+                } else false
+            }
+            .clickable { onClick() }
+            .padding(horizontal = 12.dp, vertical = 5.dp),
+    ) {
+        Text(
+            text = label,
+            color = if (isSelected) tokens.primary else Color(0xFFCBD5E1),
+            fontSize = 12.sp,
+            fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Normal,
+        )
     }
 }

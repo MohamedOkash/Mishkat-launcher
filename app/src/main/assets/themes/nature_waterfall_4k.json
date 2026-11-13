@@ -1,0 +1,46 @@
+{
+  "id": "nature_waterfall_4k",
+  "name": "شلالات الطبيعة العذبة 4K",
+  "nameEn": "Crystal Waterfall 4K",
+  "builtin": true,
+  "palette": {
+    "primary": "#06B6D4",
+    "surface": "#061A22",
+    "onSurface": "#ECFEFF",
+    "panelAccents": {
+      "sleep": "#0F2E3A",
+      "prayer": "#0A252F",
+      "tools": "#133847",
+      "weather": "#0D2C38"
+    }
+  },
+  "wallpaper": {
+    "type": "gradient",
+    "asset": "nature_waterfall_4k",
+    "parallax": 0.15,
+    "gradient": [
+      "#0F2E3A",
+      "#061A22",
+      "#020D12"
+    ],
+    "pattern": {
+      "type": "arabesque_mandala",
+      "alpha": 0.15,
+      "cell": 100
+    }
+  },
+  "cards": {
+    "radius": 18,
+    "glass": 0.72,
+    "strokeAlpha": 0.32
+  },
+  "icons": {
+    "mask": "squircle_22",
+    "pack": "mishkat_cute_v1"
+  },
+  "motion": {
+    "focusScale": 1.04,
+    "enterMs": 220,
+    "springDamping": 0.88
+  }
+}

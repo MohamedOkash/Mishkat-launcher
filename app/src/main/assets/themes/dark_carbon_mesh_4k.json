@@ -1,0 +1,46 @@
+{
+  "id": "dark_carbon_mesh_4k",
+  "name": "ألياف الكربون المظلمة 4K",
+  "nameEn": "Carbon Dark Mesh 4K",
+  "builtin": true,
+  "palette": {
+    "primary": "#94A3B8",
+    "surface": "#050608",
+    "onSurface": "#F8FAFC",
+    "panelAccents": {
+      "sleep": "#13161A",
+      "prayer": "#0E1114",
+      "tools": "#191D22",
+      "weather": "#111417"
+    }
+  },
+  "wallpaper": {
+    "type": "gradient",
+    "asset": "dark_carbon_mesh_4k",
+    "parallax": 0.1,
+    "gradient": [
+      "#0F1216",
+      "#050608",
+      "#020203"
+    ],
+    "pattern": {
+      "type": "kaaba_kiswah",
+      "alpha": 0.1,
+      "cell": 100
+    }
+  },
+  "cards": {
+    "radius": 18,
+    "glass": 0.88,
+    "strokeAlpha": 0.38
+  },
+  "icons": {
+    "mask": "squircle_22",
+    "pack": "mishkat_cute_v1"
+  },
+  "motion": {
+    "focusScale": 1.04,
+    "enterMs": 220,
+    "springDamping": 0.88
+  }
+}

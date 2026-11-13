@@ -1,0 +1,46 @@
+{
+  "id": "nature_mountains_4k",
+  "name": "قمم الجبال الساحرة 4K",
+  "nameEn": "Majestic Mountains 4K",
+  "builtin": true,
+  "palette": {
+    "primary": "#2DD4BF",
+    "surface": "#08181B",
+    "onSurface": "#F0FDFA",
+    "panelAccents": {
+      "sleep": "#112C31",
+      "prayer": "#0C2327",
+      "tools": "#15363D",
+      "weather": "#0F2B30"
+    }
+  },
+  "wallpaper": {
+    "type": "gradient",
+    "asset": "nature_mountains_4k",
+    "parallax": 0.15,
+    "gradient": [
+      "#122E34",
+      "#08181B",
+      "#030C0E"
+    ],
+    "pattern": {
+      "type": "arabesque_mandala",
+      "alpha": 0.15,
+      "cell": 100
+    }
+  },
+  "cards": {
+    "radius": 18,
+    "glass": 0.72,
+    "strokeAlpha": 0.32
+  },
+  "icons": {
+    "mask": "squircle_22",
+    "pack": "mishkat_cute_v1"
+  },
+  "motion": {
+    "focusScale": 1.04,
+    "enterMs": 220,
+    "springDamping": 0.88
+  }
+}

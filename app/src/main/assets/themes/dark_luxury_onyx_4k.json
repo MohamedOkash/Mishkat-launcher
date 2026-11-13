@@ -1,0 +1,46 @@
+{
+  "id": "dark_luxury_onyx_4k",
+  "name": "أونيكس أسود فاخر OLED 4K",
+  "nameEn": "Onyx Luxury OLED 4K",
+  "builtin": true,
+  "palette": {
+    "primary": "#E0B354",
+    "surface": "#09090C",
+    "onSurface": "#FDFDFD",
+    "panelAccents": {
+      "sleep": "#1A1917",
+      "prayer": "#151412",
+      "tools": "#22211C",
+      "weather": "#181714"
+    }
+  },
+  "wallpaper": {
+    "type": "gradient",
+    "asset": "dark_luxury_onyx_4k",
+    "parallax": 0.1,
+    "gradient": [
+      "#141418",
+      "#09090C",
+      "#020203"
+    ],
+    "pattern": {
+      "type": "kaaba_kiswah",
+      "alpha": 0.12,
+      "cell": 100
+    }
+  },
+  "cards": {
+    "radius": 18,
+    "glass": 0.85,
+    "strokeAlpha": 0.38
+  },
+  "icons": {
+    "mask": "squircle_22",
+    "pack": "mishkat_cute_v1"
+  },
+  "motion": {
+    "focusScale": 1.04,
+    "enterMs": 220,
+    "springDamping": 0.88
+  }
+}
