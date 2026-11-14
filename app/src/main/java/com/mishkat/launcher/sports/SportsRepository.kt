@@ -81,33 +81,23 @@ class SportsRepository(
             val data = runCatching { prefs.data.first() }.getOrNull()
             val favTeam = data?.get(KEY_FAV_TEAM).orEmpty()
             val cachedJson = data?.get(KEY_CACHED_MATCHES)
-            val cachedAt = data?.get(KEY_CACHED_AT) ?: 0L
 
-            val snapshot = loadOfflineSnapshot()
             val initialMatches = if (!cachedJson.isNullOrBlank()) {
                 runCatching {
-                    val cached = json.decodeFromString(ListSerializer(MatchItem.serializer()), cachedJson)
-                    // If cached items have generic "Scheduled" or lack Arab leagues, prefer curated snapshot
-                    if (cached.any { it.statusText.equals("Scheduled", ignoreCase = true) || it.homeAr == "FC Cologne" }) {
-                        snapshot
-                    } else {
-                        cached
-                    }
-                }.getOrElse { snapshot }
+                    json.decodeFromString(ListSerializer(MatchItem.serializer()), cachedJson)
+                }.getOrElse { emptyList() }
             } else {
-                snapshot
+                emptyList()
             }
 
             _state.value = SportsUiState(
                 matches = initialMatches,
                 favoriteTeamKey = favTeam,
-                isRefreshing = false,
+                isRefreshing = true,
             )
 
-            // Refresh online if cache is older than 20 minutes
-            if (System.currentTimeMillis() - cachedAt > CACHE_TTL_MS) {
-                refreshOnline()
-            }
+            // Always fetch real online scores on startup
+            refreshOnline()
         }
     }
 
@@ -128,21 +118,14 @@ class SportsRepository(
     fun refreshOnline() {
         scope.launch(Dispatchers.IO) {
             _state.value = _state.value.copy(isRefreshing = true)
-            val snapshot = loadOfflineSnapshot()
-            val liveMatches = ArrayList<MatchItem>(snapshot)
+            val liveMatches = ArrayList<MatchItem>()
 
             for (league in LEAGUES) {
                 runCatching {
                     val raw = fetchHttps("https://site.api.espn.com/apis/site/v2/sports/soccer/${league.code}/scoreboard")
                     val parsed = parseEspnScoreboard(raw, league.code, league.nameAr, league.nameEn, json)
                     if (parsed.isNotEmpty()) {
-                        // Update matches by league or add new ones
-                        parsed.forEach { p ->
-                            val existingIdx = liveMatches.indexOfFirst { it.id == p.id || (it.homeEn == p.homeEn && it.awayEn == p.awayEn) }
-                            if (existingIdx >= 0) {
-                                liveMatches[existingIdx] = p
-                            }
-                        }
+                        liveMatches.addAll(parsed)
                     }
                 }.onFailure { t ->
                     Logger.w(Logger.TAG_SYSTEM, t) { "Skipped league ${league.code} refresh" }

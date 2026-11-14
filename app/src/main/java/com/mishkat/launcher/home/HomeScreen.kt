@@ -232,8 +232,12 @@ fun HomeScreen(
         )
     }
 
-    // Priority 1: Apps (at the top), Priority 2: Quran Radio + Prayer/Azkar, Priority 3: Satellite Live TV
-    val orderedShelves = remember { listOf("apps", "prayer", "livetv") }
+    // Dynamic shelves order synced directly with user settings
+    val orderedShelves = remember(appSettings.shelfOrder) {
+        val valid = setOf("livetv", "apps", "prayer", "sections", "radio", "tv", "sports")
+        val filtered = appSettings.shelfOrder.filter { it in valid }
+        if (filtered.isNotEmpty()) filtered else listOf("apps", "prayer", "livetv")
+    }
     val firstCardFocus = appsFocus
 
     // Single mutually-exclusive overlay state so two overlays can NEVER stack on top of each other!

@@ -791,14 +791,25 @@ private fun MediaPlayerModal(
     onClose: () -> Unit,
 ) {
     val context = LocalContext.current
-    val uriStr = item.streamUri ?: return
+    val resolvedUri = remember(item.path, item.streamUri) {
+        val localFile = File(item.path)
+        if (localFile.exists() && localFile.canRead()) {
+            Uri.fromFile(localFile)
+        } else if (!item.streamUri.isNullOrBlank()) {
+            Uri.parse(item.streamUri)
+        } else {
+            Uri.parse(item.path)
+        }
+    }
 
     val resumePrefs = remember { context.getSharedPreferences("mishkat_resume_playback", Context.MODE_PRIVATE) }
     val resumeKey = remember(item.path, item.name) { "resume_${(item.path.ifBlank { item.name }).hashCode()}" }
 
-    val exoPlayer = remember(uriStr) {
+    var playerError by remember { mutableStateOf<String?>(null) }
+
+    val exoPlayer = remember(resolvedUri) {
         ExoPlayer.Builder(context).build().apply {
-            setMediaItem(MediaItem.fromUri(Uri.parse(uriStr)))
+            setMediaItem(MediaItem.fromUri(resolvedUri))
             prepare()
             playWhenReady = true
         }
@@ -822,6 +833,23 @@ private fun MediaPlayerModal(
     val modalFocus = remember { FocusRequester() }
     var isSeekbarFocused by remember { mutableStateOf(false) }
 
+    fun openInExternalApp() {
+        runCatching {
+            val file = File(item.path)
+            val uri = if (file.exists()) {
+                FileProvider.getUriForFile(context, "${context.packageName}.fileprovider", file)
+            } else {
+                resolvedUri
+            }
+            val intent = Intent(Intent.ACTION_VIEW).apply {
+                setDataAndType(uri, "video/*")
+                addFlags(Intent.FLAG_ACTIVITY_NEW_TASK or Intent.FLAG_GRANT_READ_URI_PERMISSION)
+            }
+            context.startActivity(Intent.createChooser(intent, "تشغيل بمشغل خارجي (VLC / MX Player)"))
+            onClose()
+        }
+    }
+
     DisposableEffect(exoPlayer) {
         val listener = object : androidx.media3.common.Player.Listener {
             override fun onIsPlayingChanged(playing: Boolean) {
@@ -829,6 +857,7 @@ private fun MediaPlayerModal(
             }
             override fun onPlaybackStateChanged(state: Int) {
                 if (state == androidx.media3.common.Player.STATE_READY) {
+                    playerError = null
                     duration = exoPlayer.duration.coerceAtLeast(0L)
                     val saved = resumePrefs.getLong(resumeKey, 0L)
                     if (saved > 15_000L && (duration <= 0L || saved < duration - 30_000L)) {
@@ -836,6 +865,9 @@ private fun MediaPlayerModal(
                         resumeNotice = "تم استئناف المشاهدة من ${formatMs(saved)}"
                     }
                 }
+            }
+            override fun onPlayerError(error: androidx.media3.common.PlaybackException) {
+                playerError = error.localizedMessage ?: "تعذر تشغيل ملف الفيديو بالمشغل المدمج"
             }
         }
         exoPlayer.addListener(listener)
@@ -881,11 +913,11 @@ private fun MediaPlayerModal(
         }
     }
 
-    // Seek handler with accelerating leaps (+15s, +30s, +1m, +5m)
+    // Fast flexible seek handler: 1%, 2%, 5%, 10%
     fun doSeek(forward: Boolean) {
         val now = System.currentTimeMillis()
         val dir = if (forward) 1 else -1
-        if (dir == lastSeekDir && now - lastSeekTime < 1200) {
+        if (dir == lastSeekDir && now - lastSeekTime < 1500) {
             consecutiveSeeks++
         } else {
             consecutiveSeeks = 1
@@ -895,24 +927,45 @@ private fun MediaPlayerModal(
         lastInteractionTime = now
         isOsdVisible = true
 
-        val leapSeconds = when {
-            consecutiveSeeks >= 7 -> 600 // +10m
-            consecutiveSeeks >= 5 -> 300 // +5m
-            consecutiveSeeks >= 4 -> 120 // +2m
-            consecutiveSeeks >= 3 -> 60  // +1m
-            consecutiveSeeks >= 2 -> 30  // +30s
-            else -> 15                   // +15s
-        }
-        val leapMs = leapSeconds * 1000L
-        val target = if (forward) {
-            (exoPlayer.currentPosition + leapMs).coerceAtMost(duration.takeIf { it > 0 } ?: Long.MAX_VALUE)
+        val current = exoPlayer.currentPosition
+        val total = duration.takeIf { it > 0 } ?: 0L
+
+        val leapMs = if (total > 0) {
+            val pctStep = when {
+                consecutiveSeeks >= 6 -> 0.10f // 10%
+                consecutiveSeeks >= 4 -> 0.05f // 5%
+                consecutiveSeeks >= 2 -> 0.02f // 2%
+                else -> 0.01f                  // 1%
+            }
+            (total * pctStep).toLong().coerceAtLeast(15_000L)
         } else {
-            (exoPlayer.currentPosition - leapMs).coerceAtLeast(0L)
+            when {
+                consecutiveSeeks >= 6 -> 300_000L
+                consecutiveSeeks >= 4 -> 120_000L
+                consecutiveSeeks >= 2 -> 30_000L
+                else -> 15_000L
+            }
+        }
+
+        val target = if (forward) {
+            (current + leapMs).coerceAtMost(if (total > 0) total else Long.MAX_VALUE)
+        } else {
+            (current - leapMs).coerceAtLeast(0L)
         }
         exoPlayer.seekTo(target)
         currentPos = target
-        val pct = if (duration > 0) ((target.toFloat() / duration) * 100).toInt() else 0
+        val pct = if (total > 0) ((target.toFloat() / total) * 100).toInt() else 0
         seekNotice = if (forward) "⏩ +${formatMs(leapMs)} ($pct% • ${formatMs(target)})" else "⏪ -${formatMs(leapMs)} ($pct% • ${formatMs(target)})"
+    }
+
+    fun seekToPercent(pct: Float, label: String) {
+        val total = duration.takeIf { it > 0 } ?: return
+        val target = (total * pct).toLong().coerceIn(0L, total)
+        exoPlayer.seekTo(target)
+        currentPos = target
+        isOsdVisible = true
+        seekNotice = "⏩ $label (${formatMs(target)})"
+        lastInteractionTime = System.currentTimeMillis()
     }
 
     LaunchedEffect(Unit) {
@@ -967,53 +1020,43 @@ private fun MediaPlayerModal(
                         true
                     }
                     Key.Zero, Key.NumPad0 -> {
-                        exoPlayer.seekTo(0L); currentPos = 0L; isOsdVisible = true
-                        seekNotice = "⏮ 0% (بداية الفيديو)"; lastInteractionTime = System.currentTimeMillis()
+                        seekToPercent(0f, "0% (بداية الفيلم)")
                         true
                     }
                     Key.One, Key.NumPad1 -> {
-                        val t = (duration * 0.10f).toLong(); exoPlayer.seekTo(t); currentPos = t; isOsdVisible = true
-                        seekNotice = "⏩ 10% (${formatMs(t)})"; lastInteractionTime = System.currentTimeMillis()
+                        seekToPercent(0.10f, "10%")
                         true
                     }
                     Key.Two, Key.NumPad2 -> {
-                        val t = (duration * 0.20f).toLong(); exoPlayer.seekTo(t); currentPos = t; isOsdVisible = true
-                        seekNotice = "⏩ 20% (${formatMs(t)})"; lastInteractionTime = System.currentTimeMillis()
+                        seekToPercent(0.20f, "20%")
                         true
                     }
                     Key.Three, Key.NumPad3 -> {
-                        val t = (duration * 0.30f).toLong(); exoPlayer.seekTo(t); currentPos = t; isOsdVisible = true
-                        seekNotice = "⏩ 30% (${formatMs(t)})"; lastInteractionTime = System.currentTimeMillis()
+                        seekToPercent(0.30f, "30%")
                         true
                     }
                     Key.Four, Key.NumPad4 -> {
-                        val t = (duration * 0.40f).toLong(); exoPlayer.seekTo(t); currentPos = t; isOsdVisible = true
-                        seekNotice = "⏩ 40% (${formatMs(t)})"; lastInteractionTime = System.currentTimeMillis()
+                        seekToPercent(0.40f, "40%")
                         true
                     }
                     Key.Five, Key.NumPad5 -> {
-                        val t = (duration * 0.50f).toLong(); exoPlayer.seekTo(t); currentPos = t; isOsdVisible = true
-                        seekNotice = "⏩ 50% (نصف الفيلم - ${formatMs(t)})"; lastInteractionTime = System.currentTimeMillis()
+                        seekToPercent(0.50f, "50% (نصف الفيلم)")
                         true
                     }
                     Key.Six, Key.NumPad6 -> {
-                        val t = (duration * 0.60f).toLong(); exoPlayer.seekTo(t); currentPos = t; isOsdVisible = true
-                        seekNotice = "⏩ 60% (${formatMs(t)})"; lastInteractionTime = System.currentTimeMillis()
+                        seekToPercent(0.60f, "60%")
                         true
                     }
                     Key.Seven, Key.NumPad7 -> {
-                        val t = (duration * 0.70f).toLong(); exoPlayer.seekTo(t); currentPos = t; isOsdVisible = true
-                        seekNotice = "⏩ 70% (${formatMs(t)})"; lastInteractionTime = System.currentTimeMillis()
+                        seekToPercent(0.70f, "70%")
                         true
                     }
                     Key.Eight, Key.NumPad8 -> {
-                        val t = (duration * 0.80f).toLong(); exoPlayer.seekTo(t); currentPos = t; isOsdVisible = true
-                        seekNotice = "⏩ 80% (${formatMs(t)})"; lastInteractionTime = System.currentTimeMillis()
+                        seekToPercent(0.80f, "80%")
                         true
                     }
                     Key.Nine, Key.NumPad9 -> {
-                        val t = (duration * 0.90f).toLong(); exoPlayer.seekTo(t); currentPos = t; isOsdVisible = true
-                        seekNotice = "⏩ 90% (${formatMs(t)})"; lastInteractionTime = System.currentTimeMillis()
+                        seekToPercent(0.90f, "90%")
                         true
                     }
                     else -> false
@@ -1030,10 +1073,69 @@ private fun MediaPlayerModal(
                 }
             },
             update = { pv ->
+                pv.player = exoPlayer
                 pv.resizeMode = resizeMode
             },
             modifier = Modifier.fillMaxSize(),
         )
+
+        // Error Card with External Player Fallback
+        if (playerError != null) {
+            Box(
+                modifier = Modifier
+                    .align(Alignment.Center)
+                    .clip(RoundedCornerShape(18.dp))
+                    .background(Color(0xF00B1220))
+                    .border(1.5.dp, Color(0xFFEF4444), RoundedCornerShape(18.dp))
+                    .padding(28.dp),
+                contentAlignment = Alignment.Center,
+            ) {
+                Column(
+                    horizontalAlignment = Alignment.CenterHorizontally,
+                    verticalArrangement = Arrangement.spacedBy(14.dp),
+                ) {
+                    Text(
+                        text = "⚠️ تعذر تشغيل الفيديو بمشغل النظام المدمج",
+                        color = Color(0xFFEF4444),
+                        fontSize = 19.sp,
+                        fontWeight = FontWeight.Bold,
+                    )
+                    Text(
+                        text = playerError ?: "",
+                        color = Color(0xFFCBD5E1),
+                        fontSize = 13.sp,
+                        maxLines = 2,
+                    )
+                    Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                        Box(
+                            modifier = Modifier
+                                .mishkatFocus(id = "player:err_vlc", radius = 10.dp)
+                                .clip(RoundedCornerShape(10.dp))
+                                .background(Color(0xFFF59E0B))
+                                .clickable { openInExternalApp() }
+                                .padding(horizontal = 20.dp, vertical = 10.dp),
+                        ) {
+                            Text(
+                                text = "▶ فتح في مشغل خارجي (VLC / MX)",
+                                color = Color.Black,
+                                fontSize = 14.sp,
+                                fontWeight = FontWeight.Bold,
+                            )
+                        }
+                        Box(
+                            modifier = Modifier
+                                .mishkatFocus(id = "player:err_close", radius = 10.dp)
+                                .clip(RoundedCornerShape(10.dp))
+                                .background(Color(0x44FFFFFF))
+                                .clickable { onClose() }
+                                .padding(horizontal = 18.dp, vertical = 10.dp),
+                        ) {
+                            Text(text = "✕ إغلاق", color = Color.White, fontSize = 14.sp)
+                        }
+                    }
+                }
+            }
+        }
 
         // Floating Center Seek Notification HUD
         seekNotice?.let { notice ->

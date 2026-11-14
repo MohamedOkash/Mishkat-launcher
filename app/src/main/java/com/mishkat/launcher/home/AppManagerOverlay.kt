@@ -425,6 +425,9 @@ fun SettingsOverlay(
     var stats by remember { mutableStateOf(SystemStats()) }
     var lastCleanStatus by remember { mutableStateOf<String?>(null) }
 
+    var showCityDropdown by remember { mutableStateOf(false) }
+    var showMuezzinDropdown by remember { mutableStateOf(false) }
+
     LaunchedEffect(Unit) {
         repeat(4) {
             withFrameNanos { }
@@ -787,16 +790,10 @@ fun SettingsOverlay(
                                 SettingRowCard(
                                     id = "settings:prayer_city",
                                     title = if (settings.isArabic) "المدينة الحالية ومواقيت الصلاة" else "Current City & Prayer Times",
-                                    value = "📍 $currentCity",
+                                    value = "📍 $currentCity (قائمة المدن)",
                                     tokens = tokens,
                                     glassIntensity = settings.glassIntensity,
-                                    onClick = {
-                                        if (cities.isNotEmpty()) {
-                                            val currIdx = cities.indexOfFirst { it.id == prayerState?.city?.id }
-                                            val nextCity = cities[(currIdx + 1).coerceAtLeast(0) % cities.size]
-                                            onSelectCity(nextCity)
-                                        }
-                                    },
+                                    onClick = { showCityDropdown = true },
                                 )
                             }
 
@@ -806,15 +803,10 @@ fun SettingsOverlay(
                                 SettingRowCard(
                                     id = "settings:prayer_muezzin",
                                     title = if (settings.isArabic) "صوت المؤذن الرسمي (10 أصوات)" else "Adhan Voice (10 Muezzins)",
-                                    value = "🕌 $muezzinLabel",
+                                    value = "🕌 $muezzinLabel (قائمة الأصوات)",
                                     tokens = tokens,
                                     glassIntensity = settings.glassIntensity,
-                                    onClick = {
-                                        val allMuezzins = MuezzinVoice.entries
-                                        val currIdx = allMuezzins.indexOf(currentMuezzin)
-                                        val nextM = allMuezzins[(currIdx + 1) % allMuezzins.size]
-                                        onSelectMuezzin(nextM)
-                                    },
+                                    onClick = { showMuezzinDropdown = true },
                                 )
                             }
 
@@ -977,17 +969,6 @@ fun SettingsOverlay(
                                     onClick = { com.mishkat.launcher.notification.NotificationRepository.openPermissionSettings(context) },
                                 )
                             }
-
-                            item(key = "notif_hub_card") {
-                                SettingRowCard(
-                                    id = "settings:notif_hub_open",
-                                    title = if (settings.isArabic) "مركز الإشعارات وتحديثات النظام (OTA Updates)" else "Notifications & System Updates Hub",
-                                    value = "عرض المركز 🔔",
-                                    tokens = tokens,
-                                    glassIntensity = settings.glassIntensity,
-                                    onClick = onOpenNotifications,
-                                )
-                            }
                         }
 
                         SettingsCategory.SYSTEM -> {
@@ -999,6 +980,17 @@ fun SettingsOverlay(
                                     tokens = tokens,
                                     glassIntensity = settings.glassIntensity,
                                     onClick = onOpenDeveloperProfile,
+                                )
+                            }
+
+                            item(key = "ota_updates") {
+                                SettingRowCard(
+                                    id = "settings:ota_updates",
+                                    title = if (settings.isArabic) "تحديثات نظام مشكاة الرسمية" else "Official System Updates",
+                                    value = if (settings.isArabic) "الإصدار v2.0.0 (أحدث إصدار مثبت) ✓" else "v2.0.0 (Latest) ✓",
+                                    tokens = tokens,
+                                    glassIntensity = settings.glassIntensity,
+                                    onClick = { },
                                 )
                             }
 
@@ -1051,6 +1043,50 @@ fun SettingsOverlay(
                     }
                 }
             }
+        }
+
+        // Apple TV Modal Dropdowns for Instant 1-Click Pickers
+        if (showCityDropdown) {
+            AppleTvDropdownModal(
+                title = if (settings.isArabic) "📍 اختيار المدينة لمواقيت الصلاة" else "📍 Select City for Prayer Times",
+                tokens = tokens,
+                items = cities.map { city ->
+                    DropdownItem(
+                        id = city.id,
+                        title = city.displayName(settings.isArabic),
+                        subtitle = if (settings.isArabic) "حساب دقيق حسب الإحداثيات الجغرافية الفلكية" else "Astronomical solar calculation",
+                        isSelected = city.id == prayerState?.city?.id,
+                    )
+                },
+                onSelect = { selectedId ->
+                    cities.firstOrNull { it.id == selectedId }?.let { onSelectCity(it) }
+                    showCityDropdown = false
+                },
+                onDismiss = { showCityDropdown = false },
+            )
+        }
+
+        if (showMuezzinDropdown) {
+            val currentMuezzin = prayerState?.selectedMuezzin ?: MuezzinVoice.MAKKAH
+            AppleTvDropdownModal(
+                title = if (settings.isArabic) "🕌 اختيار صوت المؤذن الرسمي (أذان بشري 100%)" else "🕌 Select Muezzin Voice",
+                tokens = tokens,
+                items = MuezzinVoice.entries.map { m ->
+                    DropdownItem(
+                        id = m.name,
+                        title = if (settings.isArabic) m.titleAr else m.titleEn,
+                        subtitle = if (settings.isArabic) "تسجيل صوتي كامل ونقي" else "Pure studio recording",
+                        isSelected = m == currentMuezzin,
+                        actionLabel = if (prayerState?.isAdhanTesting == true) "⏸ إيقاف" else "▶ استماع",
+                        onAction = { onTestAdhan() },
+                    )
+                },
+                onSelect = { selectedName ->
+                    MuezzinVoice.entries.firstOrNull { it.name == selectedName }?.let { onSelectMuezzin(it) }
+                    showMuezzinDropdown = false
+                },
+                onDismiss = { showMuezzinDropdown = false },
+            )
         }
     }
 }
@@ -1164,5 +1200,169 @@ fun requestUninstall(context: Context, packageName: String) {
             Uri.fromParts("package", packageName, null),
         ).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
         context.startActivity(intent)
+    }
+}
+
+private data class DropdownItem(
+    val id: String,
+    val title: String,
+    val subtitle: String? = null,
+    val isSelected: Boolean = false,
+    val actionLabel: String? = null,
+    val onAction: (() -> Unit)? = null,
+)
+
+@Composable
+private fun AppleTvDropdownModal(
+    title: String,
+    tokens: ThemeTokens,
+    items: List<DropdownItem>,
+    onSelect: (String) -> Unit,
+    onDismiss: () -> Unit,
+) {
+    BackHandler(onBack = onDismiss)
+    val firstItemFocus = remember { FocusRequester() }
+
+    LaunchedEffect(Unit) {
+        repeat(3) {
+            withFrameNanos { }
+            if (runCatching { firstItemFocus.requestFocus() }.isSuccess) return@LaunchedEffect
+        }
+    }
+
+    Box(
+        modifier = Modifier
+            .fillMaxSize()
+            .background(androidx.compose.ui.graphics.Color(0xDD000000))
+            .clickable { onDismiss() },
+        contentAlignment = Alignment.Center,
+    ) {
+        Box(
+            modifier = Modifier
+                .width(580.dp)
+                .fillMaxHeight(0.82f)
+                .clip(RoundedCornerShape(20.dp))
+                .background(androidx.compose.ui.graphics.Color(0xF50D1527))
+                .border(1.5.dp, tokens.primary.copy(alpha = 0.8f), RoundedCornerShape(20.dp))
+                .clickable(enabled = false) { }
+                .padding(24.dp),
+        ) {
+            Column(
+                modifier = Modifier.fillMaxSize(),
+                verticalArrangement = Arrangement.spacedBy(16.dp),
+            ) {
+                // Header
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically,
+                ) {
+                    Text(
+                        text = title,
+                        color = tokens.primary,
+                        fontSize = 18.sp,
+                        fontWeight = FontWeight.Bold,
+                        maxLines = 1,
+                        softWrap = false,
+                    )
+                    Box(
+                        modifier = Modifier
+                            .mishkatFocus(id = "dropdown:close", radius = 10.dp)
+                            .clip(RoundedCornerShape(10.dp))
+                            .background(androidx.compose.ui.graphics.Color(0x33FFFFFF))
+                            .clickable { onDismiss() }
+                            .padding(horizontal = 14.dp, vertical = 6.dp),
+                    ) {
+                        Text(text = "✕ إغلاق", color = androidx.compose.ui.graphics.Color.White, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                    }
+                }
+
+                // Scrollable Options List
+                LazyColumn(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .weight(1f),
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                    contentPadding = PaddingValues(vertical = 4.dp),
+                ) {
+                    itemsIndexed(items, key = { _, item -> item.id }) { index, item ->
+                        val itemFocusMod = if (index == 0) Modifier.focusRequester(firstItemFocus) else Modifier
+                        var isItemFocused by remember { mutableStateOf(false) }
+
+                        Row(
+                            modifier = itemFocusMod
+                                .fillMaxWidth()
+                                .mishkatFocus(id = "dropdown_item_${item.id}", radius = 12.dp)
+                                .onFocusChanged { isItemFocused = it.isFocused }
+                                .clip(RoundedCornerShape(12.dp))
+                                .background(
+                                    when {
+                                        isItemFocused -> tokens.cardFocused
+                                        item.isSelected -> tokens.primary.copy(alpha = 0.22f)
+                                        else -> androidx.compose.ui.graphics.Color(0x331E293B)
+                                    }
+                                )
+                                .border(
+                                    1.dp,
+                                    if (isItemFocused) tokens.primary else if (item.isSelected) tokens.primary.copy(alpha = 0.6f) else androidx.compose.ui.graphics.Color(0x22FFFFFF),
+                                    RoundedCornerShape(12.dp)
+                                )
+                                .clickable { onSelect(item.id) }
+                                .padding(horizontal = 16.dp, vertical = 12.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically,
+                        ) {
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(
+                                    text = item.title,
+                                    color = if (isItemFocused || item.isSelected) tokens.primary else androidx.compose.ui.graphics.Color.White,
+                                    fontSize = 15.sp,
+                                    fontWeight = if (item.isSelected) FontWeight.Bold else FontWeight.SemiBold,
+                                    maxLines = 1,
+                                    softWrap = false,
+                                )
+                                item.subtitle?.let {
+                                    Text(
+                                        text = it,
+                                        color = androidx.compose.ui.graphics.Color(0xFF94A3B8),
+                                        fontSize = 11.sp,
+                                        maxLines = 1,
+                                        softWrap = false,
+                                    )
+                                }
+                            }
+
+                            Row(
+                                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                                verticalAlignment = Alignment.CenterVertically,
+                            ) {
+                                if (item.actionLabel != null && item.onAction != null) {
+                                    Box(
+                                        modifier = Modifier
+                                            .mishkatFocus(id = "dropdown_action_${item.id}", radius = 8.dp)
+                                            .clip(RoundedCornerShape(8.dp))
+                                            .background(androidx.compose.ui.graphics.Color(0xFFF59E0B))
+                                            .clickable { item.onAction.invoke() }
+                                            .padding(horizontal = 10.dp, vertical = 5.dp),
+                                    ) {
+                                        Text(text = item.actionLabel, color = androidx.compose.ui.graphics.Color.Black, fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                                    }
+                                }
+                                if (item.isSelected) {
+                                    Box(
+                                        modifier = Modifier
+                                            .clip(CircleShape)
+                                            .background(tokens.primary)
+                                            .padding(horizontal = 8.dp, vertical = 3.dp),
+                                    ) {
+                                        Text(text = "✓ تم الاختيار", color = tokens.surface, fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 }

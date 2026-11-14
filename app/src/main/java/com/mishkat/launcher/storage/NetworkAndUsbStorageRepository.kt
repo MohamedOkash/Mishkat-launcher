@@ -381,7 +381,10 @@ class NetworkAndUsbStorageRepository(
         val rawFiles = dir.listFiles() ?: emptyArray()
         val items = rawFiles.map { f ->
             val cat = if (f.isDirectory) FileCategory.FOLDER else categorizeFile(f.name)
-            val streamUri = if (!f.isDirectory) proxy.getStreamUrl(StorageSourceType.LOCAL_USB, f.absolutePath, settings) else null
+            val streamUri = if (!f.isDirectory) {
+                if (f.exists()) android.net.Uri.fromFile(f).toString()
+                else proxy.getStreamUrl(StorageSourceType.LOCAL_USB, f.absolutePath, settings)
+            } else null
             StorageItem(
                 name = f.name,
                 path = f.absolutePath,
