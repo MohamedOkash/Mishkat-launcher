@@ -1,0 +1,7 @@
+{
+  "versionCode": 20,
+  "versionName": "2.0.0",
+  "downloadUrl": "https://github.com/MohamedOkash/Mishkat-launcher/releases/latest/download/MishkatLauncher-Android-Latest.apk",
+  "changelogAr": "✦ الإصدار 2.0.0 الشامل:\n• إعادة بناء واجهة التحكم بالكامل بنمط Apple TV tvOS فائق السلاسة\n• مركز إعدادات موحد ومقسّم مع قوائم اختيار منسدلة فورية للمدن والمؤذنين بنقرة واحدة\n• مشغل فيديو سينمائي متطور بنمط VLC مع قفزات ذكية وشريط تمرير فائق الدقة وأرقام الريموت\n• دعم كامل للفتح بمشغلات خارجية (VLC / MX Player) فورياً عند الحاجة\n• إمكانية الترتيب الفعلي والديناميكي لأقسام الشاشة الرئيسية\n• مركز مباريات حقيقي 100% متصل بـ ESPN لعرض النتائج والمواعيد الحية دون تزييف\n• 24 ثيم وخلفية حقيقية 4K مع تأثيرات حية للفصول الأربعة والأجواء المناخية\n• منظومة تنظيف الرام وتسريع الذاكرة الحقيقية عبر نواة النظام",
+  "changelogEn": "✦ Version 2.0.0 Major Release:\n• Complete Apple TV tvOS UI/UX precision overhaul\n• Unified split-view Settings with tvOS dropdown modal pickers\n• Advanced cinematic video player with VLC-style dynamic scrubbing and external player fallback\n• Real-time dynamic reordering of home screen shelves\n• 100% genuine live sports center powered by ESPN\n• 24 verified 4K wallpapers and live weather/seasonal themes\n• Honest kernel RAM cleaner and cache optimizer"
+}

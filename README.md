@@ -1,79 +1,124 @@
-# مشكاة لانشر | Mishkat TV Launcher 📺✨
+# مشكاة لانشر 2.0 | Mishkat TV Launcher 2.0 📺✨
 
-> **مِشكاة** — لانشر تلفزيوني ذكي بتصميم زجاجي سائل (Liquid Glass) مستوحى من فلسفة Apple TV، مخصص لأجهزة Android TV و Google TV و TV Boxes.
+> **مِشكاة 2.0** — لانشر تلفزيوني ذكي فائق السلاسة بتصميم زجاجي سائل (Liquid Glass) مستوحى من فلسفة وهندسة **Apple TV tvOS**، مصمم خصيصاً لأجهزة **Android TV** و **Google TV** وشاشات التلفزيون الذكية والـ TV Boxes.
 
----
-
-## 🌟 الميزات الرئيسية (Key Features)
-
-- 🧹 **قاتل تطبيقات الخلفية ومُسرّع الرام الذكي (Background Bloatware & Process Killer - v1.7.0)**:
-  - فحص العمليات والتطبيقات الدعائية العالقة في الخلفية وإيقافها فورياً (`ActivityManager.killBackgroundProcesses`).
-  - أوضاع كنس تلقائي عند إقلاع التلفزيون، وعند العودة للشاشة الرئيسية، وتلقائياً إذا تجاوز استهلاك الذاكرة 75%.
-  - إيقاف إجباري عميق (`Deep Force-Stop`) للتطبيقات العنيدة مع شاشة تحكم وإحصائيات بالرام المحرر وعدد العمليات.
-  - تطبيق قاعدة **Zero-Regression** الصارمة: الحفاظ الكامل على مؤثرات الزجاج السائل والخلفيات الحية دون مساس.
-
-- 🕌 **محرك صوت الأذان البشري النقي (Real Human Adhan Audio Engine - v1.7.0)**:
-  - صوت أذان حقيقي نقي 100% مدمج في ملفات التطبيق ويعمل Offline بدون إنترنت (أذان الحرم المكي الشريف).
-  - قائمة اختيار المؤذن (الحرم المكي، الشيخ عبد الباسط عبد الصمد، الشيخ مشاري العفاسي، وإذاعة القرآن الكريم من القاهرة) مع التخزين المحلي التلقائي.
-  - رفع تدريجي للصوت لمدة 2.5 ثانية وزر لتجربة وسماع الأذان فورياً داخل إعدادات الصلاة.
-
-- 📺 **دليل القنوات الفضائية والريسيفر الداخلي (Live TV & Internal Tuner - v1.7.0)**:
-  - تشغيل قنوات الريسيفر الداخلي للشاشة عبر `TvView` و `TvContract.Channels.CONTENT_URI` مع سقوط آمن ضد أي حظر صلاحيات.
-  - دعم 4 أقمار صناعية كبرى (نايل سات 7°W، عرب سات / بدر 26°E، سهيل سات 25.5°E، وياه سات 52.5°E) بإجمالي 42 قناة تلفزيونية.
-  - إمكانية القفز الفوري لرقم القناة عبر أرقام الريموت (0..9) ومزامنة سحابية للقنوات وتحديث الترددات.
-
-- 📱 **تطبيق ريموت الموبايل المستقل المتقدم (Mishkat Remote Companion App - v1.7.0)**:
-  - تطبيق أندرويد مستقل لهواتف المحمول (`:remote`) بحجم 1 ميجابايت فقط وبتصميم زجاجي سائل (Liquid Glass).
-  - اكتشاف فوري وتلقائي لشاشات مشكاة عبر شبكة الـ Wi-Fi (بث منارات UDP المنفذ 8788).
-  - لوحة تحكم D-Pad كاملة مع اهتزازات تفاعلية لمسية (Haptic Feedback)، وماوس هوائي تفاعلي (Touchpad)، وإدخال نصوص وإملاء صوتي بالمايكروفون، وزر تسريع التلفزيون عن بُعد (`🚀 تسريع TV`).
-  - خادم وب محلي مدمج بديل عبر كود QR يتيح التحكم من أي متصفح هاتف دون تثبيت برامج.
-
-- 📻 **الإذاعة وقراء القرآن الكريم (Media3 Audio Engine)**:
-  - إذاعة متواصلة 24/7 مع خدمة تشغيل في الخلفية `MediaSessionService`.
-  - قائمة سريعة لأشهر قراء مصر والعالم الإسلامي ومؤقت نوم ذكي قابل للضبط.
-
-- 🎮 **نظام التنقل الذكي وزر الهوم (Accessibility Home Key)**:
-  - محرك تنقل فائق السرعة عبر الأسهم (D-Pad) بدون تعليق مع تركيز مرئي واضح.
-  - خدمة إمكانية وصول مدمجة (`MishkatAccessibilityService`) تبرمج زر `Home` في الريموت للعودة دائماً لمشكاة وتمنع الخروج للانشر النظام الأصلي.
-
-- ⚡ **أداء خفيف واستهلاك موارد منخفض**:
-  - تقليص الحجم عبر ProGuard و R8 بحجم 8.3 ميجابايت فقط للانشر التلفزيون و 1.0 ميجابايت لريموت الموبايل.
-  - دعم أنظمة أندرويد من **Android 7.0 (Nougat / API 24)** وحتى **Android 15 (API 35+)**.
+[![Release](https://img.shields.io/badge/Release-v2.0.0-gold?style=for-the-badge&logo=android)](https://github.com/MohamedOkash/Mishkat-launcher/releases/latest)
+[![Android](https://img.shields.io/badge/Android-7.0%20to%2015%20(API%2024--35)-brightgreen?style=for-the-badge&logo=android)](https://github.com/MohamedOkash/Mishkat-launcher)
+[![Design](https://img.shields.io/badge/UI%2FUX-Apple%20tvOS%20Liquid%20Glass-blue?style=for-the-badge&logo=apple)](https://github.com/MohamedOkash/Mishkat-launcher)
+[![License](https://img.shields.io/badge/License-Proprietary%20%2F%20Personal-purple?style=for-the-badge)](https://github.com/MohamedOkash/Mishkat-launcher)
 
 ---
 
-## 📦 حزم التوزيع المتاحة (Distribution Packages - v1.9.0)
+## 🌟 ميزات الإصدار 2.0.0 الجديد (Version 2.0.0 Highlights)
 
-الملفات الجاهزة للتثبيت المباشر في مجلد `dist/`:
-- **تلفزيون أندرويد**: [`dist/MishkatLauncher-AndroidTV-v1.9.0.apk`](file:///d:/my%20projict/launcher%20tv/dist/MishkatLauncher-AndroidTV-v1.9.0.apk) (الحجم: ~10.5 MB)
-- **ريموت الموبايل**: [`dist/MishkatRemote-AndroidMobile-v1.9.0.apk`](file:///d:/my%20projict/launcher%20tv/dist/MishkatRemote-AndroidMobile-v1.9.0.apk) (الحجم: ~1.1 MB)
-- **شاشات سامسونج تايزن**: `dist/MishkatLauncher-Samsung-Tizen.wgt`
-- **شاشات إل جي ويب أو إس**: `dist/MishkatLauncher-LG-webOS.zip` & `dist/com.mishkat.launcher_1.8.0_all.ipk`
+### 1. 🍏 واجهة تحكم فائقة السلاسة بنمط Apple TV (tvOS Precision UI/UX)
+- **شريط علوي أفقي موزع (Spaced TopBar)**: تصميم متباعد يمنع أي تداخل بين الأزرار، مع خطوط واضحة دون أي التفاف رأسي للكلمات (`maxLines = 1`).
+- **كبسولة الضبط المباشرة (`⚙ الضبط`)**: وصول فوري إلى مركز التحكم بجوار شعار `✦ مشكاة` مع تمييز لوني ذهبي واضح.
+- **استجابة فورية 0ms**: انتقال فوري بين العناصر عبر أزرار الريموت (D-Pad) مع إطارات بلورية زجاجية ولمعان تفاعلي عند التركيز.
+
+### 2. ⚙ مركز إعدادات موحد ومقسّم (Apple TV Split-View Settings)
+- **تصميم الشاشة المنقسمة**: قائمة جانبية منظمة تضم 6 تصنيفات رئيسية، وبجانبها بطاقات التحكم الزجاجية التفاعلية مع شارات كبسولية للقيم الحالية وأسهم توجيه `›`.
+- **قوائم منسدلة فورية (Modal Dropdown Sheets)**:
+  - **قائمة المدن 📍**: اختيار مدينتك لحساب مواقيت الصلاة الفلكية بنقرة واحدة من قائمة كاملة بالمدن المصرية والعربية، دون الحاجة للتقليب الفردي المرهق.
+  - **قائمة المؤذنين 🕌**: اختيار صوت المؤذن من بين 10 أصوات حقيقية لكبار المشايخ (الحرم المكي، المسجد النبوي، الشيخ عبد الباسط، المنشاوي، مصطفى إسماعيل، محمد رفعت، إلخ) مع زر استماع ومعاينة صوتية فورية.
+  - **حجم الخطوط 🔤**: اختيار مباشر بين (مدمج 90%، قياسي متوازن 100%، كبير واضح 115%).
+
+### 3. 🎬 مشغل فيديو سينمائي متطور بنمط VLC (VLC-Style Flex Scrubber)
+- **تشغيل محلي وفوري عبر الهاردوير**: دعم التشغيل المباشر لأفلام ومقاطع الـ 4K و 1080p BluRay من الذاكرة الداخلية وUSB عبر `FileDataSource` دون أي تأخير أو وسيط شبكي.
+- **تمرير مرن وسريع (Dynamic Scrubbing)**:
+  - قفزات ديناميكية بنسب مئوية (1%، 2%، 5%، 10% من إجمالي مدة الفيلم) للوصول لربع أو نصف أو نهاية الفيديو في ضغطات معدودة.
+  - دعم أزرار أرقام الريموت للقفز الفوري (`1` = 10%، `5` = 50% نصف الفيلم، `9` = 90%، `0` = البداية).
+  - مؤشر تمرير عائم يوضح الدقيقة والنسبة المئوية: `⏩ 01:15:30 / 02:30:00 (50%)`.
+- **زر الطوارئ للتشغيل الخارجي**: في حال وجود ترميز صوتي أو مرئي نادر غير مدعوم في الشاشة، تظهر بطاقة واضحة مع زر تشغيل فوري عبر مشغلات خارجية مثل **VLC** أو **MX Player** بنقرة واحدة.
+
+### 4. 📱 إعادة ترتيب حقيقية وديناميكية لصفوف الشاشة (Live Shelf Reordering)
+- تحكم كامل في ترتيب أقسام الشاشة الرئيسية (التطبيقات، البث المباشر للقنوات، الصلاة والأذكار، المباريات والرياضة، الراديو، المداخل).
+- إعادة الترتيب تتم فورياً وتنعكس على الشاشة الرئيسية لحظة حفظ الترتيب عبر DataStore.
+
+### 5. ⚽ مركز المباريات الحية الحقيقية 100% (Real Live Sports Center)
+- **اتصال حي بـ ESPN API**: عرض مواعيد ونتائج المباريات الحقيقية للدوريات الكبرى:
+  - الدوري السعودي (دوري روشن)
+  - الدوري الإنجليزي الممتاز (Premier League)
+  - الدوري الإسباني (LaLiga)
+  - الدوري الإيطالي (Serie A)
+  - الدوري الألماني (Bundesliga)
+  - دوري أبطال أوروبا (UEFA Champions League)
+- **بيانات صادقة 100%**: إظهار المباريات المباشرة الحالية مع دقيقة المباراة، والمباريات المنتهية بنتيجتها الفعلية، والمباريات القادمة بموعدها الصحيح، دون أي نتائج وهمية أو مصطنعة.
+
+### 6. 🎨 24 ثيم وخلفية 4K حقيقية مع مؤثرات حية تفاعلية
+- **الفصول الأربعة الحية**:
+  - ❄ **شتاء وغابة الثلوج**: تساقط ثلوج ثلاثي الأبعاد.
+  - 🌧 **أمطار الشتاء**: قطرات المطر وسيول الزجاج المتحركة.
+  - ⚡ **العاصفة الرعدية**: ومضات البرق والسحب الداكنة.
+  - 🌸 **ربيع الأزهار**: أشجار الساكورا وبتلات الكرز المتطايرة.
+  - 🌊 **أمواج وغروب الصيف**: تموجات وانعكاسات مياه البحر الذهبية.
+  - 🍂 **خريف الغابات**: تساقط أوراق الشجر الذهبية.
+- **المقدسات الإسلامية بدقة 4K Ultra HD**:
+  - 🕋 الحرم المكي والكعبة المشرفة.
+  - 🕌 المسجد النبوي الشريف بالمدينة المنورة.
+  - 🕌 المسجد الكبير والقباب والعمارة الإسلامية.
+- **شاشات OLED الداكنة الفاخرة**:
+  - أونيكس أسود فاخر (Deep Onyx Luxury).
+  - ألياف الكربون التكنولوجية (Carbon Dark Mesh).
+- **انسجام الزجاج السائل**: تلوين الزجاج السائل والأزرار تلقائياً بألوان الثيم والخلفية النشطة.
+
+### 7. 🕌 الصلاة والأذان التلقائي والقرآن الكريم
+- حساب فلكي دقيق لمواقيت الصلاة حسب إحداثيات مدينتك.
+- تنبيه أذان منبثق تلقائي وقت حلول الصلاة مع شاشة أذكار ودعاء ما بعد الأذان.
+- إذاعة القرآن الكريم من القاهرة ومكة المكرمة تعمل 24/7 مع مشغل صوتي في الخلفية ومؤقت نوم ذكي.
+
+### 8. 🛠️ منظومة صيانة الرام والذاكرة الحقيقية
+- كنس وتفريغ حقيقي للعمليات الدعائية العالقة في الخلفية عبر نواة النظام (`killBackgroundProcesses`).
+- فحص وتفريغ حقيقي للذاكرة المؤقتة (Cache Cleaner).
+- مراقبة حية لنسبة استهلاك الرام ودرجة حرارة المعالج (SoC Temperature).
+
+### 9. 🔄 نظام التحديث الهوائي التلقائي (Direct GitHub OTA Updates)
+- فحص دوري للتحديثات مباشرة من مستودع GitHub عبر ملف `version.json`.
+- إشعار فوري عند صدور أي إصدار جديد مع إمكانية التحديث المباشر من داخل الشاشة.
+
+---
+
+## 📦 حزم التوزيع والتحميل (Downloads & Installation)
+
+| الحزمة | المنصة | الرابط المباشر |
+| :--- | :--- | :--- |
+| **Mishkat Launcher v2.0.0 (APK)** | Android TV / Google TV / Boxes | [تحميل APK الأحدث](https://github.com/MohamedOkash/Mishkat-launcher/releases/latest/download/MishkatLauncher-Android-Latest.apk) |
+| **Mishkat Remote Companion (APK)** | هواتف أندرويد (ريموت تحكم) | [تحميل APK الريموت](https://github.com/MohamedOkash/Mishkat-launcher/releases/latest/download/MishkatRemote-AndroidMobile-v1.9.0.apk) |
+
+### التثبيت السريع عبر الـ USB أو ADB:
+```bash
+# التثبيت عبر ADB على التلفزيون:
+adb connect <IP_ADDRESS>:5555
+adb install -r MishkatLauncher-Android-Latest.apk
+
+# تعيين مشكاة كـ Launcher افتراضي:
+adb shell cmd package set-home-activity com.mishkat.launcher/.MainActivity
+```
 
 ---
 
 ## 🛠️ التقنيات المستخدمة (Tech Stack)
 
-- **Language**: Kotlin 2.1
-- **UI Toolkit**: Jetpack Compose for TV (`androidx.tv.material3`) + Liquid Glass Custom Modifiers
-- **Media Playback**: AndroidX Media3 (ExoPlayer + HLS Module + Session Service)
-- **Background & Audio**: Foreground Service (`mediaPlayback`)
-- **System Integration**: Android AccessibilityService for Remote Key Interception (`KEYCODE_HOME`)
-- **Local Storage**: Jetpack DataStore Preferences
-- **Build System**: Gradle 8.11 with Kotlin DSL & R8 Minification
+- **Language**: Kotlin 2.1 (Strict Typing & Coroutines)
+- **UI Framework**: Jetpack Compose for TV (`androidx.tv.material3`) + Apple tvOS Liquid Glass Modifiers
+- **Media Engine**: AndroidX Media3 1.5 (ExoPlayer + Direct FileDataSource + Session Service)
+- **Live Sports API**: ESPN Scoreboard REST API (Real-time live scores and schedules)
+- **Persistence**: Jetpack DataStore Preferences
+- **Architecture**: MVI / Unidirectional Data Flow with StateFlow
+- **Compatibility**: Android 7.0 (Nougat / API 24) up to Android 15 (API 35+)
 
 ---
 
 ## 👨‍💻 المطور (Developer)
 
-- **Eng. Mohamed Okash**
-- **Portfolio**: [mohamed-okash.web.app](https://mohamed-okash.web.app)
-- **Email**: mohamed.okash1998@gmail.com
-- **Specialization**: IT Infrastructure & HSE Engineering • Advanced Android Systems
+- **م. محمد عكاش (Eng. Mohamed Okash)**
+- **الموقع الشخصي**: [mohamed-okash.web.app](https://mohamed-okash.web.app)
+- **البريد الإلكتروني**: mohamed.okash1998@gmail.com
+- **التخصص**: أنظمة أندرويد التلفزيونية المتقدمة • هندسة البنية التحتية والسلامة الصناعية
 
 ---
 
 ## 📄 الترخيص (License)
 
-هذا المشروع مطور لأغراض التطوير والاستخدام التلفزيوني الشخصي والمنزلي الذكي.
-جميع حقوق البث والعلامات التجارية للقنوات والإذاعات محفوظة لأصحابها والشبكات الأصلية.
+جميع حقوق التطوير والتصميم محفوظة © 2026 م. محمد عكاش.
+جميع حقوق أسماء القنوات وبث الإذاعات والشعارات الرياضية محفوظة لشبكاتها الأصلية.

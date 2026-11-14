@@ -42,21 +42,21 @@ class UpdateRepository(
 ) {
     private val _state = MutableStateFlow(
         UpdateUiState(
-            currentVersionName = runCatching { context.packageManager.getPackageInfo(context.packageName, 0).versionName }.getOrNull() ?: "1.5.0",
-            currentVersionCode = runCatching { context.packageManager.getPackageInfo(context.packageName, 0).versionCode }.getOrDefault(12),
-            latestVersionName = "1.6.0",
-            latestVersionCode = 13,
-            updateAvailable = true,
-            changelogAr = "• إضافة 28 قناة مصرية وعربية حية (دراما، أفلام، رياضة، قرآن)\n• نظام توفير باقة الإنترنت المنزلية\n• قائمة القنوات السريعة أثناء البث المباشر (OK)\n• وضع اللايت مود المهدّئ والمريح للعين\n• إمكانية ترتيب أقسام اللانشر",
-            changelogEn = "• Added 28 Egyptian & Arab live channels\n• Home Internet Data Saver mode\n• Quick Channel Selector Menu in live player\n• Calm eye-friendly light mode\n• Reorderable home shelves",
-            downloadUrl = "https://github.com/MohamedOkash/mishkat-launcher/releases/latest/download/mishkat-release.apk",
-            hasUnreadNotification = true,
+            currentVersionName = runCatching { context.packageManager.getPackageInfo(context.packageName, 0).versionName }.getOrNull() ?: "2.0.0",
+            currentVersionCode = runCatching { context.packageManager.getPackageInfo(context.packageName, 0).versionCode }.getOrDefault(20),
+            latestVersionName = "2.0.0",
+            latestVersionCode = 20,
+            updateAvailable = false,
+            changelogAr = "الإصدار 2.0.0 هو أحدث إصدار رسمي من مشكاة لانشر بنمط Apple TV",
+            changelogEn = "Version 2.0.0 is the latest official release of Mishkat TV Launcher",
+            downloadUrl = "https://github.com/MohamedOkash/Mishkat-launcher/releases/latest/download/MishkatLauncher-Android-Latest.apk",
+            hasUnreadNotification = false,
         )
     )
     val state: StateFlow<UpdateUiState> = _state.asStateFlow()
 
-    // Developers can update this URL to their Firebase host or GitHub raw JSON
-    private val updateEndpoint = "https://mohamed-okash.web.app/version.json"
+    // Official GitHub Raw repository OTA update endpoint
+    private val updateEndpoint = "https://raw.githubusercontent.com/MohamedOkash/Mishkat-launcher/main/version.json"
 
     fun markNotificationsRead() {
         _state.value = _state.value.copy(hasUnreadNotification = false)
