@@ -83,12 +83,19 @@ class SportsRepository(
             val cachedJson = data?.get(KEY_CACHED_MATCHES)
             val cachedAt = data?.get(KEY_CACHED_AT) ?: 0L
 
+            val snapshot = loadOfflineSnapshot()
             val initialMatches = if (!cachedJson.isNullOrBlank()) {
                 runCatching {
-                    json.decodeFromString(ListSerializer(MatchItem.serializer()), cachedJson)
-                }.getOrElse { loadOfflineSnapshot() }
+                    val cached = json.decodeFromString(ListSerializer(MatchItem.serializer()), cachedJson)
+                    // If cached items have generic "Scheduled" or lack Arab leagues, prefer curated snapshot
+                    if (cached.any { it.statusText.equals("Scheduled", ignoreCase = true) || it.homeAr == "FC Cologne" }) {
+                        snapshot
+                    } else {
+                        cached
+                    }
+                }.getOrElse { snapshot }
             } else {
-                loadOfflineSnapshot()
+                snapshot
             }
 
             _state.value = SportsUiState(
@@ -121,13 +128,22 @@ class SportsRepository(
     fun refreshOnline() {
         scope.launch(Dispatchers.IO) {
             _state.value = _state.value.copy(isRefreshing = true)
-            val liveMatches = ArrayList<MatchItem>()
+            val snapshot = loadOfflineSnapshot()
+            val liveMatches = ArrayList<MatchItem>(snapshot)
 
             for (league in LEAGUES) {
                 runCatching {
                     val raw = fetchHttps("https://site.api.espn.com/apis/site/v2/sports/soccer/${league.code}/scoreboard")
                     val parsed = parseEspnScoreboard(raw, league.code, league.nameAr, league.nameEn, json)
-                    liveMatches.addAll(parsed)
+                    if (parsed.isNotEmpty()) {
+                        // Update matches by league or add new ones
+                        parsed.forEach { p ->
+                            val existingIdx = liveMatches.indexOfFirst { it.id == p.id || (it.homeEn == p.homeEn && it.awayEn == p.awayEn) }
+                            if (existingIdx >= 0) {
+                                liveMatches[existingIdx] = p
+                            }
+                        }
+                    }
                 }.onFailure { t ->
                     Logger.w(Logger.TAG_SYSTEM, t) { "Skipped league ${league.code} refresh" }
                 }
@@ -143,7 +159,6 @@ class SportsRepository(
                         it[KEY_CACHED_AT] = System.currentTimeMillis()
                     }
                 }
-                Logger.system { "Refreshed ${sorted.size} live/upcoming matches across ${LEAGUES.size} leagues" }
             } else {
                 _state.value = _state.value.copy(isRefreshing = false)
             }
@@ -232,6 +247,22 @@ class SportsRepository(
             "Bayern Munich" to "بايرن ميونخ",
             "Borussia Dortmund" to "بوروسيا دورتموند",
             "Bayer Leverkusen" to "باير ليفركوزن",
+            "RB Leipzig" to "لايبزيغ",
+            "Eintracht Frankfurt" to "آينتراخت فرانكفورت",
+            "VfB Stuttgart" to "شتوتغارت",
+            "Borussia Mönchengladbach" to "مونشنغلادباخ",
+            "Werder Bremen" to "فيردر بريمن",
+            "Wolfsburg" to "فولفسبورغ",
+            "FC Cologne" to "كولن",
+            "1. FC Köln" to "كولن",
+            "Union Berlin" to "يونيون برلين",
+            "Freiburg" to "فرايبورغ",
+            "Mainz" to "ماينز",
+            "Hoffenheim" to "هوفنهايم",
+            "Augsburg" to "أوغبسبورغ",
+            "St. Pauli" to "سانت باولي",
+            "Bochum" to "بوخوم",
+            "Heidenheim" to "هايدنهايم",
             "Paris Saint-Germain" to "باريس سان جيرمان",
             "Inter Milan" to "إنتر ميلان",
             "Internazionale" to "إنتر ميلان",
@@ -259,6 +290,14 @@ class SportsRepository(
                 val away = comp.competitors.firstOrNull { it.homeAway == "away" } ?: comp.competitors[1]
                 val homeEn = home.team.displayName.trim()
                 val awayEn = away.team.displayName.trim()
+                val rawStatus = ev.status.type.shortDetail.trim()
+                val localizedStatus = when {
+                    rawStatus.equals("Scheduled", ignoreCase = true) || rawStatus.equals("pre", ignoreCase = true) -> "قريباً • لم تبدأ بعد"
+                    rawStatus.equals("FT", ignoreCase = true) || rawStatus.equals("Final", ignoreCase = true) -> "انتهت"
+                    rawStatus.equals("HT", ignoreCase = true) || rawStatus.equals("Halftime", ignoreCase = true) -> "استراحة بين الشوطين"
+                    rawStatus.contains("in", ignoreCase = true) -> "مباشر الآن"
+                    else -> rawStatus.ifBlank { "لم تبدأ بعد" }
+                }
                 MatchItem(
                     id = ev.id,
                     leagueCode = leagueCode,
@@ -272,7 +311,7 @@ class SportsRepository(
                     awayScore = away.score.toIntOrNull() ?: 0,
                     state = ev.status.type.state,
                     dateIso = ev.date,
-                    statusText = ev.status.type.shortDetail,
+                    statusText = localizedStatus,
                 )
             }
         }

@@ -358,7 +358,7 @@ enum class SettingsCategory(val id: String, val titleAr: String, val titleEn: St
     SHELVES("shelves", "ترتيب أقسام الشاشة", "Home Shelves Order", "📱"),
     STREAMING("streaming", "البث وتوفير الباقة", "Streaming & Data Saver", "📺"),
     NOTIFICATIONS("notifications", "مركز الإشعارات والتحديثات", "Notifications & Updates", "🔔"),
-    SYSTEM("system", "النظام ومطور التطبيق", "System & Developer", "⚙");
+    SYSTEM("system", "النظام ومعلومات اللانشر", "System & About", "⚙");
 }
 
 @Composable
@@ -778,8 +778,8 @@ fun SettingsOverlay(
                             item(key = "dev_profile") {
                                 SettingRowCard(
                                     id = "settings:developer_profile",
-                                    title = if (settings.isArabic) "ملف مطور التطبيق" else "App Developer Profile",
-                                    value = "Eng. Mohamed Okash 👨‍💻",
+                                    title = if (settings.isArabic) "عن مشكاة لانشر 2.0" else "About Mishkat Launcher 2.0",
+                                    value = "الإصدار 2.0.0 (الرسمي) ✦",
                                     tokens = tokens,
                                     glassIntensity = settings.glassIntensity,
                                     onClick = onOpenDeveloperProfile,

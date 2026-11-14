@@ -57,6 +57,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
+import androidx.compose.ui.focus.focusProperties
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
@@ -1156,6 +1157,7 @@ private fun MediaPlayerModal(
                                     .weight(1f)
                                     .focusRequester(seekbarFocus)
                                     .onFocusChanged { isSeekbarFocused = it.isFocused }
+                                    .focusProperties { down = playBtnFocus }
                                     .mishkatFocus(id = "player:seekbar", radius = 10.dp)
                                     .focusable()
                                     .clickable {
@@ -1229,119 +1231,21 @@ private fun MediaPlayerModal(
                         }
                     }
 
-                    // VLC Quick Jump Percentage Pills Row (0%, 10%, 25%, 50%, 75%, 90%)
+                    // Single Centered Play/Pause Button
                     Row(
-                        modifier = Modifier.fillMaxWidth(),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .focusProperties { up = seekbarFocus },
                         horizontalArrangement = Arrangement.Center,
                         verticalAlignment = Alignment.CenterVertically,
                     ) {
-                        Text(
-                            text = "قفز سريع VLC:",
-                            color = Color(0xFFF59E0B),
-                            fontSize = 12.sp,
-                            fontWeight = FontWeight.Bold,
-                        )
-                        Spacer(Modifier.width(8.dp))
-                        OsdButton("player:jump_0", "⏮ 0%") {
-                            exoPlayer.seekTo(0L); currentPos = 0L
-                            lastInteractionTime = System.currentTimeMillis()
-                            seekNotice = "⏮ 0% (البداية)"
-                        }
-                        Spacer(Modifier.width(6.dp))
-                        OsdButton("player:jump_10", "10%") {
-                            val t = (duration * 0.10f).toLong(); exoPlayer.seekTo(t); currentPos = t
-                            lastInteractionTime = System.currentTimeMillis()
-                            seekNotice = "⏩ 10% (${formatMs(t)})"
-                        }
-                        Spacer(Modifier.width(6.dp))
-                        OsdButton("player:jump_25", "¼ 25%") {
-                            val t = (duration * 0.25f).toLong(); exoPlayer.seekTo(t); currentPos = t
-                            lastInteractionTime = System.currentTimeMillis()
-                            seekNotice = "⏩ 25% (الربع - ${formatMs(t)})"
-                        }
-                        Spacer(Modifier.width(6.dp))
-                        OsdButton("player:jump_50", "½ 50%") {
-                            val t = (duration * 0.50f).toLong(); exoPlayer.seekTo(t); currentPos = t
-                            lastInteractionTime = System.currentTimeMillis()
-                            seekNotice = "⏩ 50% (النصف - ${formatMs(t)})"
-                        }
-                        Spacer(Modifier.width(6.dp))
-                        OsdButton("player:jump_75", "¾ 75%") {
-                            val t = (duration * 0.75f).toLong(); exoPlayer.seekTo(t); currentPos = t
-                            lastInteractionTime = System.currentTimeMillis()
-                            seekNotice = "⏩ 75% (ثلاثة أرباع - ${formatMs(t)})"
-                        }
-                        Spacer(Modifier.width(6.dp))
-                        OsdButton("player:jump_90", "90%") {
-                            val t = (duration * 0.90f).toLong(); exoPlayer.seekTo(t); currentPos = t
-                            lastInteractionTime = System.currentTimeMillis()
-                            seekNotice = "⏩ 90% (${formatMs(t)})"
-                        }
-                    }
-
-                    // TV Remote OSD Action Buttons Row
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.Center,
-                        verticalAlignment = Alignment.CenterVertically,
-                    ) {
-                        OsdButton("player:rewind_10m", "⏪ -10د") {
-                            exoPlayer.seekTo((exoPlayer.currentPosition - 600_000L).coerceAtLeast(0L))
-                            lastInteractionTime = System.currentTimeMillis()
-                            seekNotice = "⏪ -10 دقائق"
-                        }
-                        Spacer(Modifier.width(6.dp))
-                        OsdButton("player:rewind_1m", "⏪ -1د") {
-                            exoPlayer.seekTo((exoPlayer.currentPosition - 60_000L).coerceAtLeast(0L))
-                            lastInteractionTime = System.currentTimeMillis()
-                            seekNotice = "⏪ -1 دقيقة"
-                        }
-                        Spacer(Modifier.width(6.dp))
-                        OsdButton("player:rewind_15s", "⏪ -15ث") {
-                            doSeek(false)
-                        }
-                        Spacer(Modifier.width(10.dp))
                         OsdButton(
                             id = "player:play_pause",
-                            label = if (isPlaying) "⏸ إيقاف" else "▶ تشغيل",
+                            label = if (isPlaying) "⏸ إيقاف مؤقت" else "▶ تشغيل",
                             focusRequester = playBtnFocus,
                             highlighted = true,
                         ) {
                             if (exoPlayer.isPlaying) exoPlayer.pause() else exoPlayer.play()
-                            lastInteractionTime = System.currentTimeMillis()
-                        }
-                        Spacer(Modifier.width(10.dp))
-                        OsdButton("player:forward_15s", "⏩ +15ث") {
-                            doSeek(true)
-                        }
-                        Spacer(Modifier.width(6.dp))
-                        OsdButton("player:forward_1m", "⏩ +1د") {
-                            exoPlayer.seekTo((exoPlayer.currentPosition + 60_000L).coerceAtMost(duration))
-                            lastInteractionTime = System.currentTimeMillis()
-                            seekNotice = "⏩ +1 دقيقة"
-                        }
-                        Spacer(Modifier.width(6.dp))
-                        OsdButton("player:forward_10m", "⏩ +10د") {
-                            exoPlayer.seekTo((exoPlayer.currentPosition + 600_000L).coerceAtMost(duration))
-                            lastInteractionTime = System.currentTimeMillis()
-                            seekNotice = "⏩ +10 دقائق"
-                        }
-                        Spacer(Modifier.width(12.dp))
-                        OsdButton(
-                            id = "player:aspect",
-                            label = if (resizeMode == AspectRatioFrameLayout.RESIZE_MODE_FILL) "🔲 أبعاد أصلية" else "🔲 ملء الشاشة",
-                        ) {
-                            resizeMode = if (resizeMode == AspectRatioFrameLayout.RESIZE_MODE_FILL) {
-                                AspectRatioFrameLayout.RESIZE_MODE_FIT
-                            } else {
-                                AspectRatioFrameLayout.RESIZE_MODE_FILL
-                            }
-                            lastInteractionTime = System.currentTimeMillis()
-                        }
-                        Spacer(Modifier.width(6.dp))
-                        OsdButton("player:restart", "🔁 البداية") {
-                            exoPlayer.seekTo(0L)
-                            exoPlayer.play()
                             lastInteractionTime = System.currentTimeMillis()
                         }
                     }

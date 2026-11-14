@@ -101,21 +101,21 @@ fun DeveloperProfileOverlay(
                             .background(tokens.primary.copy(alpha = 0.22f)),
                         contentAlignment = Alignment.Center,
                     ) {
-                        Text(text = "👨‍💻", fontSize = 28.sp)
+                        Text(text = "✦", fontSize = 28.sp, color = tokens.primary)
                     }
 
                     Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
                         Text(
-                            text = "Eng. Mohamed Okash",
+                            text = "مشكاة لانشر 2.0 • Mishkat Launcher",
                             color = tokens.primary,
                             fontSize = 24.sp,
                             fontWeight = FontWeight.ExtraBold,
                         )
                         Text(
                             text = if (isArabic)
-                                "هندسة النظم والبنية التحتية (IT Infrastructure) والسلامة المهنية (HSE)"
+                                "الإصدار 2.0.0 • المنظومة الذكية للشاشات وأجهزة أندرويد TV"
                             else
-                                "IT Infrastructure & HSE Safety Engineer • Systems Architecture",
+                                "Version 2.0.0 • Smart TV Experience Engine",
                             color = tokens.onSurfaceMuted,
                             fontSize = 13.sp,
                             fontWeight = FontWeight.Medium,
@@ -148,7 +148,7 @@ fun DeveloperProfileOverlay(
                     .weight(1f),
                 horizontalArrangement = Arrangement.spacedBy(28.dp),
             ) {
-                // Column 1: Bio and Featured Projects
+                // Column 1: Info and Core Features
                 Column(
                     modifier = Modifier
                         .weight(1f)
@@ -166,9 +166,9 @@ fun DeveloperProfileOverlay(
                     ) {
                         Text(
                             text = if (isArabic)
-                                "أدمج بين خبرة 7 سنوات في البنية التحتية لتكنولوجيا المعلومات والشبكات المؤسسية، مع هندسة السلامة المهنية وتحليل المخاطر الميدانية، لتصميم وتطوير نظم برمجية وتطبيقات عملية متقدمة تجمع بين الدقة، الأمان، وسرعة الأداء الفائقة."
+                                "مشكاة لانشر 2.0 هو نظام تشغيل مرئي مخصص لأجهزة التلفزيون الذكية، يجمع بين الأداء الخفيف السريع، وتصميم الزجاج السائل التفاعلي (Liquid Glass)، مع دمج شامل للخدمات الدينية والترفيهية والرياضية بدون إعلانات."
                             else
-                                "Bridging 7 years of enterprise IT infrastructure and networks with modern Health & Safety engineering to build high-performance systems and practical smart applications.",
+                                "Mishkat Launcher 2.0 is a specialized smart TV launcher combining high performance, liquid glass aesthetics, and seamless Islamic, sports and media services.",
                             color = tokens.onSurface,
                             fontSize = 14.sp,
                             lineHeight = 22.sp,
@@ -176,13 +176,13 @@ fun DeveloperProfileOverlay(
                     }
 
                     Text(
-                        text = if (isArabic) "✦ أبرز المنظومات والمشاريع الميدانية:" else "✦ Featured Enterprise Projects:",
+                        text = if (isArabic) "✦ ركائز المنظومة في الإصدار 2.0:" else "✦ Version 2.0 Core Features:",
                         color = tokens.primary,
                         fontSize = 15.sp,
                         fontWeight = FontWeight.Bold,
                     )
 
-                    // 4 Flagship Projects in a Grid/Rows
+                    // 4 Core Features in a Grid/Rows
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.spacedBy(12.dp),
@@ -191,17 +191,17 @@ fun DeveloperProfileOverlay(
                             modifier = Modifier.weight(1f),
                             tokens = tokens,
                             glass = glass,
-                            glyph = "🛠",
-                            title = "Maintix",
-                            desc = if (isArabic) "نظام ذكي لإدارة الصيانة والتشغيل" else "Smart Maintenance & Ops Platform",
+                            glyph = "📺",
+                            title = if (isArabic) "بث القنوات والريسيفر" else "Live TV & Satellite",
+                            desc = if (isArabic) "دليل القنوات الفضائية وبث HLS المباشر" else "Satellite Guide & Live HLS Streaming",
                         )
                         ProjectCard(
                             modifier = Modifier.weight(1f),
                             tokens = tokens,
                             glass = glass,
-                            glyph = "🏗",
-                            title = "ConstructFlow",
-                            desc = if (isArabic) "منصة تتبع المشاريع الإنشائية" else "Construction Management Engine",
+                            glyph = "✨",
+                            title = if (isArabic) "استوديو الزجاج السائل" else "Liquid Glass Studio",
+                            desc = if (isArabic) "56 ثيماً مصنفاً مع خلفيات حية 4K" else "56 Themes with 4K Live Particle FX",
                         )
                     }
 
@@ -213,17 +213,17 @@ fun DeveloperProfileOverlay(
                             modifier = Modifier.weight(1f),
                             tokens = tokens,
                             glass = glass,
-                            glyph = "🛡",
-                            title = "HSE Pro",
-                            desc = if (isArabic) "منظومة الامتثال الرقمي للسلامة" else "Workplace Safety & OSHA Compliance",
+                            glyph = "🕌",
+                            title = if (isArabic) "مواقيت الصلاة والأذكار" else "Prayer & Holy Adhan",
+                            desc = if (isArabic) "10 أصوات أذان معتمدة وتنبيهات دقيقة" else "10 Authentic Muezzin Voices",
                         )
                         ProjectCard(
                             modifier = Modifier.weight(1f),
                             tokens = tokens,
                             glass = glass,
-                            glyph = "🔗",
-                            title = "Wasla Link",
-                            desc = if (isArabic) "شبكة الربط والتكامل المؤسسي" else "Enterprise Infrastructure Hub",
+                            glyph = "⚽",
+                            title = if (isArabic) "مركز المباريات والرياضة" else "Sports & Matches Hub",
+                            desc = if (isArabic) "مواعيد ونتائج البطولات العربية والعالمية" else "Arab & World Football Leagues Hub",
                         )
                     }
                 }

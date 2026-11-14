@@ -296,10 +296,10 @@ fun DropdownMenuDialog(
                             onClick = { onDismiss(); onToggleLanguage() },
                         )
                         DropdownItemRow(
-                            id = "drop:dev",
-                            icon = "👨‍💻",
-                            title = if (isArabic) "ملف المطور ومعلومات الإصدار v1.9.0" else "Developer Profile & Version v1.9.0",
-                            subtitle = if (isArabic) "مهندس محمد عكاشة • المشكاة" else "Eng. Mohamed Okasha • Mishkat",
+                            id = "drop:about",
+                            icon = "✦",
+                            title = if (isArabic) "عن مشكاة لانشر (الإصدار 2.0.0)" else "About Mishkat Launcher (v2.0.0)",
+                            subtitle = if (isArabic) "الإصدار 2.0.0 • أحدث إصدار للشاشات الذكية" else "Version 2.0.0 • Smart TV Edition",
                             tokens = tokens,
                             onClick = { onDismiss(); onOpenDeveloperProfile() },
                         )

@@ -163,7 +163,6 @@ private data class SectionCardSpec(
 private val SECTION_CARDS = listOf(
     SectionCardSpec("sec:live_tv", R.string.section_live_tv, "📺"),
     SectionCardSpec("sec:notifications", R.string.section_notifications, "🔔"),
-    SectionCardSpec("sec:developer", R.string.section_developer, "👨‍💻"),
     SectionCardSpec("sec:tv_inputs", R.string.section_tv_inputs, "📡"),
     SectionCardSpec("sec:radio", R.string.section_radio, "📻"),
     SectionCardSpec("sec:sports", R.string.section_sports, "⚽"),
@@ -241,7 +240,7 @@ fun HomeScreen(
     var activeOverlay by remember { mutableStateOf(ActiveOverlay.NONE) }
     var activeDropdownMenu by remember { mutableStateOf(ActiveDropdownMenu.NONE) }
     var returnToNowPlaying by remember { mutableStateOf(false) }
-    var lastFocusedShelfId by rememberSaveable { mutableStateOf("livetv") }
+    var lastFocusedShelfId by rememberSaveable { mutableStateOf("apps") }
     var lastInteractionMs by remember { mutableLongStateOf(System.currentTimeMillis()) }
 
     // 20-second automatic cycle for authentic Adhkar & Duas
@@ -358,6 +357,24 @@ fun HomeScreen(
         }
     }
 
+    // Keep focus strictly preserved when returning from external apps
+    val lifecycleOwner = androidx.lifecycle.compose.LocalLifecycleOwner.current
+    DisposableEffect(lifecycleOwner) {
+        val observer = androidx.lifecycle.LifecycleEventObserver { _, event ->
+            if (event == androidx.lifecycle.Lifecycle.Event.ON_RESUME) {
+                coroutineScope.launch {
+                    repeat(3) {
+                        withFrameNanos { }
+                        val requester = shelfFocusMap[lastFocusedShelfId] ?: firstCardFocus
+                        if (runCatching { requester.requestFocus() }.isSuccess) return@launch
+                    }
+                }
+            }
+        }
+        lifecycleOwner.lifecycle.addObserver(observer)
+        onDispose { lifecycleOwner.lifecycle.removeObserver(observer) }
+    }
+
     val hijriLabel = if (isArabic) prayerState.hijriDateAr else prayerState.hijriDateEn
 
     Box(modifier = Modifier.fillMaxSize()) {
@@ -396,6 +413,7 @@ fun HomeScreen(
                     onOpenDropdownTools = { activeDropdownMenu = ActiveDropdownMenu.TOOLS_AND_FEATURES },
                     onOpenDropdownAppearance = { activeDropdownMenu = ActiveDropdownMenu.APPEARANCE_AND_SETTINGS },
                     onOpenWeather = { activeOverlay = ActiveOverlay.WEATHER },
+                    onOpenSettings = { activeOverlay = ActiveOverlay.SETTINGS },
                 )
             }
 
@@ -456,7 +474,10 @@ fun HomeScreen(
                                     isArabic = isArabic,
                                     firstCardFocus = appsFocus,
                                     modifier = shelfModifier,
-                                    onLaunch = { launchApp(context, it) },
+                                    onLaunch = {
+                                        lastFocusedShelfId = "apps"
+                                        launchApp(context, it)
+                                    },
                                     onTogglePin = { graph.appsRepository.togglePin(it) },
                                     onToggleHide = { graph.appsRepository.toggleHide(it) },
                                     onMoveApp = { pkg, delta -> graph.appsRepository.moveApp(pkg, delta) },
@@ -927,6 +948,7 @@ private fun TopBar(
     onOpenDropdownTools: () -> Unit,
     onOpenDropdownAppearance: () -> Unit,
     onOpenWeather: () -> Unit,
+    onOpenSettings: () -> Unit = {},
 ) {
     var nowMillis by remember { mutableLongStateOf(System.currentTimeMillis()) }
     val context = LocalContext.current
@@ -1074,6 +1096,34 @@ private fun TopBar(
                         )
                     }
                 }
+
+                // Direct Settings Quick Access Shortcut Button (⚙ الضبط)
+                Box(
+                    modifier = Modifier
+                        .mishkatFocus(id = "topbar:settings_quick", radius = 12.dp)
+                        .clip(pillShape)
+                        .background(Color(0xEE090E1A))
+                        .border(1.2.dp, tokens.primary, pillShape)
+                        .clickable { onOpenSettings() }
+                        .padding(horizontal = 12.dp, vertical = 6.dp),
+                ) {
+                    Row(
+                        verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.spacedBy(6.dp),
+                    ) {
+                        Text(
+                            text = "⚙",
+                            color = tokens.primary,
+                            fontSize = 13.sp,
+                        )
+                        Text(
+                            text = if (isArabic) "الضبط" else "Settings",
+                            color = tokens.primary,
+                            fontSize = 13.sp,
+                            fontWeight = FontWeight.Bold,
+                        )
+                    }
+                }
             }
         }
     }
@@ -1188,7 +1238,6 @@ private fun SectionsShelf(
                             when (item.id) {
                                 "sec:live_tv" -> onOpenLiveTv()
                                 "sec:notifications" -> onOpenNotifications()
-                                "sec:developer" -> onOpenDeveloperProfile()
                                 "sec:tv_inputs" -> onOpenTvInputsPanel()
                                 "sec:radio" -> onOpenRadioPanel()
                                 "sec:sports" -> onOpenSportsPanel()
@@ -1220,7 +1269,6 @@ private fun SectionsShelf(
                         val subText = when (item.id) {
                             "sec:live_tv" -> if (isArabic) "32 قناة فضائية • بث حي HLS" else "32 Live Channels • HLS"
                             "sec:notifications" -> if (isArabic) "مركز التحديثات والتنبيهات" else "System Updates Hub"
-                            "sec:developer" -> if (isArabic) "الملف المهني والمشاريع" else "Portfolio & Projects"
                             "sec:tv_inputs" -> if (tvState.usbDrives.isNotEmpty()) {
                                 "DVB-S2 • HDMI • USB (${tvState.usbDrives.size})"
                             } else {

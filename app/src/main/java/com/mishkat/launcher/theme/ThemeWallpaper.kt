@@ -279,17 +279,29 @@ private fun isIslamicOrnamentStyle(effectiveStyle: String, themeId: String): Boo
     "islamic_arch",
     "kaaba_kiswah",
     -> true
-    "sports_stadium", "cinema_imax", "winter_snow", "winter_rain", "storm_lightning", "spring_petals", "summer_waves", "autumn_leaves",
-    "season_spring_4k", "season_summer_4k", "season_autumn_4k", "season_winter_4k",
-    "nature_mountains_4k", "nature_waterfall_4k",
-    "dark_luxury_onyx_4k", "dark_carbon_mesh_4k",
-    "birds_falcon_eagle_4k", "birds_colorful_kingfisher_4k" -> false
+    else -> false
+}
+
+/** Resolves live animated particle atmosphere for weather-sync and live 4K themes. */
+fun resolveLiveAtmosphereStyle(effectiveStyle: String, themeId: String): String = when (effectiveStyle) {
+    "winter_snow", "live_winter_snow" -> "winter_snow"
+    "winter_rain", "live_winter_rain" -> "winter_rain"
+    "storm_lightning", "live_storm_lightning" -> "storm_lightning"
+    "spring_petals", "live_spring_petals" -> "spring_petals"
+    "autumn_leaves", "live_autumn_leaves" -> "autumn_leaves"
+    "summer_waves", "live_summer_waves" -> "summer_waves"
+    "sports_stadium", "live_stadium_lights" -> "sports_stadium"
+    "cinema_imax", "live_cinema_bokeh" -> "cinema_imax"
     else -> when (themeId) {
-        "kaaba_gold", "noor", "zomorod", "rimal", "layla", "rawda_sharifa",
-        "andalus_arch", "fajr_sky", "madinah_marble", "damascus_mosaic",
-        "turqoise_dome", "sahara_dunes", "live_mishkat_lanterns", "live_shamsa_mandala",
-        "islamic_kairouan", "islamic_isfahan", "islamic_cordoba" -> true
-        else -> false
+        "live_winter_snow" -> "winter_snow"
+        "live_winter_rain" -> "winter_rain"
+        "live_storm_lightning" -> "storm_lightning"
+        "live_spring_petals" -> "spring_petals"
+        "live_autumn_leaves" -> "autumn_leaves"
+        "live_summer_waves" -> "summer_waves"
+        "live_stadium_lights" -> "sports_stadium"
+        "live_cinema_bokeh" -> "cinema_imax"
+        else -> ""
     }
 }
 
@@ -444,11 +456,11 @@ fun ThemeWallpaper(
     modifier: Modifier = Modifier,
 ) {
     val context = LocalContext.current
-    val effectiveStyle = remember(wallpaperOverride, tokens.patternType, weatherCode) {
+    val effectiveStyle = remember(wallpaperOverride, tokens.id, weatherCode) {
         when {
             wallpaperOverride == "weather_sync" -> resolveWeatherSyncedWallpaper(weatherCode)
-            wallpaperOverride.isBlank() || wallpaperOverride == "auto" -> tokens.patternType ?: "arabesque_mandala"
-            else -> wallpaperOverride
+            wallpaperOverride.isNotBlank() && wallpaperOverride != "auto" -> wallpaperOverride
+            else -> tokens.id
         }
     }
 
@@ -536,12 +548,15 @@ fun ThemeWallpaper(
                 )
             }
 
-            Canvas(modifier = Modifier.fillMaxSize()) {
-                drawLiveRealisticAtmosphere(
-                    style = effectiveStyle,
-                    phaseSec = if (animate) animPhase else 0f,
-                    animate = animate,
-                )
+            val atmosphereStyle = resolveLiveAtmosphereStyle(effectiveStyle, tokens.id)
+            if (atmosphereStyle.isNotBlank()) {
+                Canvas(modifier = Modifier.fillMaxSize()) {
+                    drawLiveRealisticAtmosphere(
+                        style = atmosphereStyle,
+                        phaseSec = if (animate) animPhase else 0f,
+                        animate = animate,
+                    )
+                }
             }
         }
 

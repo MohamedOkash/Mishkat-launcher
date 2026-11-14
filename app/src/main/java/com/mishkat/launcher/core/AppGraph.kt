@@ -73,7 +73,7 @@ class AppGraph(private val app: Application) {
             val channelsList = liveTvRepository.state.value.channels
             val appsJson = appsList.take(35).joinToString(",") { """{"pkg":"${it.packageName}","name":"${it.label.replace("\"", "\\\"")}"}""" }
             val channelsJson = channelsList.take(45).joinToString(",") { """{"id":"${it.id}","name":"${it.nameAr.replace("\"", "\\\"")}","sat":"${it.satellite}"}""" }
-            """{"status":"online","tvName":"Mishkat Smart TV","currentChannel":"$liveCh","currentStation":"$st","appsCount":${appsList.size},"channelsCount":${channelsList.size},"version":"1.9.0","apps":[$appsJson],"channels":[$channelsJson]}"""
+            """{"status":"online","tvName":"Mishkat Smart TV","currentChannel":"$liveCh","currentStation":"$st","appsCount":${appsList.size},"channelsCount":${channelsList.size},"version":"2.0.0","apps":[$appsJson],"channels":[$channelsJson]}"""
         }
         companionRemoteServer.boostHandler = {
             val res = backgroundProcessKiller.sweepNow()
