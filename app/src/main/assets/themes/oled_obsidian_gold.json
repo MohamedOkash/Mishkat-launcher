@@ -1,0 +1,32 @@
+﻿{
+  "id": "oled_obsidian_gold",
+  "name": "سبج أسود مذهب OLED",
+  "nameEn": "Obsidian & Gold OLED",
+  "builtin": true,
+  "palette": {
+    "primary": "#FACC15",
+    "surface": "#0A0802",
+    "onSurface": "#FEFCE8",
+    "panelAccents": {
+      "sleep": "#0A0802",
+      "prayer": "#0A0802",
+      "tools": "#0A0802",
+      "weather": "#0A0802"
+    }
+  },
+  "wallpaper": {
+    "type": "gradient",
+    "asset": "dark_luxury_onyx_4k",
+    "parallax": 0.15,
+    "gradient": ["#0A0802", "#0A0802"],
+    "pattern": { "type": "dark_luxury_onyx_4k", "alpha": 0.18, "cell": 100 }
+  },
+  "cards": {
+    "radius": 18,
+    "glass": 0.92,
+    "strokeAlpha": 0.32
+  },
+  "icons": { "mask": "squircle_22", "pack": "mishkat_cute_v1" },
+  "motion": { "focusScale": 1.04, "enterMs": 220, "springDamping": 0.88 },
+  "borders": { "stroke": "#FACC15" }
+}

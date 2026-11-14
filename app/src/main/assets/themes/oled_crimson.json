@@ -1,0 +1,32 @@
+﻿{
+  "id": "oled_crimson",
+  "name": "قرمزي مخملي داكن OLED",
+  "nameEn": "Crimson Velvet OLED",
+  "builtin": true,
+  "palette": {
+    "primary": "#EF4444",
+    "surface": "#120304",
+    "onSurface": "#FEF2F2",
+    "panelAccents": {
+      "sleep": "#120304",
+      "prayer": "#120304",
+      "tools": "#120304",
+      "weather": "#120304"
+    }
+  },
+  "wallpaper": {
+    "type": "gradient",
+    "asset": "dark_carbon_mesh_4k",
+    "parallax": 0.15,
+    "gradient": ["#120304", "#120304"],
+    "pattern": { "type": "dark_carbon_mesh_4k", "alpha": 0.18, "cell": 100 }
+  },
+  "cards": {
+    "radius": 18,
+    "glass": 0.92,
+    "strokeAlpha": 0.3
+  },
+  "icons": { "mask": "squircle_22", "pack": "mishkat_cute_v1" },
+  "motion": { "focusScale": 1.04, "enterMs": 220, "springDamping": 0.88 },
+  "borders": { "stroke": "#EF4444" }
+}

@@ -29,6 +29,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.focus.FocusRequester
 import androidx.compose.ui.focus.focusRequester
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.input.key.Key
 import androidx.compose.ui.input.key.KeyEventType
 import androidx.compose.ui.input.key.key
@@ -136,20 +137,25 @@ fun DropdownMenuDialog(
                         color = tokens.primary,
                         fontSize = 17.sp,
                         fontWeight = FontWeight.Bold,
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        modifier = Modifier.weight(1f, fill = false),
                     )
+                    Spacer(modifier = Modifier.width(8.dp))
                     Row(
                         modifier = Modifier
                             .clip(RoundedCornerShape(8.dp))
                             .background(Color(0x33FFFFFF))
                             .clickable { onDismiss() }
-                            .padding(horizontal = 10.dp, vertical = 4.dp),
+                            .padding(horizontal = 12.dp, vertical = 6.dp),
                         verticalAlignment = Alignment.CenterVertically,
+                        horizontalArrangement = Arrangement.Center,
                     ) {
                         Text(
-                            text = "✕ إغلاق (Back)",
+                            text = if (isArabic) "✕ إغلاق" else "✕ Close",
                             color = Color.White,
-                            fontSize = 11.sp,
-                            fontWeight = FontWeight.SemiBold,
+                            fontSize = 12.sp,
+                            fontWeight = FontWeight.Bold,
                             maxLines = 1,
                             softWrap = false,
                         )
@@ -259,25 +265,17 @@ fun DropdownMenuDialog(
                         DropdownItemRow(
                             id = "drop:themes",
                             icon = "🎨",
-                            title = if (isArabic) "باقة الثيمات الفاخرة وخلفيات 4K (30 ثيماً)" else "Luxury Themes & 4K Wallpapers (30 Themes)",
-                            subtitle = if (isArabic) "فصول السنة، طبيعة، دارك OLED، طيور مع تدوير تلقائي" else "Four seasons, nature, dark OLED, birds & auto-rotate",
+                            title = if (isArabic) "باقة الثيمات الحية الفاخرة (56 ثيماً 4K)" else "Luxury Living Themes (56 Themes 4K)",
+                            subtitle = if (isArabic) "تناغم كامل بين صور 4K وألوان الأيقونات وزجاج الواجهة" else "Harmonized 4K scenes, matching icon blurs & liquid glass",
                             focusRequester = firstFocus,
                             tokens = tokens,
                             onClick = { onDismiss(); onOpenThemes() },
                         )
                         DropdownItemRow(
-                            id = "drop:wallpapers",
-                            icon = "🖼️",
-                            title = if (isArabic) "استوديو الخلفيات وتدويرها تلقائياً" else "Wallpaper Studio & Auto-Rotate",
-                            subtitle = if (isArabic) "خلفيات بدقة 1080p وتدوير زمني دوري" else "1080p cinematic wallpapers & rotation",
-                            tokens = tokens,
-                            onClick = { onDismiss(); onOpenWallpapers() },
-                        )
-                        DropdownItemRow(
                             id = "drop:prayer",
                             icon = "🕌",
                             title = if (isArabic) "مواقيت الصلاة والمؤذن والتنبيهات" else "Prayer Times, Muezzin & Adhan",
-                            subtitle = if (isArabic) "تحديد المدينة، صوت الأذان، والحساب" else "City selection, 4 muezzins & alert",
+                            subtitle = if (isArabic) "تحديد المدينة، 10 أصوات أذان فاخرة، وتنبيه الصلاة" else "City selection, 10 authentic adhan voices & alert",
                             tokens = tokens,
                             onClick = { onDismiss(); onOpenPrayerSettings() },
                         )

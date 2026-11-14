@@ -1,0 +1,32 @@
+﻿{
+  "id": "nature_rain_window",
+  "name": "قطرات المطر الصافية 4K",
+  "nameEn": "Clear Raindrops 4K",
+  "builtin": true,
+  "palette": {
+    "primary": "#0EA5E9",
+    "surface": "#061016",
+    "onSurface": "#F0F9FF",
+    "panelAccents": {
+      "sleep": "#061016",
+      "prayer": "#061016",
+      "tools": "#061016",
+      "weather": "#061016"
+    }
+  },
+  "wallpaper": {
+    "type": "gradient",
+    "asset": "real_winter_rain",
+    "parallax": 0.15,
+    "gradient": ["#061016", "#061016"],
+    "pattern": { "type": "nature_waterfall_4k", "alpha": 0.18, "cell": 100 }
+  },
+  "cards": {
+    "radius": 18,
+    "glass": 0.88,
+    "strokeAlpha": 0.3
+  },
+  "icons": { "mask": "squircle_22", "pack": "mishkat_cute_v1" },
+  "motion": { "focusScale": 1.04, "enterMs": 220, "springDamping": 0.88 },
+  "borders": { "stroke": "#0EA5E9" }
+}

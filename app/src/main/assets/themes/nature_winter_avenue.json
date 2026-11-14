@@ -1,0 +1,32 @@
+﻿{
+  "id": "nature_winter_avenue",
+  "name": "ممر الثلوج الأيقوني 4K",
+  "nameEn": "Winter Snow Avenue 4K",
+  "builtin": true,
+  "palette": {
+    "primary": "#94A3B8",
+    "surface": "#080B12",
+    "onSurface": "#F8FAFC",
+    "panelAccents": {
+      "sleep": "#080B12",
+      "prayer": "#080B12",
+      "tools": "#080B12",
+      "weather": "#080B12"
+    }
+  },
+  "wallpaper": {
+    "type": "gradient",
+    "asset": "real_winter_snow",
+    "parallax": 0.15,
+    "gradient": ["#080B12", "#080B12"],
+    "pattern": { "type": "season_winter_4k", "alpha": 0.18, "cell": 100 }
+  },
+  "cards": {
+    "radius": 18,
+    "glass": 0.9,
+    "strokeAlpha": 0.3
+  },
+  "icons": { "mask": "squircle_22", "pack": "mishkat_cute_v1" },
+  "motion": { "focusScale": 1.04, "enterMs": 220, "springDamping": 0.88 },
+  "borders": { "stroke": "#94A3B8" }
+}

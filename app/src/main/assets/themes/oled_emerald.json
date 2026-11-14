@@ -1,0 +1,32 @@
+﻿{
+  "id": "oled_emerald",
+  "name": "زمرد سائل نقي OLED",
+  "nameEn": "Deep Emerald Glass OLED",
+  "builtin": true,
+  "palette": {
+    "primary": "#10B981",
+    "surface": "#02120A",
+    "onSurface": "#ECFDF5",
+    "panelAccents": {
+      "sleep": "#02120A",
+      "prayer": "#02120A",
+      "tools": "#02120A",
+      "weather": "#02120A"
+    }
+  },
+  "wallpaper": {
+    "type": "gradient",
+    "asset": "dark_luxury_onyx_4k",
+    "parallax": 0.15,
+    "gradient": ["#02120A", "#02120A"],
+    "pattern": { "type": "dark_luxury_onyx_4k", "alpha": 0.18, "cell": 100 }
+  },
+  "cards": {
+    "radius": 18,
+    "glass": 0.92,
+    "strokeAlpha": 0.28
+  },
+  "icons": { "mask": "squircle_22", "pack": "mishkat_cute_v1" },
+  "motion": { "focusScale": 1.04, "enterMs": 220, "springDamping": 0.88 },
+  "borders": { "stroke": "#10B981" }
+}

@@ -1,0 +1,32 @@
+﻿{
+  "id": "live_stadium_lights",
+  "name": "أضواء الاستاد الكاشفة الحية 4K",
+  "nameEn": "Live Stadium Lights 4K",
+  "builtin": true,
+  "palette": {
+    "primary": "#4ADE80",
+    "surface": "#051208",
+    "onSurface": "#F0FDF4",
+    "panelAccents": {
+      "sleep": "#051208",
+      "prayer": "#051208",
+      "tools": "#051208",
+      "weather": "#051208"
+    }
+  },
+  "wallpaper": {
+    "type": "gradient",
+    "asset": "real_sports_stadium",
+    "parallax": 0.15,
+    "gradient": ["#051208", "#051208"],
+    "pattern": { "type": "sports_stadium", "alpha": 0.18, "cell": 100 }
+  },
+  "cards": {
+    "radius": 18,
+    "glass": 0.9,
+    "strokeAlpha": 0.32
+  },
+  "icons": { "mask": "squircle_22", "pack": "mishkat_cute_v1" },
+  "motion": { "focusScale": 1.04, "enterMs": 220, "springDamping": 0.88 },
+  "borders": { "stroke": "#4ADE80" }
+}

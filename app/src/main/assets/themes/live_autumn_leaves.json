@@ -1,0 +1,32 @@
+﻿{
+  "id": "live_autumn_leaves",
+  "name": "تساقط أوراق الخريف الحية 4K",
+  "nameEn": "Live Autumn Leaves 4K",
+  "builtin": true,
+  "palette": {
+    "primary": "#FB923C",
+    "surface": "#140904",
+    "onSurface": "#FFF7ED",
+    "panelAccents": {
+      "sleep": "#140904",
+      "prayer": "#140904",
+      "tools": "#140904",
+      "weather": "#140904"
+    }
+  },
+  "wallpaper": {
+    "type": "gradient",
+    "asset": "season_autumn_4k",
+    "parallax": 0.15,
+    "gradient": ["#140904", "#140904"],
+    "pattern": { "type": "autumn_leaves", "alpha": 0.18, "cell": 100 }
+  },
+  "cards": {
+    "radius": 18,
+    "glass": 0.9,
+    "strokeAlpha": 0.32
+  },
+  "icons": { "mask": "squircle_22", "pack": "mishkat_cute_v1" },
+  "motion": { "focusScale": 1.04, "enterMs": 220, "springDamping": 0.88 },
+  "borders": { "stroke": "#FB923C" }
+}

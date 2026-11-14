@@ -1,0 +1,32 @@
+﻿{
+  "id": "islamic_quran_navy",
+  "name": "مصحف المدينة الكحلي والذهب 4K",
+  "nameEn": "Holy Quran Navy & Gold 4K",
+  "builtin": true,
+  "palette": {
+    "primary": "#FBBF24",
+    "surface": "#050914",
+    "onSurface": "#FEFCE8",
+    "panelAccents": {
+      "sleep": "#050914",
+      "prayer": "#050914",
+      "tools": "#050914",
+      "weather": "#050914"
+    }
+  },
+  "wallpaper": {
+    "type": "gradient",
+    "asset": "real_islamic_mosque",
+    "parallax": 0.15,
+    "gradient": ["#050914", "#050914"],
+    "pattern": { "type": "kaaba_gold", "alpha": 0.18, "cell": 100 }
+  },
+  "cards": {
+    "radius": 18,
+    "glass": 0.9,
+    "strokeAlpha": 0.34
+  },
+  "icons": { "mask": "squircle_22", "pack": "mishkat_cute_v1" },
+  "motion": { "focusScale": 1.04, "enterMs": 220, "springDamping": 0.88 },
+  "borders": { "stroke": "#FBBF24" }
+}

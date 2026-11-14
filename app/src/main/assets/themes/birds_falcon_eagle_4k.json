@@ -1,46 +1,34 @@
 {
   "id": "birds_falcon_eagle_4k",
-  "name": "صقور ونسور الجبال 4K",
-  "nameEn": "Royal Falcon 4K",
+  "name": "نسر محلّق 4K",
+  "nameEn": "Soaring Eagle 4K",
   "builtin": true,
   "palette": {
-    "primary": "#FBBF24",
-    "surface": "#161108",
-    "onSurface": "#FEF3C7",
+    "primary": "#8D6E63",
+    "surface": "#0A0806",
+    "onSurface": "#EFEBE9",
     "panelAccents": {
-      "sleep": "#271E10",
-      "prayer": "#20180B",
-      "tools": "#302514",
-      "weather": "#261C0D"
+      "sleep": "#1E1610",
+      "prayer": "#18120C",
+      "tools": "#241A14",
+      "weather": "#1C140E"
     }
   },
   "wallpaper": {
     "type": "gradient",
     "asset": "birds_falcon_eagle_4k",
     "parallax": 0.15,
-    "gradient": [
-      "#271E10",
-      "#161108",
-      "#0B0803"
-    ],
-    "pattern": {
-      "type": "arabesque_mandala",
-      "alpha": 0.15,
-      "cell": 100
-    }
+    "gradient": ["#1E1610", "#0C0A06", "#060504"],
+    "pattern": { "type": "birds_falcon_eagle_4k", "alpha": 0.18, "cell": 100 }
   },
   "cards": {
     "radius": 18,
-    "glass": 0.72,
-    "strokeAlpha": 0.32
+    "glass": 0.90,
+    "strokeAlpha": 0.30,
+    "base": "#18120C",
+    "baseFocused": "#281E14"
   },
-  "icons": {
-    "mask": "squircle_22",
-    "pack": "mishkat_cute_v1"
-  },
-  "motion": {
-    "focusScale": 1.04,
-    "enterMs": 220,
-    "springDamping": 0.88
-  }
+  "icons": { "mask": "squircle_22", "pack": "mishkat_cute_v1" },
+  "motion": { "focusScale": 1.04, "enterMs": 220, "springDamping": 0.88 },
+  "borders": { "stroke": "#8D6E63" }
 }

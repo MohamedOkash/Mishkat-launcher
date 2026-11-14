@@ -1,0 +1,32 @@
+﻿{
+  "id": "live_winter_snow",
+  "name": "شتاء الثلوج المتساقطة الحية 4K",
+  "nameEn": "Live Falling Snow 4K",
+  "builtin": true,
+  "palette": {
+    "primary": "#93C5FD",
+    "surface": "#070C16",
+    "onSurface": "#F0F9FF",
+    "panelAccents": {
+      "sleep": "#070C16",
+      "prayer": "#070C16",
+      "tools": "#070C16",
+      "weather": "#070C16"
+    }
+  },
+  "wallpaper": {
+    "type": "gradient",
+    "asset": "real_winter_snow",
+    "parallax": 0.15,
+    "gradient": ["#070C16", "#070C16"],
+    "pattern": { "type": "winter_snow", "alpha": 0.18, "cell": 100 }
+  },
+  "cards": {
+    "radius": 18,
+    "glass": 0.88,
+    "strokeAlpha": 0.32
+  },
+  "icons": { "mask": "squircle_22", "pack": "mishkat_cute_v1" },
+  "motion": { "focusScale": 1.04, "enterMs": 220, "springDamping": 0.88 },
+  "borders": { "stroke": "#93C5FD" }
+}

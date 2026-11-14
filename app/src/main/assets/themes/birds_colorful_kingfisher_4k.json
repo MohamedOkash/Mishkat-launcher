@@ -1,46 +1,34 @@
 {
   "id": "birds_colorful_kingfisher_4k",
-  "name": "طيور ملونة وببغاوات 4K",
-  "nameEn": "Tropical Birds 4K",
+  "name": "طائر الرفراف الملوّن 4K",
+  "nameEn": "Colorful Kingfisher 4K",
   "builtin": true,
   "palette": {
-    "primary": "#EC4899",
-    "surface": "#180A15",
-    "onSurface": "#FDF2F8",
+    "primary": "#FF6F00",
+    "surface": "#0C0806",
+    "onSurface": "#FFF8E1",
     "panelAccents": {
-      "sleep": "#2A1425",
-      "prayer": "#220E1E",
-      "tools": "#34182E",
-      "weather": "#291223"
+      "sleep": "#221408",
+      "prayer": "#1C1006",
+      "tools": "#2A180A",
+      "weather": "#201207"
     }
   },
   "wallpaper": {
     "type": "gradient",
     "asset": "birds_colorful_kingfisher_4k",
     "parallax": 0.15,
-    "gradient": [
-      "#2A1425",
-      "#180A15",
-      "#0C040B"
-    ],
-    "pattern": {
-      "type": "spring_petals",
-      "alpha": 0.15,
-      "cell": 100
-    }
+    "gradient": ["#221408", "#100A06", "#080504"],
+    "pattern": { "type": "birds_colorful_kingfisher_4k", "alpha": 0.18, "cell": 100 }
   },
   "cards": {
     "radius": 18,
-    "glass": 0.72,
-    "strokeAlpha": 0.32
+    "glass": 0.90,
+    "strokeAlpha": 0.30,
+    "base": "#1C1006",
+    "baseFocused": "#2E1C0E"
   },
-  "icons": {
-    "mask": "squircle_22",
-    "pack": "mishkat_cute_v1"
-  },
-  "motion": {
-    "focusScale": 1.04,
-    "enterMs": 220,
-    "springDamping": 0.88
-  }
+  "icons": { "mask": "squircle_22", "pack": "mishkat_cute_v1" },
+  "motion": { "focusScale": 1.04, "enterMs": 220, "springDamping": 0.88 },
+  "borders": { "stroke": "#FF6F00" }
 }

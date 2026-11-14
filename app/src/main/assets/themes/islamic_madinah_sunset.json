@@ -1,0 +1,32 @@
+﻿{
+  "id": "islamic_madinah_sunset",
+  "name": "أصيل المدينة المنورة 4K",
+  "nameEn": "Madinah Golden Sunset 4K",
+  "builtin": true,
+  "palette": {
+    "primary": "#10B981",
+    "surface": "#060E0A",
+    "onSurface": "#ECFDF5",
+    "panelAccents": {
+      "sleep": "#060E0A",
+      "prayer": "#060E0A",
+      "tools": "#060E0A",
+      "weather": "#060E0A"
+    }
+  },
+  "wallpaper": {
+    "type": "gradient",
+    "asset": "real_madinah_mosque",
+    "parallax": 0.15,
+    "gradient": ["#060E0A", "#060E0A"],
+    "pattern": { "type": "madinah_marble", "alpha": 0.18, "cell": 100 }
+  },
+  "cards": {
+    "radius": 18,
+    "glass": 0.88,
+    "strokeAlpha": 0.32
+  },
+  "icons": { "mask": "squircle_22", "pack": "mishkat_cute_v1" },
+  "motion": { "focusScale": 1.04, "enterMs": 220, "springDamping": 0.88 },
+  "borders": { "stroke": "#10B981" }
+}

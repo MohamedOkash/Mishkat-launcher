@@ -1,0 +1,32 @@
+﻿{
+  "id": "oled_amethyst",
+  "name": "جمشت ملكي داكن OLED",
+  "nameEn": "Royal Amethyst OLED",
+  "builtin": true,
+  "palette": {
+    "primary": "#A855F7",
+    "surface": "#0B0412",
+    "onSurface": "#FAF5FF",
+    "panelAccents": {
+      "sleep": "#0B0412",
+      "prayer": "#0B0412",
+      "tools": "#0B0412",
+      "weather": "#0B0412"
+    }
+  },
+  "wallpaper": {
+    "type": "gradient",
+    "asset": "dark_luxury_onyx_4k",
+    "parallax": 0.15,
+    "gradient": ["#0B0412", "#0B0412"],
+    "pattern": { "type": "dark_luxury_onyx_4k", "alpha": 0.18, "cell": 100 }
+  },
+  "cards": {
+    "radius": 18,
+    "glass": 0.92,
+    "strokeAlpha": 0.28
+  },
+  "icons": { "mask": "squircle_22", "pack": "mishkat_cute_v1" },
+  "motion": { "focusScale": 1.04, "enterMs": 220, "springDamping": 0.88 },
+  "borders": { "stroke": "#A855F7" }
+}

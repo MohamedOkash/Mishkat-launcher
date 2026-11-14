@@ -1,0 +1,32 @@
+﻿{
+  "id": "islamic_isfahan",
+  "name": "إيوان أصفهان الفيروزي",
+  "nameEn": "Isfahan Turquoise Arch",
+  "builtin": true,
+  "palette": {
+    "primary": "#06B6D4",
+    "surface": "#041014",
+    "onSurface": "#ECFEFF",
+    "panelAccents": {
+      "sleep": "#041014",
+      "prayer": "#041014",
+      "tools": "#041014",
+      "weather": "#041014"
+    }
+  },
+  "wallpaper": {
+    "type": "gradient",
+    "asset": "turqoise_dome",
+    "parallax": 0.15,
+    "gradient": ["#041014", "#041014"],
+    "pattern": { "type": "turqoise_dome", "alpha": 0.18, "cell": 100 }
+  },
+  "cards": {
+    "radius": 18,
+    "glass": 0.9,
+    "strokeAlpha": 0.3
+  },
+  "icons": { "mask": "squircle_22", "pack": "mishkat_cute_v1" },
+  "motion": { "focusScale": 1.04, "enterMs": 220, "springDamping": 0.88 },
+  "borders": { "stroke": "#06B6D4" }
+}

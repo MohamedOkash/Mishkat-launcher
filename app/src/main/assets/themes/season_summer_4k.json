@@ -1,46 +1,34 @@
 {
   "id": "season_summer_4k",
-  "name": "شمس وأمواج الصيف 4K",
-  "nameEn": "Summer Coast 4K",
+  "name": "صيف استوائي 4K",
+  "nameEn": "Tropical Summer 4K",
   "builtin": true,
   "palette": {
-    "primary": "#F59E0B",
-    "surface": "#1A1409",
-    "onSurface": "#FFFBEB",
+    "primary": "#00BCD4",
+    "surface": "#060E10",
+    "onSurface": "#E0F7FA",
     "panelAccents": {
-      "sleep": "#2C2010",
-      "prayer": "#241A0B",
-      "tools": "#362713",
-      "weather": "#2B1E0D"
+      "sleep": "#0A1F26",
+      "prayer": "#081A20",
+      "tools": "#0C242D",
+      "weather": "#091D24"
     }
   },
   "wallpaper": {
     "type": "gradient",
     "asset": "season_summer_4k",
     "parallax": 0.15,
-    "gradient": [
-      "#2B1E0B",
-      "#1A1409",
-      "#0E0A04"
-    ],
-    "pattern": {
-      "type": "summer_waves",
-      "alpha": 0.18,
-      "cell": 100
-    }
+    "gradient": ["#0A1F26", "#060E10", "#030608"],
+    "pattern": { "type": "season_summer_4k", "alpha": 0.18, "cell": 100 }
   },
   "cards": {
     "radius": 18,
-    "glass": 0.72,
-    "strokeAlpha": 0.32
+    "glass": 0.90,
+    "strokeAlpha": 0.30,
+    "base": "#091A20",
+    "baseFocused": "#0E2A33"
   },
-  "icons": {
-    "mask": "squircle_22",
-    "pack": "mishkat_cute_v1"
-  },
-  "motion": {
-    "focusScale": 1.04,
-    "enterMs": 220,
-    "springDamping": 0.88
-  }
+  "icons": { "mask": "squircle_22", "pack": "mishkat_cute_v1" },
+  "motion": { "focusScale": 1.04, "enterMs": 220, "springDamping": 0.88 },
+  "borders": { "stroke": "#00BCD4" }
 }

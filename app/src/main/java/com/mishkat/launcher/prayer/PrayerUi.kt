@@ -10,6 +10,12 @@ import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.focusable
+import androidx.compose.ui.input.key.Key
+import androidx.compose.ui.input.key.KeyEventType
+import androidx.compose.ui.input.key.key
+import androidx.compose.ui.input.key.type
+import androidx.compose.ui.input.key.onKeyEvent
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -267,8 +273,15 @@ fun AdhanOverlay(
 ) {
     BackHandler(onBack = onDismiss)
 
+    BackHandler(onBack = onDismiss)
+
     val dismissFocus = remember { FocusRequester() }
-    LaunchedEffect(Unit) { runCatching { dismissFocus.requestFocus() } }
+    LaunchedEffect(Unit) {
+        repeat(3) {
+            withFrameNanos { }
+            if (runCatching { dismissFocus.requestFocus() }.isSuccess) return@LaunchedEffect
+        }
+    }
 
     Box(
         modifier = Modifier
@@ -324,10 +337,18 @@ fun AdhanOverlay(
                 modifier = Modifier
                     .focusRequester(dismissFocus)
                     .mishkatFocus(id = "adhan:dismiss", radius = 16.dp)
+                    .focusable()
                     .clip(btnShape)
                     .background(tokens.cardFocused)
                     .border(BorderStroke(1.dp, tokens.primary), btnShape)
                     .clickable { onDismiss() }
+                    .onKeyEvent { keyEvent ->
+                        if (keyEvent.type == KeyEventType.KeyUp &&
+                            (keyEvent.key == Key.DirectionCenter || keyEvent.key == Key.Enter || keyEvent.key == Key.NumPadEnter)) {
+                            onDismiss()
+                            true
+                        } else false
+                    }
                     .padding(horizontal = 28.dp, vertical = 12.dp)
                     .semantics { contentDescription = dismissLabel },
             ) {

@@ -1,0 +1,32 @@
+﻿{
+  "id": "live_winter_rain",
+  "name": "أمطار الشتاء الحية 4K",
+  "nameEn": "Live Falling Rain 4K",
+  "builtin": true,
+  "palette": {
+    "primary": "#38BDF8",
+    "surface": "#060E18",
+    "onSurface": "#F0F9FF",
+    "panelAccents": {
+      "sleep": "#060E18",
+      "prayer": "#060E18",
+      "tools": "#060E18",
+      "weather": "#060E18"
+    }
+  },
+  "wallpaper": {
+    "type": "gradient",
+    "asset": "real_winter_rain",
+    "parallax": 0.15,
+    "gradient": ["#060E18", "#060E18"],
+    "pattern": { "type": "winter_rain", "alpha": 0.18, "cell": 100 }
+  },
+  "cards": {
+    "radius": 18,
+    "glass": 0.9,
+    "strokeAlpha": 0.3
+  },
+  "icons": { "mask": "squircle_22", "pack": "mishkat_cute_v1" },
+  "motion": { "focusScale": 1.04, "enterMs": 220, "springDamping": 0.88 },
+  "borders": { "stroke": "#38BDF8" }
+}

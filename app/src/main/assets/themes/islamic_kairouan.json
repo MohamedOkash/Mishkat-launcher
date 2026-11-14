@@ -1,0 +1,32 @@
+﻿{
+  "id": "islamic_kairouan",
+  "name": "جامع القيروان العريق",
+  "nameEn": "Great Mosque of Kairouan",
+  "builtin": true,
+  "palette": {
+    "primary": "#D97706",
+    "surface": "#100B06",
+    "onSurface": "#FEF3C7",
+    "panelAccents": {
+      "sleep": "#100B06",
+      "prayer": "#100B06",
+      "tools": "#100B06",
+      "weather": "#100B06"
+    }
+  },
+  "wallpaper": {
+    "type": "gradient",
+    "asset": "andalus_arch",
+    "parallax": 0.15,
+    "gradient": ["#100B06", "#100B06"],
+    "pattern": { "type": "andalus_arch", "alpha": 0.18, "cell": 100 }
+  },
+  "cards": {
+    "radius": 18,
+    "glass": 0.88,
+    "strokeAlpha": 0.32
+  },
+  "icons": { "mask": "squircle_22", "pack": "mishkat_cute_v1" },
+  "motion": { "focusScale": 1.04, "enterMs": 220, "springDamping": 0.88 },
+  "borders": { "stroke": "#D97706" }
+}

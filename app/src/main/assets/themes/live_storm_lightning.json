@@ -1,0 +1,32 @@
+﻿{
+  "id": "live_storm_lightning",
+  "name": "عاصفة البرق والرعد الحية 4K",
+  "nameEn": "Live Lightning Storm 4K",
+  "builtin": true,
+  "palette": {
+    "primary": "#A78BFA",
+    "surface": "#090614",
+    "onSurface": "#FAF5FF",
+    "panelAccents": {
+      "sleep": "#090614",
+      "prayer": "#090614",
+      "tools": "#090614",
+      "weather": "#090614"
+    }
+  },
+  "wallpaper": {
+    "type": "gradient",
+    "asset": "real_storm_lightning",
+    "parallax": 0.15,
+    "gradient": ["#090614", "#090614"],
+    "pattern": { "type": "storm_lightning", "alpha": 0.18, "cell": 100 }
+  },
+  "cards": {
+    "radius": 18,
+    "glass": 0.92,
+    "strokeAlpha": 0.34
+  },
+  "icons": { "mask": "squircle_22", "pack": "mishkat_cute_v1" },
+  "motion": { "focusScale": 1.04, "enterMs": 220, "springDamping": 0.88 },
+  "borders": { "stroke": "#A78BFA" }
+}

@@ -1,46 +1,34 @@
 {
   "id": "nature_mountains_4k",
-  "name": "قمم الجبال الساحرة 4K",
+  "name": "قمم الجبال الشاهقة 4K",
   "nameEn": "Majestic Mountains 4K",
   "builtin": true,
   "palette": {
-    "primary": "#2DD4BF",
-    "surface": "#08181B",
-    "onSurface": "#F0FDFA",
+    "primary": "#4FC3F7",
+    "surface": "#06090E",
+    "onSurface": "#E1F5FE",
     "panelAccents": {
-      "sleep": "#112C31",
-      "prayer": "#0C2327",
-      "tools": "#15363D",
-      "weather": "#0F2B30"
+      "sleep": "#0C1824",
+      "prayer": "#0A141E",
+      "tools": "#0E1C2A",
+      "weather": "#0B1622"
     }
   },
   "wallpaper": {
     "type": "gradient",
     "asset": "nature_mountains_4k",
     "parallax": 0.15,
-    "gradient": [
-      "#122E34",
-      "#08181B",
-      "#030C0E"
-    ],
-    "pattern": {
-      "type": "arabesque_mandala",
-      "alpha": 0.15,
-      "cell": 100
-    }
+    "gradient": ["#0C1824", "#07090E", "#040608"],
+    "pattern": { "type": "nature_mountains_4k", "alpha": 0.18, "cell": 100 }
   },
   "cards": {
     "radius": 18,
-    "glass": 0.72,
-    "strokeAlpha": 0.32
+    "glass": 0.90,
+    "strokeAlpha": 0.30,
+    "base": "#0A1620",
+    "baseFocused": "#122030"
   },
-  "icons": {
-    "mask": "squircle_22",
-    "pack": "mishkat_cute_v1"
-  },
-  "motion": {
-    "focusScale": 1.04,
-    "enterMs": 220,
-    "springDamping": 0.88
-  }
+  "icons": { "mask": "squircle_22", "pack": "mishkat_cute_v1" },
+  "motion": { "focusScale": 1.04, "enterMs": 220, "springDamping": 0.88 },
+  "borders": { "stroke": "#4FC3F7" }
 }

@@ -37,6 +37,11 @@ import androidx.compose.foundation.lazy.grid.itemsIndexed
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.BasicTextField
+import androidx.compose.foundation.layout.BoxWithConstraints
+import androidx.compose.runtime.CompositionLocalProvider
+import androidx.compose.ui.focus.onFocusChanged
+import androidx.compose.ui.platform.LocalLayoutDirection
+import androidx.compose.ui.unit.LayoutDirection
 import androidx.tv.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
@@ -812,7 +817,9 @@ private fun MediaPlayerModal(
     var lastSeekTime by remember { mutableLongStateOf(0L) }
 
     val playBtnFocus = remember { FocusRequester() }
+    val seekbarFocus = remember { FocusRequester() }
     val modalFocus = remember { FocusRequester() }
+    var isSeekbarFocused by remember { mutableStateOf(false) }
 
     DisposableEffect(exoPlayer) {
         val listener = object : androidx.media3.common.Player.Listener {
@@ -909,7 +916,14 @@ private fun MediaPlayerModal(
 
     LaunchedEffect(Unit) {
         withFrameNanos { }
-        runCatching { modalFocus.requestFocus() }
+        runCatching { seekbarFocus.requestFocus() }
+    }
+
+    LaunchedEffect(isOsdVisible) {
+        if (isOsdVisible) {
+            withFrameNanos { }
+            runCatching { seekbarFocus.requestFocus() }
+        }
     }
 
     Box(
@@ -1122,49 +1136,97 @@ private fun MediaPlayerModal(
                     modifier = Modifier.fillMaxWidth(),
                     verticalArrangement = Arrangement.spacedBy(12.dp),
                 ) {
-                    // Time & Progress Bar
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(14.dp),
-                    ) {
-                        Text(
-                            text = formatMs(currentPos),
-                            color = Color.White,
-                            fontSize = 13.sp,
-                            fontWeight = FontWeight.SemiBold,
-                        )
-
-                        // Custom SeekBar
-                        Box(
-                            modifier = Modifier
-                                .weight(1f)
-                                .height(8.dp)
-                                .clip(RoundedCornerShape(4.dp))
-                                .background(Color(0x55FFFFFF)),
+                    // Time & Progress Bar (Strictly LTR so Left is Rewind and Right is Fast Forward)
+                    CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
+                        Row(
+                            modifier = Modifier.fillMaxWidth(),
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(14.dp),
                         ) {
-                            val progress = if (duration > 0) (currentPos.toFloat() / duration).coerceIn(0f, 1f) else 0f
-                            val buffered = if (duration > 0) (bufferedPos.toFloat() / duration).coerceIn(0f, 1f) else 0f
-                            Box(
-                                modifier = Modifier
-                                    .fillMaxHeight()
-                                    .fillMaxWidth(buffered)
-                                    .background(Color(0x44F59E0B)),
+                            Text(
+                                text = formatMs(currentPos),
+                                color = if (isSeekbarFocused) Color(0xFFF59E0B) else Color.White,
+                                fontSize = 14.sp,
+                                fontWeight = FontWeight.Bold,
                             )
-                            Box(
+
+                            // Interactive & Focusable SeekBar with Live Scrubbing Thumb
+                            BoxWithConstraints(
                                 modifier = Modifier
-                                    .fillMaxHeight()
-                                    .fillMaxWidth(progress)
-                                    .background(Color(0xFFF59E0B)),
+                                    .weight(1f)
+                                    .focusRequester(seekbarFocus)
+                                    .onFocusChanged { isSeekbarFocused = it.isFocused }
+                                    .mishkatFocus(id = "player:seekbar", radius = 10.dp)
+                                    .focusable()
+                                    .clickable {
+                                        if (exoPlayer.isPlaying) exoPlayer.pause() else exoPlayer.play()
+                                        lastInteractionTime = System.currentTimeMillis()
+                                    }
+                                    .onKeyEvent { keyEvent ->
+                                        if (keyEvent.type != KeyEventType.KeyDown) return@onKeyEvent false
+                                        when (keyEvent.key) {
+                                            Key.DirectionRight, Key.MediaFastForward -> {
+                                                doSeek(forward = true)
+                                                true
+                                            }
+                                            Key.DirectionLeft, Key.MediaRewind -> {
+                                                doSeek(forward = false)
+                                                true
+                                            }
+                                            Key.DirectionCenter, Key.Enter, Key.NumPadEnter, Key.MediaPlayPause -> {
+                                                if (exoPlayer.isPlaying) exoPlayer.pause() else exoPlayer.play()
+                                                lastInteractionTime = System.currentTimeMillis()
+                                                true
+                                            }
+                                            else -> false
+                                        }
+                                    }
+                                    .height(if (isSeekbarFocused) 18.dp else 10.dp)
+                                    .clip(RoundedCornerShape(9.dp))
+                                    .background(Color(0x55FFFFFF))
+                                    .then(
+                                        if (isSeekbarFocused) Modifier.border(2.dp, Color(0xFFF59E0B), RoundedCornerShape(9.dp))
+                                        else Modifier
+                                    ),
+                                contentAlignment = Alignment.CenterStart,
+                            ) {
+                                val totalW = maxWidth
+                                val progress = if (duration > 0) (currentPos.toFloat() / duration).coerceIn(0f, 1f) else 0f
+                                val buffered = if (duration > 0) (bufferedPos.toFloat() / duration).coerceIn(0f, 1f) else 0f
+
+                                // Buffered segment
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxHeight()
+                                        .width(totalW * buffered)
+                                        .background(Color(0x44F59E0B)),
+                                )
+                                // Active played segment
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxHeight()
+                                        .width(totalW * progress)
+                                        .background(Color(0xFFF59E0B)),
+                                )
+                                // Circular Glow Thumb Indicator
+                                val thumbOffset = (totalW * progress - if (isSeekbarFocused) 10.dp else 6.dp).coerceAtLeast(0.dp)
+                                Box(
+                                    modifier = Modifier
+                                        .padding(start = thumbOffset)
+                                        .size(if (isSeekbarFocused) 20.dp else 12.dp)
+                                        .clip(CircleShape)
+                                        .background(Color.White)
+                                        .border(2.dp, Color(0xFFF59E0B), CircleShape),
+                                )
+                            }
+
+                            Text(
+                                text = formatMs(duration),
+                                color = Color(0xFFCBD5E1),
+                                fontSize = 14.sp,
+                                fontWeight = FontWeight.SemiBold,
                             )
                         }
-
-                        Text(
-                            text = formatMs(duration),
-                            color = Color(0xFFCBD5E1),
-                            fontSize = 13.sp,
-                            fontWeight = FontWeight.SemiBold,
-                        )
                     }
 
                     // VLC Quick Jump Percentage Pills Row (0%, 10%, 25%, 50%, 75%, 90%)

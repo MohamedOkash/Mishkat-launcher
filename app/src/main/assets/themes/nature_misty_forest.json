@@ -1,0 +1,32 @@
+﻿{
+  "id": "nature_misty_forest",
+  "name": "غابات الصنوبر الضبابية 4K",
+  "nameEn": "Misty Pine Forest 4K",
+  "builtin": true,
+  "palette": {
+    "primary": "#14B8A6",
+    "surface": "#081010",
+    "onSurface": "#F0FDFA",
+    "panelAccents": {
+      "sleep": "#081010",
+      "prayer": "#081010",
+      "tools": "#081010",
+      "weather": "#081010"
+    }
+  },
+  "wallpaper": {
+    "type": "gradient",
+    "asset": "real_desert_night",
+    "parallax": 0.15,
+    "gradient": ["#081010", "#081010"],
+    "pattern": { "type": "nature_mountains_4k", "alpha": 0.18, "cell": 100 }
+  },
+  "cards": {
+    "radius": 18,
+    "glass": 0.9,
+    "strokeAlpha": 0.3
+  },
+  "icons": { "mask": "squircle_22", "pack": "mishkat_cute_v1" },
+  "motion": { "focusScale": 1.04, "enterMs": 220, "springDamping": 0.88 },
+  "borders": { "stroke": "#14B8A6" }
+}

@@ -1,0 +1,32 @@
+﻿{
+  "id": "live_cinema_bokeh",
+  "name": "أضواء البروجكتور السينمائية الحية 4K",
+  "nameEn": "Live Cinema Bokeh 4K",
+  "builtin": true,
+  "palette": {
+    "primary": "#F43F5E",
+    "surface": "#120408",
+    "onSurface": "#FFF1F2",
+    "panelAccents": {
+      "sleep": "#120408",
+      "prayer": "#120408",
+      "tools": "#120408",
+      "weather": "#120408"
+    }
+  },
+  "wallpaper": {
+    "type": "gradient",
+    "asset": "real_cinema_night",
+    "parallax": 0.15,
+    "gradient": ["#120408", "#120408"],
+    "pattern": { "type": "cinema_imax", "alpha": 0.18, "cell": 100 }
+  },
+  "cards": {
+    "radius": 18,
+    "glass": 0.92,
+    "strokeAlpha": 0.32
+  },
+  "icons": { "mask": "squircle_22", "pack": "mishkat_cute_v1" },
+  "motion": { "focusScale": 1.04, "enterMs": 220, "springDamping": 0.88 },
+  "borders": { "stroke": "#F43F5E" }
+}

@@ -1,0 +1,32 @@
+﻿{
+  "id": "live_shamsa_mandala",
+  "name": "شمسة الزخرفة الإسلامية الدوّارة",
+  "nameEn": "Live Rotating Shamsa Mandala",
+  "builtin": true,
+  "palette": {
+    "primary": "#D97706",
+    "surface": "#0F0B05",
+    "onSurface": "#FEF3C7",
+    "panelAccents": {
+      "sleep": "#0F0B05",
+      "prayer": "#0F0B05",
+      "tools": "#0F0B05",
+      "weather": "#0F0B05"
+    }
+  },
+  "wallpaper": {
+    "type": "gradient",
+    "asset": "rimal",
+    "parallax": 0.15,
+    "gradient": ["#0F0B05", "#0F0B05"],
+    "pattern": { "type": "arabesque_mandala", "alpha": 0.18, "cell": 100 }
+  },
+  "cards": {
+    "radius": 18,
+    "glass": 0.88,
+    "strokeAlpha": 0.35
+  },
+  "icons": { "mask": "squircle_22", "pack": "mishkat_cute_v1" },
+  "motion": { "focusScale": 1.04, "enterMs": 220, "springDamping": 0.88 },
+  "borders": { "stroke": "#D97706" }
+}

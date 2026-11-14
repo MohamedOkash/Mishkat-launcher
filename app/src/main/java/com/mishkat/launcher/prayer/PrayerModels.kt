@@ -106,9 +106,21 @@ enum class MuezzinVoice(
 ) {
     MAKKAH(
         "makkah",
-        "أذان الحرم المكي الشريف",
-        "Makkah Al-Haram Adhan",
+        "أذان الحرم المكي الشريف (الشيخ علي ملا)",
+        "Makkah Al-Haram Adhan (Sheikh Ali Mulla)",
         "https://www.islamcan.com/audio/adhan/azan1.mp3",
+    ),
+    MADINAH(
+        "madinah",
+        "أذان المسجد النبوي الشريف (المدينة المنورة)",
+        "Madinah Al-Nabawi Adhan",
+        "https://www.islamcan.com/audio/adhan/azan4.mp3",
+    ),
+    AQSA(
+        "aqsa",
+        "أذان المسجد الأقصى المبارك (القدس الشريف)",
+        "Al-Aqsa Mosque Adhan (Jerusalem)",
+        "https://www.islamcan.com/audio/adhan/azan5.mp3",
     ),
     ABDULBASIT(
         "abdulbasit",
@@ -116,16 +128,40 @@ enum class MuezzinVoice(
         "Sheikh Abdulbasit Abdussamad",
         "https://www.islamcan.com/audio/adhan/azan2.mp3",
     ),
+    MUSTAFA_ISMAIL(
+        "mustafa_ismail",
+        "أذان الشيخ مصطفى إسماعيل",
+        "Sheikh Mustafa Ismail",
+        "https://www.islamcan.com/audio/adhan/azan6.mp3",
+    ),
+    MOHAMED_REFAAT(
+        "mohamed_refaat",
+        "أذان قيثارة السماء الشيخ محمد رفعت",
+        "Sheikh Mohamed Refaat",
+        "https://www.islamcan.com/audio/adhan/azan7.mp3",
+    ),
     ALAFASY(
         "alafasy",
         "أذان الشيخ مشاري راشد العفاسي",
         "Sheikh Mishary Rashid Alafasy",
         "https://www.islamcan.com/audio/adhan/azan3.mp3",
     ),
+    NASSER_QATAMI(
+        "nasser_qatami",
+        "أذان الشيخ ناصر القطامي",
+        "Sheikh Nasser Al-Qatami",
+        "https://www.islamcan.com/audio/adhan/azan8.mp3",
+    ),
+    HADRAWI(
+        "hadrawi",
+        "أذان الشيخ فاروق حضراوي (مكة المكرمة)",
+        "Sheikh Farooq Hadrawi (Makkah)",
+        "https://www.islamcan.com/audio/adhan/azan9.mp3",
+    ),
     CAIRO(
         "cairo",
-        "أذان إذاعة القرآن الكريم - القاهرة",
-        "Cairo Quran Radio Adhan",
+        "أذان إذاعة القرآن الكريم - القاهرة (الحصري)",
+        "Cairo Quran Radio Adhan (Al-Hussary)",
         "https://www.islamcan.com/audio/adhan/azan14.mp3",
     );
 

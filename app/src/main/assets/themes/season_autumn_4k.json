@@ -1,46 +1,34 @@
 {
   "id": "season_autumn_4k",
   "name": "خريف الغابات الذهبية 4K",
-  "nameEn": "Autumn Forest 4K",
+  "nameEn": "Golden Autumn Forest 4K",
   "builtin": true,
   "palette": {
-    "primary": "#EA580C",
-    "surface": "#1B0F07",
-    "onSurface": "#FFF7ED",
+    "primary": "#E65100",
+    "surface": "#140A04",
+    "onSurface": "#FFF3E0",
     "panelAccents": {
-      "sleep": "#2D180B",
-      "prayer": "#251308",
-      "tools": "#381E0D",
-      "weather": "#2B160A"
+      "sleep": "#2D1508",
+      "prayer": "#251006",
+      "tools": "#381B0A",
+      "weather": "#2B1307"
     }
   },
   "wallpaper": {
     "type": "gradient",
     "asset": "season_autumn_4k",
     "parallax": 0.15,
-    "gradient": [
-      "#2D180B",
-      "#1B0F07",
-      "#0F0703"
-    ],
-    "pattern": {
-      "type": "autumn_leaves",
-      "alpha": 0.18,
-      "cell": 100
-    }
+    "gradient": ["#2D1508", "#180C05", "#0C0603"],
+    "pattern": { "type": "season_autumn_4k", "alpha": 0.18, "cell": 100 }
   },
   "cards": {
     "radius": 18,
-    "glass": 0.72,
-    "strokeAlpha": 0.32
+    "glass": 0.90,
+    "strokeAlpha": 0.32,
+    "base": "#261409",
+    "baseFocused": "#3A2010"
   },
-  "icons": {
-    "mask": "squircle_22",
-    "pack": "mishkat_cute_v1"
-  },
-  "motion": {
-    "focusScale": 1.04,
-    "enterMs": 220,
-    "springDamping": 0.88
-  }
+  "icons": { "mask": "squircle_22", "pack": "mishkat_cute_v1" },
+  "motion": { "focusScale": 1.04, "enterMs": 220, "springDamping": 0.88 },
+  "borders": { "stroke": "#E65100" }
 }

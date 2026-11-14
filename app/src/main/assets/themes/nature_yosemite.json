@@ -1,0 +1,32 @@
+﻿{
+  "id": "nature_yosemite",
+  "name": "وادي يوسمايت الذهبي 4K",
+  "nameEn": "Yosemite Golden Valley 4K",
+  "builtin": true,
+  "palette": {
+    "primary": "#F97316",
+    "surface": "#0A0B10",
+    "onSurface": "#FFF7ED",
+    "panelAccents": {
+      "sleep": "#0A0B10",
+      "prayer": "#0A0B10",
+      "tools": "#0A0B10",
+      "weather": "#0A0B10"
+    }
+  },
+  "wallpaper": {
+    "type": "gradient",
+    "asset": "real_autumn_forest",
+    "parallax": 0.15,
+    "gradient": ["#0A0B10", "#0A0B10"],
+    "pattern": { "type": "nature_mountains_4k", "alpha": 0.18, "cell": 100 }
+  },
+  "cards": {
+    "radius": 18,
+    "glass": 0.9,
+    "strokeAlpha": 0.3
+  },
+  "icons": { "mask": "squircle_22", "pack": "mishkat_cute_v1" },
+  "motion": { "focusScale": 1.04, "enterMs": 220, "springDamping": 0.88 },
+  "borders": { "stroke": "#F97316" }
+}

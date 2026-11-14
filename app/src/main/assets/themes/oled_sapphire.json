@@ -1,0 +1,32 @@
+﻿{
+  "id": "oled_sapphire",
+  "name": "ياقوت أزرق كحلي OLED",
+  "nameEn": "Midnight Sapphire OLED",
+  "builtin": true,
+  "palette": {
+    "primary": "#3B82F6",
+    "surface": "#030A18",
+    "onSurface": "#EFF6FF",
+    "panelAccents": {
+      "sleep": "#030A18",
+      "prayer": "#030A18",
+      "tools": "#030A18",
+      "weather": "#030A18"
+    }
+  },
+  "wallpaper": {
+    "type": "gradient",
+    "asset": "dark_carbon_mesh_4k",
+    "parallax": 0.15,
+    "gradient": ["#030A18", "#030A18"],
+    "pattern": { "type": "dark_carbon_mesh_4k", "alpha": 0.18, "cell": 100 }
+  },
+  "cards": {
+    "radius": 18,
+    "glass": 0.92,
+    "strokeAlpha": 0.3
+  },
+  "icons": { "mask": "squircle_22", "pack": "mishkat_cute_v1" },
+  "motion": { "focusScale": 1.04, "enterMs": 220, "springDamping": 0.88 },
+  "borders": { "stroke": "#3B82F6" }
+}

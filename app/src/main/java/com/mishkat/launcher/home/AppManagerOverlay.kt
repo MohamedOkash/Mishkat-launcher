@@ -20,12 +20,15 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -626,7 +629,7 @@ fun SettingsOverlay(
                                 )
                             }
 
-                            items(settings.shelfOrder, key = { "shelf_order_$it" }) { shelfId ->
+                            itemsIndexed(settings.shelfOrder, key = { _, it -> "shelf_order_$it" }) { index, shelfId ->
                                 val shelfTitle = when (shelfId) {
                                     "livetv" -> if (settings.isArabic) "📺 البث الحي للقنوات (مصر والعالم العربي)" else "📺 Live TV Channels"
                                     "apps" -> if (settings.isArabic) "📱 التطبيقات المثبتة والألعاب" else "📱 Installed Apps & Games"
@@ -637,43 +640,70 @@ fun SettingsOverlay(
                                     "sports" -> if (settings.isArabic) "⚽ مركز المباريات والرياضة" else "⚽ Sports & Match Center"
                                     else -> shelfId
                                 }
-                                val shape = RoundedCornerShape(tokens.cardRadius)
+                                val shape = RoundedCornerShape(10.dp)
                                 Row(
                                     modifier = Modifier
                                         .fillMaxWidth()
+                                        .height(48.dp)
                                         .clip(shape)
-                                        .liquidGlass(tokens, tokens.card, tokens.cardRadius, settings.glassIntensity)
-                                        .padding(horizontal = 16.dp, vertical = 10.dp),
+                                        .liquidGlass(tokens, tokens.card, 10.dp, settings.glassIntensity)
+                                        .padding(horizontal = 14.dp, vertical = 6.dp),
                                     horizontalArrangement = Arrangement.SpaceBetween,
                                     verticalAlignment = Alignment.CenterVertically,
                                 ) {
-                                    Text(
-                                        text = shelfTitle,
-                                        color = tokens.onSurface,
-                                        fontSize = 14.sp,
-                                        fontWeight = FontWeight.SemiBold,
+                                    Row(
+                                        verticalAlignment = Alignment.CenterVertically,
+                                        horizontalArrangement = Arrangement.spacedBy(10.dp),
                                         modifier = Modifier.weight(1f),
-                                    )
-                                    Row(horizontalArrangement = Arrangement.spacedBy(8.dp)) {
+                                    ) {
                                         Box(
                                             modifier = Modifier
-                                                .mishkatFocus(id = "shelf_up_$shelfId", radius = 8.dp)
-                                                .clip(RoundedCornerShape(8.dp))
-                                                .background(tokens.cardFocused)
-                                                .clickable { onMoveShelfUp(shelfId) }
-                                                .padding(horizontal = 12.dp, vertical = 6.dp),
+                                                .size(24.dp)
+                                                .clip(CircleShape)
+                                                .background(tokens.primary.copy(alpha = 0.25f))
+                                                .border(1.dp, tokens.primary, CircleShape),
+                                            contentAlignment = Alignment.Center,
                                         ) {
-                                            Text(text = "▲ للأعلى", color = tokens.primary, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                                            Text(
+                                                text = "${index + 1}",
+                                                color = tokens.primary,
+                                                fontSize = 12.sp,
+                                                fontWeight = FontWeight.Bold,
+                                            )
                                         }
-                                        Box(
-                                            modifier = Modifier
-                                                .mishkatFocus(id = "shelf_down_$shelfId", radius = 8.dp)
-                                                .clip(RoundedCornerShape(8.dp))
-                                                .background(tokens.cardFocused)
-                                                .clickable { onMoveShelfDown(shelfId) }
-                                                .padding(horizontal = 12.dp, vertical = 6.dp),
-                                        ) {
-                                            Text(text = "▼ للأسفل", color = tokens.primary, fontSize = 12.sp, fontWeight = FontWeight.Bold)
+                                        Text(
+                                            text = shelfTitle,
+                                            color = tokens.onSurface,
+                                            fontSize = 13.sp,
+                                            fontWeight = FontWeight.SemiBold,
+                                            maxLines = 1,
+                                            overflow = TextOverflow.Ellipsis,
+                                        )
+                                    }
+                                    Row(horizontalArrangement = Arrangement.spacedBy(6.dp)) {
+                                        if (index > 0) {
+                                            Box(
+                                                modifier = Modifier
+                                                    .mishkatFocus(id = "shelf_up_$shelfId", radius = 6.dp)
+                                                    .clip(RoundedCornerShape(6.dp))
+                                                    .background(tokens.cardFocused)
+                                                    .clickable { onMoveShelfUp(shelfId) }
+                                                    .padding(horizontal = 10.dp, vertical = 5.dp),
+                                            ) {
+                                                Text(text = "▲ للأعلى", color = tokens.primary, fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                                            }
+                                        }
+                                        if (index < settings.shelfOrder.size - 1) {
+                                            Box(
+                                                modifier = Modifier
+                                                    .mishkatFocus(id = "shelf_down_$shelfId", radius = 6.dp)
+                                                    .clip(RoundedCornerShape(6.dp))
+                                                    .background(tokens.cardFocused)
+                                                    .clickable { onMoveShelfDown(shelfId) }
+                                                    .padding(horizontal = 10.dp, vertical = 5.dp),
+                                            ) {
+                                                Text(text = "▼ للأسفل", color = tokens.primary, fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                                            }
                                         }
                                     }
                                 }

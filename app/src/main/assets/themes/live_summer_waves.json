@@ -1,0 +1,32 @@
+﻿{
+  "id": "live_summer_waves",
+  "name": "أمواج الصيف المتلألئة الحية 4K",
+  "nameEn": "Live Summer Waves 4K",
+  "builtin": true,
+  "palette": {
+    "primary": "#2DD4BF",
+    "surface": "#041212",
+    "onSurface": "#F0FDFA",
+    "panelAccents": {
+      "sleep": "#041212",
+      "prayer": "#041212",
+      "tools": "#041212",
+      "weather": "#041212"
+    }
+  },
+  "wallpaper": {
+    "type": "gradient",
+    "asset": "season_summer_4k",
+    "parallax": 0.15,
+    "gradient": ["#041212", "#041212"],
+    "pattern": { "type": "summer_waves", "alpha": 0.18, "cell": 100 }
+  },
+  "cards": {
+    "radius": 18,
+    "glass": 0.9,
+    "strokeAlpha": 0.3
+  },
+  "icons": { "mask": "squircle_22", "pack": "mishkat_cute_v1" },
+  "motion": { "focusScale": 1.04, "enterMs": 220, "springDamping": 0.88 },
+  "borders": { "stroke": "#2DD4BF" }
+}

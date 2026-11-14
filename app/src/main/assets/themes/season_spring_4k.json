@@ -1,46 +1,34 @@
 {
   "id": "season_spring_4k",
-  "name": "ربيع الطبيعة والزهور 4K",
-  "nameEn": "Spring Blossom 4K",
+  "name": "ربيع الأزهار 4K",
+  "nameEn": "Spring Blossoms 4K",
   "builtin": true,
   "palette": {
-    "primary": "#4ADE80",
-    "surface": "#0C1F15",
-    "onSurface": "#F0FDF4",
+    "primary": "#E91E90",
+    "surface": "#120810",
+    "onSurface": "#FFF0F7",
     "panelAccents": {
-      "sleep": "#133522",
-      "prayer": "#0F2E1D",
-      "tools": "#17402A",
-      "weather": "#113B24"
+      "sleep": "#2A0E1E",
+      "prayer": "#220C18",
+      "tools": "#331222",
+      "weather": "#280D1C"
     }
   },
   "wallpaper": {
     "type": "gradient",
     "asset": "season_spring_4k",
     "parallax": 0.15,
-    "gradient": [
-      "#163824",
-      "#0C1F15",
-      "#06120C"
-    ],
-    "pattern": {
-      "type": "spring_petals",
-      "alpha": 0.18,
-      "cell": 100
-    }
+    "gradient": ["#2A0E1E", "#170810", "#0C0408"],
+    "pattern": { "type": "season_spring_4k", "alpha": 0.18, "cell": 100 }
   },
   "cards": {
     "radius": 18,
-    "glass": 0.72,
-    "strokeAlpha": 0.32
+    "glass": 0.88,
+    "strokeAlpha": 0.30,
+    "base": "#220D18",
+    "baseFocused": "#381525"
   },
-  "icons": {
-    "mask": "squircle_22",
-    "pack": "mishkat_cute_v1"
-  },
-  "motion": {
-    "focusScale": 1.04,
-    "enterMs": 220,
-    "springDamping": 0.88
-  }
+  "icons": { "mask": "squircle_22", "pack": "mishkat_cute_v1" },
+  "motion": { "focusScale": 1.04, "enterMs": 220, "springDamping": 0.88 },
+  "borders": { "stroke": "#E91E90" }
 }

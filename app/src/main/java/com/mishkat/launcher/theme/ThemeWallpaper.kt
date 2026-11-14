@@ -287,7 +287,8 @@ private fun isIslamicOrnamentStyle(effectiveStyle: String, themeId: String): Boo
     else -> when (themeId) {
         "kaaba_gold", "noor", "zomorod", "rimal", "layla", "rawda_sharifa",
         "andalus_arch", "fajr_sky", "madinah_marble", "damascus_mosaic",
-        "turqoise_dome", "sahara_dunes" -> true
+        "turqoise_dome", "sahara_dunes", "live_mishkat_lanterns", "live_shamsa_mandala",
+        "islamic_kairouan", "islamic_isfahan", "islamic_cordoba" -> true
         else -> false
     }
 }
@@ -308,8 +309,8 @@ fun resolveRealPhotoAsset(effectiveStyle: String, themeId: String): String = whe
     "winter_rain" -> "real_winter_rain.jpg"
     "storm_lightning" -> "real_storm_lightning.jpg"
     "spring_petals" -> "real_spring_blossom.jpg"
-    "summer_waves" -> "real_summer_sunset.jpg"
-    "autumn_leaves" -> "real_autumn_forest.jpg"
+    "summer_waves" -> "season_summer_4k.jpg"
+    "autumn_leaves" -> "season_autumn_4k.jpg"
     "sports_stadium" -> "real_sports_stadium.jpg"
     "cinema_imax" -> "real_cinema_night.jpg"
     "kaaba_silk", "calligraphy_thuluth", "kaaba_kiswah" -> "real_makkah_kaaba.jpg"
@@ -317,31 +318,42 @@ fun resolveRealPhotoAsset(effectiveStyle: String, themeId: String): String = whe
     "calligraphy_ruqah", "arabesque_mandala", "aurora_glass" -> "real_islamic_mosque.jpg"
     "desert_crescent", "desert_night" -> "real_desert_night.jpg"
     else -> when (themeId) {
-        "sports_arena" -> "real_sports_stadium.jpg"
-        "cinema_action" -> "real_cinema_night.jpg"
+        "sports_arena", "live_stadium_lights" -> "real_sports_stadium.jpg"
+        "cinema_action", "live_cinema_bokeh" -> "real_cinema_night.jpg"
+        "live_winter_snow", "nature_winter_avenue" -> "real_winter_snow.jpg"
+        "live_winter_rain", "nature_rain_window" -> "real_winter_rain.jpg"
+        "live_storm_lightning" -> "real_storm_lightning.jpg"
+        "live_spring_petals", "spring_blossom" -> "real_spring_blossom.jpg"
+        "live_autumn_leaves" -> "season_autumn_4k.jpg"
+        "live_summer_waves", "summer_sunset" -> "season_summer_4k.jpg"
+        "nature_yosemite" -> "real_autumn_forest.jpg"
+        "nature_misty_forest" -> "real_desert_night.jpg"
+        "oled_amethyst", "oled_emerald", "oled_obsidian_gold" -> "dark_luxury_onyx_4k.jpg"
+        "oled_sapphire", "oled_titanium", "oled_crimson", "cyber_onyx" -> "dark_carbon_mesh_4k.jpg"
+        "islamic_makkah_dawn" -> "real_makkah_kaaba.jpg"
+        "islamic_madinah_sunset" -> "real_madinah_mosque.jpg"
+        "islamic_quran_navy" -> "real_islamic_mosque.jpg"
         "season_spring_4k" -> "season_spring_4k.jpg"
-    "season_summer_4k" -> "season_summer_4k.jpg"
-    "season_autumn_4k" -> "season_autumn_4k.jpg"
-    "season_winter_4k" -> "season_winter_4k.jpg"
-    "nature_mountains_4k" -> "nature_mountains_4k.jpg"
-    "nature_waterfall_4k" -> "nature_waterfall_4k.jpg"
-    "dark_luxury_onyx_4k" -> "dark_luxury_onyx_4k.jpg"
-    "dark_carbon_mesh_4k" -> "dark_carbon_mesh_4k.jpg"
-    "birds_falcon_eagle_4k" -> "birds_falcon_eagle_4k.jpg"
-    "birds_colorful_kingfisher_4k" -> "birds_colorful_kingfisher_4k.jpg"
-    "winter_snow" -> "real_winter_snow.jpg"
-        "spring_blossom" -> "real_spring_blossom.jpg"
-        "summer_sunset" -> "real_summer_sunset.jpg"
+        "season_summer_4k" -> "season_summer_4k.jpg"
+        "season_autumn_4k" -> "season_autumn_4k.jpg"
+        "season_winter_4k" -> "season_winter_4k.jpg"
+        "nature_mountains_4k" -> "nature_mountains_4k.jpg"
+        "nature_waterfall_4k" -> "nature_waterfall_4k.jpg"
+        "dark_luxury_onyx_4k" -> "dark_luxury_onyx_4k.jpg"
+        "dark_carbon_mesh_4k" -> "dark_carbon_mesh_4k.jpg"
+        "birds_falcon_eagle_4k" -> "birds_falcon_eagle_4k.jpg"
+        "birds_colorful_kingfisher_4k" -> "birds_colorful_kingfisher_4k.jpg"
+        "winter_snow" -> "real_winter_snow.jpg"
         "kaaba_gold" -> "real_makkah_kaaba.jpg"
         "noor" -> "real_madinah_mosque.jpg"
         "zomorod" -> "real_islamic_mosque.jpg"
         "rawda_sharifa", "madinah_marble", "fajr_sky" -> "real_madinah_mosque.jpg"
-        "andalus_arch", "damascus_mosaic", "turqoise_dome" -> "real_islamic_mosque.jpg"
+        "andalus_arch", "damascus_mosaic", "turqoise_dome", "islamic_kairouan", "islamic_isfahan", "islamic_cordoba" -> "real_islamic_mosque.jpg"
         "aurora_borealis" -> "real_storm_lightning.jpg"
-        "cyber_onyx" -> "real_cinema_night.jpg"
+        "cyber_onyx" -> "dark_carbon_mesh_4k.jpg"
         "ruby_velvet" -> "real_autumn_forest.jpg"
         "sahara_dunes", "rimal", "layla" -> "real_desert_night.jpg"
-        else -> "real_desert_night.jpg"
+        else -> "real_makkah_kaaba.jpg"
     }
 }
 

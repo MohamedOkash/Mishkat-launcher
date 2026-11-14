@@ -1,0 +1,32 @@
+﻿{
+  "id": "islamic_makkah_dawn",
+  "name": "فجر مكة المكرمة 4K",
+  "nameEn": "Makkah Al-Mukarramah Dawn 4K",
+  "builtin": true,
+  "palette": {
+    "primary": "#F59E0B",
+    "surface": "#0C0A06",
+    "onSurface": "#FFFBEB",
+    "panelAccents": {
+      "sleep": "#0C0A06",
+      "prayer": "#0C0A06",
+      "tools": "#0C0A06",
+      "weather": "#0C0A06"
+    }
+  },
+  "wallpaper": {
+    "type": "gradient",
+    "asset": "real_makkah_kaaba",
+    "parallax": 0.15,
+    "gradient": ["#0C0A06", "#0C0A06"],
+    "pattern": { "type": "kaaba_gold", "alpha": 0.18, "cell": 100 }
+  },
+  "cards": {
+    "radius": 18,
+    "glass": 0.88,
+    "strokeAlpha": 0.32
+  },
+  "icons": { "mask": "squircle_22", "pack": "mishkat_cute_v1" },
+  "motion": { "focusScale": 1.04, "enterMs": 220, "springDamping": 0.88 },
+  "borders": { "stroke": "#F59E0B" }
+}

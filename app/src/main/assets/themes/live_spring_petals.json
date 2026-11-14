@@ -1,0 +1,32 @@
+﻿{
+  "id": "live_spring_petals",
+  "name": "أزهار الربيع المتطايرة الحية 4K",
+  "nameEn": "Live Spring Petals 4K",
+  "builtin": true,
+  "palette": {
+    "primary": "#F472B6",
+    "surface": "#120610",
+    "onSurface": "#FDF2F8",
+    "panelAccents": {
+      "sleep": "#120610",
+      "prayer": "#120610",
+      "tools": "#120610",
+      "weather": "#120610"
+    }
+  },
+  "wallpaper": {
+    "type": "gradient",
+    "asset": "real_spring_blossom",
+    "parallax": 0.15,
+    "gradient": ["#120610", "#120610"],
+    "pattern": { "type": "spring_petals", "alpha": 0.18, "cell": 100 }
+  },
+  "cards": {
+    "radius": 18,
+    "glass": 0.88,
+    "strokeAlpha": 0.3
+  },
+  "icons": { "mask": "squircle_22", "pack": "mishkat_cute_v1" },
+  "motion": { "focusScale": 1.04, "enterMs": 220, "springDamping": 0.88 },
+  "borders": { "stroke": "#F472B6" }
+}

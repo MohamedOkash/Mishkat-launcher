@@ -1,0 +1,32 @@
+﻿{
+  "id": "oled_titanium",
+  "name": "تيتانيوم رمادي فاخر OLED",
+  "nameEn": "Brushed Titanium OLED",
+  "builtin": true,
+  "palette": {
+    "primary": "#CBD5E1",
+    "surface": "#0B0F17",
+    "onSurface": "#F8FAFC",
+    "panelAccents": {
+      "sleep": "#0B0F17",
+      "prayer": "#0B0F17",
+      "tools": "#0B0F17",
+      "weather": "#0B0F17"
+    }
+  },
+  "wallpaper": {
+    "type": "gradient",
+    "asset": "dark_carbon_mesh_4k",
+    "parallax": 0.15,
+    "gradient": ["#0B0F17", "#0B0F17"],
+    "pattern": { "type": "dark_carbon_mesh_4k", "alpha": 0.18, "cell": 100 }
+  },
+  "cards": {
+    "radius": 18,
+    "glass": 0.9,
+    "strokeAlpha": 0.3
+  },
+  "icons": { "mask": "squircle_22", "pack": "mishkat_cute_v1" },
+  "motion": { "focusScale": 1.04, "enterMs": 220, "springDamping": 0.88 },
+  "borders": { "stroke": "#CBD5E1" }
+}
