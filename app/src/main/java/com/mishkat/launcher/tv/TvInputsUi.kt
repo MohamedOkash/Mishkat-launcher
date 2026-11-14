@@ -424,6 +424,8 @@ fun TvInputsPanelOverlay(
                             color = tokens.primary,
                             fontSize = 13.sp,
                             fontWeight = FontWeight.SemiBold,
+                            maxLines = 1,
+                            softWrap = false,
                         )
                     }
 
@@ -439,6 +441,8 @@ fun TvInputsPanelOverlay(
                             text = stringResource(R.string.radio_close),
                             color = tokens.onSurface,
                             fontSize = 13.sp,
+                            maxLines = 1,
+                            softWrap = false,
                         )
                     }
                 }

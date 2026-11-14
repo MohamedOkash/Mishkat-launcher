@@ -62,33 +62,33 @@ val WALLPAPER_PRESETS = listOf(
         id = "auto",
         titleAr = "تلقائي مع الثيم النشط ✦",
         titleEn = "Automatic with Active Theme ✦",
-        subtitleAr = "زخرفة وخطوط عربية للثيمات الإسلامية • وخلفيات حية 1080p للفصول والرياضة",
-        subtitleEn = "Islamic calligraphy & ornament for Islamic themes • 1080p live scenes for seasons",
+        subtitleAr = "خلفية فوتوغرافية حقيقية 4K فائقة الوضوح تتطابق تلقائياً مع الثيم والزجاج السائل",
+        subtitleEn = "High-definition 4K real photo dynamically matching the active theme and liquid glass",
         assetFile = "real_makkah_kaaba.jpg",
     ),
     WallpaperPreset(
-        id = "calligraphy_ruqah",
-        titleAr = "خط الرقعة والزخرفة الإسلامية المذهّبة ✒",
-        titleEn = "Arabic Ruq'ah Calligraphy & Gold Arabesque ✒",
-        subtitleAr = "لوحة حروف عربية (الرقعة والديواني) مع شمسة هندسية مذهّبة",
-        subtitleEn = "Ornate Arabic Ruq'ah calligraphy letters with golden geometric shamsa",
-        assetFile = "real_islamic_mosque.jpg",
-    ),
-    WallpaperPreset(
-        id = "calligraphy_thuluth",
-        titleAr = "حزام الكسوة وخط الثلث المذهّب 🕋",
-        titleEn = "Kiswah Belt & Golden Thuluth Calligraphy 🕋",
-        subtitleAr = "زخرفة كسوة الكعبة المشرفة مع آيات بخط الثلث المذهّب",
-        subtitleEn = "Royal black & gold Kaaba Kiswah embroidery with Thuluth calligraphy",
+        id = "kaaba_silk",
+        titleAr = "الحرم المكي والكعبة المشرفة 🕋 (4K Ultra HD)",
+        titleEn = "Holy Kaaba Sanctuary 🕋 (4K Ultra HD)",
+        subtitleAr = "صورة فوتوغرافية حقيقية بدقة 4K للمسجد الحرام والكعبة المشرفة",
+        subtitleEn = "Ultra HD 4K photograph of Al-Masjid Al-Haram in Makkah",
         assetFile = "real_makkah_kaaba.jpg",
     ),
     WallpaperPreset(
-        id = "arabesque_mandala",
-        titleAr = "شمسة الأرابيسك والقناديل المضيئة 🕌",
-        titleEn = "Islamic Shamsa Mandala & Mishkat Lanterns 🕌",
-        subtitleAr = "زخارف هندسية إسلامية دقيقة مع قناديل المشكاة ونور الآيات",
-        subtitleEn = "Intricate 16-fold Islamic geometric rosettes & hanging Mishkat lanterns",
+        id = "mihrab_arch",
+        titleAr = "المسجد النبوي الشريف بالمدينة 🕌 (4K Ultra HD)",
+        titleEn = "Prophet's Mosque in Madinah 🕌 (4K Ultra HD)",
+        subtitleAr = "صورة فوتوغرافية حقيقية بدقة 4K للمسجد النبوي الشريف",
+        subtitleEn = "Ultra HD 4K photograph of Al-Masjid An-Nabawi in Madinah",
         assetFile = "real_madinah_mosque.jpg",
+    ),
+    WallpaperPreset(
+        id = "islamic_mosque",
+        titleAr = "المسجد الكبير والقباب الإسلامية 🕌 (4K Ultra HD)",
+        titleEn = "Grand Islamic Mosque & Domes 🕌 (4K Ultra HD)",
+        subtitleAr = "صورة فوتوغرافية حقيقية بدقة 4K للعمارة الإسلامية",
+        subtitleEn = "Ultra HD 4K photograph of Islamic architecture and domes",
+        assetFile = "real_islamic_mosque.jpg",
     ),
     WallpaperPreset(
         id = "weather_sync",
@@ -161,14 +161,6 @@ val WALLPAPER_PRESETS = listOf(
         subtitleAr = "أجواء السينما الاحترافية 1080p مع إضاءة العرض السينمائي",
         subtitleEn = "True 1080p cinema hall with live projector light beams & bokeh",
         assetFile = "real_cinema_night.jpg",
-    ),
-    WallpaperPreset(
-        id = "kaaba_silk",
-        titleAr = "الحرم المكي والكعبة المشرفة 🕋 (صورة 1080p)",
-        titleEn = "Holy Kaaba Sanctuary in Makkah 🕋 (1080p Photo)",
-        subtitleAr = "صورة فوتوغرافية حقيقية عريضة 1080p للمسجد الحرام",
-        subtitleEn = "Full HD 1080p photograph of Al-Masjid Al-Haram in Makkah",
-        assetFile = "real_makkah_kaaba.jpg",
     ),
     WallpaperPreset(
         id = "season_spring_4k",
@@ -250,14 +242,6 @@ val WALLPAPER_PRESETS = listOf(
         subtitleEn = "High-definition 4K vibrant exotic tropical bird",
         assetFile = "birds_colorful_kingfisher_4k.jpg",
     ),
-    WallpaperPreset(
-        id = "mihrab_arch",
-        titleAr = "المسجد النبوي الشريف بالمدينة 🕌 (صورة 1080p)",
-        titleEn = "Prophet's Mosque in Madinah 🕌 (1080p Photo)",
-        subtitleAr = "صورة فوتوغرافية حقيقية عريضة 1080p للمسجد النبوي الشريف",
-        subtitleEn = "Full HD 1080p photograph of Al-Masjid An-Nabawi in Madinah",
-        assetFile = "real_madinah_mosque.jpg",
-    ),
 )
 
 /** Maps WMO weather code to a real photographic seasonal wallpaper when `weather_sync` is active. */
@@ -272,15 +256,7 @@ fun resolveWeatherSyncedWallpaper(weatherCode: Int?): String = when (weatherCode
 }
 
 /** Returns true when the effective style should render ornate Islamic Calligraphy & Geometric Arabesque. */
-private fun isIslamicOrnamentStyle(effectiveStyle: String, themeId: String): Boolean = when (effectiveStyle) {
-    "calligraphy_ruqah",
-    "calligraphy_thuluth",
-    "arabesque_mandala",
-    "islamic_arch",
-    "kaaba_kiswah",
-    -> true
-    else -> false
-}
+private fun isIslamicOrnamentStyle(effectiveStyle: String, themeId: String): Boolean = false
 
 /** Resolves live animated particle atmosphere for weather-sync and live 4K themes. */
 fun resolveLiveAtmosphereStyle(effectiveStyle: String, themeId: String): String = when (effectiveStyle) {
@@ -327,7 +303,7 @@ fun resolveRealPhotoAsset(effectiveStyle: String, themeId: String): String = whe
     "cinema_imax" -> "real_cinema_night.jpg"
     "kaaba_silk", "calligraphy_thuluth", "kaaba_kiswah" -> "real_makkah_kaaba.jpg"
     "mihrab_arch", "islamic_arch" -> "real_madinah_mosque.jpg"
-    "calligraphy_ruqah", "arabesque_mandala", "aurora_glass" -> "real_islamic_mosque.jpg"
+    "islamic_mosque", "calligraphy_ruqah", "arabesque_mandala", "aurora_glass" -> "real_islamic_mosque.jpg"
     "desert_crescent", "desert_night" -> "real_desert_night.jpg"
     else -> when (themeId) {
         "sports_arena", "live_stadium_lights" -> "real_sports_stadium.jpg"

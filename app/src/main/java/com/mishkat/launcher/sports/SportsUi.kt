@@ -555,6 +555,8 @@ private fun SportsTabPill(
             color = if (highlighted) tokens.primary else tokens.onSurface,
             fontSize = 12.sp,
             fontWeight = if (highlighted) FontWeight.Bold else FontWeight.Medium,
+            maxLines = 1,
+            softWrap = false,
         )
     }
 }

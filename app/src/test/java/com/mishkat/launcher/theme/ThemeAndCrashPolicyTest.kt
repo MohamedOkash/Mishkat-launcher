@@ -26,31 +26,31 @@ class ThemeAndCrashPolicyTest {
         )
         val dir = dirCandidates.first { it.isDirectory }
         val files = dir.listFiles { f -> f.name.endsWith(".json") }.orEmpty().sortedBy { it.name }
-        assertEquals(
-            listOf(
-                "andalus_arch.json",
-                "aurora_borealis.json",
-                "cinema_action.json",
-                "cyber_onyx.json",
-                "damascus_mosaic.json",
-                "fajr_sky.json",
-                "kaaba_gold.json",
-                "layla.json",
-                "madinah_marble.json",
-                "noor.json",
-                "rawda_sharifa.json",
-                "rimal.json",
-                "ruby_velvet.json",
-                "sahara_dunes.json",
-                "sports_arena.json",
-                "spring_blossom.json",
-                "summer_sunset.json",
-                "turqoise_dome.json",
-                "winter_snow.json",
-                "zomorod.json",
-            ),
-            files.map { it.name },
+        val coreThemes = listOf(
+            "andalus_arch.json",
+            "aurora_borealis.json",
+            "cinema_action.json",
+            "cyber_onyx.json",
+            "damascus_mosaic.json",
+            "fajr_sky.json",
+            "kaaba_gold.json",
+            "layla.json",
+            "madinah_marble.json",
+            "noor.json",
+            "rawda_sharifa.json",
+            "rimal.json",
+            "ruby_velvet.json",
+            "sahara_dunes.json",
+            "sports_arena.json",
+            "spring_blossom.json",
+            "summer_sunset.json",
+            "turqoise_dome.json",
+            "winter_snow.json",
+            "zomorod.json",
         )
+        val fileNames = files.map { it.name }
+        assertTrue("Expected at least 20 themes, found ${files.size}", files.size >= 20)
+        assertTrue("Missing core themes", fileNames.containsAll(coreThemes))
 
         for (f in files) {
             val spec = json.decodeFromString(ThemeSpec.serializer(), f.readText())

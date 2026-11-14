@@ -60,6 +60,22 @@ import com.mishkat.launcher.theme.IconMask
 import com.mishkat.launcher.theme.ThemeTokens
 import com.mishkat.launcher.theme.WALLPAPER_PRESETS
 import com.mishkat.launcher.theme.liquidGlass
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.rememberCoroutineScope
+import com.mishkat.launcher.prayer.CitySpec
+import com.mishkat.launcher.prayer.MuezzinVoice
+import com.mishkat.launcher.prayer.PrayerUiState
+import com.mishkat.launcher.tools.BackgroundKillerState
+import com.mishkat.launcher.tools.BackgroundProcessKiller
+import com.mishkat.launcher.tools.CleanResult
+import com.mishkat.launcher.tools.HonestCleaner
+import com.mishkat.launcher.tools.SystemStats
+import com.mishkat.launcher.tools.SystemStatsReader
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
+import java.util.Locale
 
 /**
  * §10 S4: Full App Drawer + Bloatware/Ad-App Manager.
@@ -356,15 +372,19 @@ fun AppManagerOverlay(
 enum class SettingsCategory(val id: String, val titleAr: String, val titleEn: String, val glyph: String) {
     APPEARANCE("appearance", "المظهر والسمات", "Appearance & Themes", "🎨"),
     SHELVES("shelves", "ترتيب أقسام الشاشة", "Home Shelves Order", "📱"),
-    STREAMING("streaming", "البث وتوفير الباقة", "Streaming & Data Saver", "📺"),
-    NOTIFICATIONS("notifications", "مركز الإشعارات والتحديثات", "Notifications & Updates", "🔔"),
-    SYSTEM("system", "النظام ومعلومات اللانشر", "System & About", "⚙");
+    PRAYER("prayer", "الصلاة والأذان ومكة", "Prayer & 10 Adhan Voices", "🕌"),
+    MAINTENANCE("maintenance", "صيانة النظام والرام", "System & RAM Maintenance", "🛠️"),
+    STREAMING("streaming", "البث والمداخل والشبكة", "Streaming, Inputs & Network", "📺"),
+    SYSTEM("system", "النظام ومعلومات اللانشر", "System & About Mishkat", "⚙");
 }
 
 @Composable
 fun SettingsOverlay(
     tokens: ThemeTokens,
     settings: AppSettings,
+    prayerState: PrayerUiState? = null,
+    cities: List<CitySpec> = emptyList(),
+    backgroundKiller: BackgroundProcessKiller? = null,
     onToggleLightMode: () -> Unit = {},
     onCycleFontScale: () -> Unit = {},
     onToggleAppsAtTop: () -> Unit,
@@ -384,6 +404,14 @@ fun SettingsOverlay(
     onMoveShelfDown: (String) -> Unit = {},
     onOpenDeveloperProfile: () -> Unit = {},
     onOpenNotifications: () -> Unit = {},
+    onSelectCity: (CitySpec) -> Unit = {},
+    onSelectMuezzin: (MuezzinVoice) -> Unit = {},
+    onTestAdhan: () -> Unit = {},
+    onTriggerAdhanPreview: () -> Unit = {},
+    onToggleAudioAdhan: (Boolean) -> Unit = {},
+    onOpenDiagnostics: () -> Unit = {},
+    onOpenInputsHub: () -> Unit = {},
+    onOpenStorageExplorer: () -> Unit = {},
     onDismiss: () -> Unit,
 ) {
     BackHandler(onBack = onDismiss)
@@ -391,11 +419,20 @@ fun SettingsOverlay(
     var activeCategory by remember { mutableStateOf(SettingsCategory.APPEARANCE) }
     val firstFocus = remember { FocusRequester() }
     val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+
+    val killerState by backgroundKiller?.state?.collectAsState() ?: remember { mutableStateOf(BackgroundKillerState()) }
+    var stats by remember { mutableStateOf(SystemStats()) }
+    var lastCleanStatus by remember { mutableStateOf<String?>(null) }
 
     LaunchedEffect(Unit) {
         repeat(4) {
             withFrameNanos { }
-            if (runCatching { firstFocus.requestFocus() }.isSuccess) return@LaunchedEffect
+            if (runCatching { firstFocus.requestFocus() }.isSuccess) return@repeat
+        }
+        while (true) {
+            stats = withContext(Dispatchers.IO) { SystemStatsReader.readSnapshot(context) }
+            delay(3_000L)
         }
     }
 
@@ -412,14 +449,14 @@ fun SettingsOverlay(
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(tokens.surface.copy(alpha = 0.94f))
+            .background(tokens.surface.copy(alpha = 0.96f))
             .padding(horizontal = 48.dp, vertical = 26.dp),
     ) {
         Column(
             modifier = Modifier.fillMaxSize(),
             verticalArrangement = Arrangement.spacedBy(16.dp),
         ) {
-            // Header: Title + Quick actions
+            // Header: Apple TV Title + Quick Action Pills
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -427,20 +464,24 @@ fun SettingsOverlay(
             ) {
                 Row(
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(10.dp),
+                    horizontalArrangement = Arrangement.spacedBy(12.dp),
                 ) {
-                    Text(text = "⚙", fontSize = 24.sp)
-                    Column {
+                    Text(text = "⚙", fontSize = 28.sp)
+                    Column(verticalArrangement = Arrangement.spacedBy(2.dp)) {
                         Text(
-                            text = if (settings.isArabic) "إعدادات لانشر مشكاة الذكي" else "Mishkat Smart TV Settings",
+                            text = if (settings.isArabic) "إعدادات مشكاة الرسمية" else "Mishkat Settings",
                             color = tokens.primary,
-                            fontSize = 20.sp,
+                            fontSize = 22.sp,
                             fontWeight = FontWeight.Bold,
+                            maxLines = 1,
+                            softWrap = false,
                         )
                         Text(
-                            text = if (settings.isArabic) "واجهة تحكم مقسمة على طراز Apple TV" else "Apple TV Style Split Interface",
+                            text = if (settings.isArabic) "واجهة تحكم فائقة السلاسة على طراز Apple TV" else "Apple TV Style Precision Control Hub",
                             color = tokens.onSurfaceMuted,
                             fontSize = 12.sp,
+                            maxLines = 1,
+                            softWrap = false,
                         )
                     }
                 }
@@ -455,7 +496,7 @@ fun SettingsOverlay(
                     )
                     DrawerPill(
                         id = "settings:open_gallery",
-                        label = stringResource(R.string.section_wallpapers),
+                        label = if (settings.isArabic) "معرض الثيمات 4K" else "4K Themes",
                         tokens = tokens,
                         highlighted = false,
                         onClick = onOpenWallpapersGallery,
@@ -475,7 +516,7 @@ fun SettingsOverlay(
                 modifier = Modifier.fillMaxSize(),
                 horizontalArrangement = Arrangement.spacedBy(24.dp),
             ) {
-                // Left Sidebar (260dp)
+                // Category Tabs Sidebar (260dp)
                 Column(
                     modifier = Modifier
                         .width(260.dp)
@@ -513,18 +554,20 @@ fun SettingsOverlay(
                                 color = if (isSelected) tokens.primary else tokens.onSurface,
                                 fontSize = 14.sp,
                                 fontWeight = if (isSelected) FontWeight.Bold else FontWeight.Medium,
+                                maxLines = 1,
+                                softWrap = false,
                             )
                         }
                     }
                 }
 
-                // Right Pane: Active Category Details Cards
+                // Content Pane: Active Category Setting Cards
                 LazyColumn(
                     modifier = Modifier
                         .weight(1f)
                         .fillMaxHeight(),
                     verticalArrangement = Arrangement.spacedBy(10.dp),
-                    contentPadding = PaddingValues(bottom = 20.dp),
+                    contentPadding = PaddingValues(bottom = 24.dp),
                 ) {
                     when (activeCategory) {
                         SettingsCategory.APPEARANCE -> {
@@ -533,7 +576,7 @@ fun SettingsOverlay(
                                     id = "settings:light_dark",
                                     title = if (settings.isArabic) "وضع الإضاءة والألوان (Light / Dark Mode)" else "Appearance Mode (Light / Dark)",
                                     value = if (settings.isLightMode) {
-                                        if (settings.isArabic) "☀️ الوضع النهاري الهادئ" else "☀️ Light Mode"
+                                        if (settings.isArabic) "☀️ الوضع النهاري" else "☀️ Light Mode"
                                     } else {
                                         if (settings.isArabic) "🌙 الوضع الليلي الداكن" else "🌙 Dark Mode"
                                     },
@@ -545,7 +588,7 @@ fun SettingsOverlay(
 
                             item(key = "font_scale") {
                                 val fontScaleLabel = when {
-                                    settings.fontScale > 1.06f -> if (settings.isArabic) "كبير وواضح (115%)" else "Large & Clear (115%)"
+                                    settings.fontScale > 1.06f -> if (settings.isArabic) "كبير وواضح (115%)" else "Large (115%)"
                                     settings.fontScale < 0.96f -> if (settings.isArabic) "مدمج (90%)" else "Compact (90%)"
                                     else -> if (settings.isArabic) "قياسي متوازن (100%)" else "Standard (100%)"
                                 }
@@ -584,7 +627,7 @@ fun SettingsOverlay(
                             item(key = "open_wallpapers_btn") {
                                 SettingRowCard(
                                     id = "settings:open_gallery_card",
-                                    title = if (settings.isArabic) "معرض الخلفيات والصور والزخارف الإسلامية" else "Full Wallpapers & Calligraphy Gallery",
+                                    title = if (settings.isArabic) "معرض الخلفيات والصور الطبيعية 4K" else "4K Real Wallpapers & Themes Gallery",
                                     value = "🖼 عرض المعرض",
                                     tokens = tokens,
                                     glassIntensity = settings.glassIntensity,
@@ -626,6 +669,8 @@ fun SettingsOverlay(
                                     fontSize = 15.sp,
                                     fontWeight = FontWeight.Bold,
                                     modifier = Modifier.padding(top = 4.dp, bottom = 4.dp),
+                                    maxLines = 1,
+                                    softWrap = false,
                                 )
                             }
 
@@ -690,7 +735,7 @@ fun SettingsOverlay(
                                                     .clickable { onMoveShelfUp(shelfId) }
                                                     .padding(horizontal = 10.dp, vertical = 5.dp),
                                             ) {
-                                                Text(text = "▲ للأعلى", color = tokens.primary, fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                                                Text(text = "▲ للأعلى", color = tokens.primary, fontSize = 11.sp, fontWeight = FontWeight.Bold, maxLines = 1, softWrap = false)
                                             }
                                         }
                                         if (index < settings.shelfOrder.size - 1) {
@@ -702,7 +747,7 @@ fun SettingsOverlay(
                                                     .clickable { onMoveShelfDown(shelfId) }
                                                     .padding(horizontal = 10.dp, vertical = 5.dp),
                                             ) {
-                                                Text(text = "▼ للأسفل", color = tokens.primary, fontSize = 11.sp, fontWeight = FontWeight.Bold)
+                                                Text(text = "▼ للأسفل", color = tokens.primary, fontSize = 11.sp, fontWeight = FontWeight.Bold, maxLines = 1, softWrap = false)
                                             }
                                         }
                                     }
@@ -736,6 +781,157 @@ fun SettingsOverlay(
                             }
                         }
 
+                        SettingsCategory.PRAYER -> {
+                            item(key = "prayer_city") {
+                                val currentCity = prayerState?.city?.displayName(settings.isArabic) ?: "القاهرة"
+                                SettingRowCard(
+                                    id = "settings:prayer_city",
+                                    title = if (settings.isArabic) "المدينة الحالية ومواقيت الصلاة" else "Current City & Prayer Times",
+                                    value = "📍 $currentCity",
+                                    tokens = tokens,
+                                    glassIntensity = settings.glassIntensity,
+                                    onClick = {
+                                        if (cities.isNotEmpty()) {
+                                            val currIdx = cities.indexOfFirst { it.id == prayerState?.city?.id }
+                                            val nextCity = cities[(currIdx + 1).coerceAtLeast(0) % cities.size]
+                                            onSelectCity(nextCity)
+                                        }
+                                    },
+                                )
+                            }
+
+                            item(key = "prayer_muezzin") {
+                                val currentMuezzin = prayerState?.selectedMuezzin ?: MuezzinVoice.MAKKAH
+                                val muezzinLabel = if (settings.isArabic) currentMuezzin.titleAr else currentMuezzin.titleEn
+                                SettingRowCard(
+                                    id = "settings:prayer_muezzin",
+                                    title = if (settings.isArabic) "صوت المؤذن الرسمي (10 أصوات)" else "Adhan Voice (10 Muezzins)",
+                                    value = "🕌 $muezzinLabel",
+                                    tokens = tokens,
+                                    glassIntensity = settings.glassIntensity,
+                                    onClick = {
+                                        val allMuezzins = MuezzinVoice.entries
+                                        val currIdx = allMuezzins.indexOf(currentMuezzin)
+                                        val nextM = allMuezzins[(currIdx + 1) % allMuezzins.size]
+                                        onSelectMuezzin(nextM)
+                                    },
+                                )
+                            }
+
+                            item(key = "prayer_audio_enabled") {
+                                val isEnabled = prayerState?.audioAdhanEnabled ?: true
+                                SettingRowCard(
+                                    id = "settings:prayer_audio_enabled",
+                                    title = if (settings.isArabic) "الأذان الصوتي عند حلول وقت الصلاة" else "Audio Adhan Alert on Prayer Time",
+                                    value = if (isEnabled) (if (settings.isArabic) "🔊 مفعّل (ينطلق الأذان)" else "🔊 Enabled")
+                                    else (if (settings.isArabic) "🔇 كتم (تنبيه مرئي فقط)" else "🔇 Muted"),
+                                    tokens = tokens,
+                                    glassIntensity = settings.glassIntensity,
+                                    onClick = { onToggleAudioAdhan(!isEnabled) },
+                                )
+                            }
+
+                            item(key = "prayer_test_audio") {
+                                val isTesting = prayerState?.isAdhanTesting == true
+                                SettingRowCard(
+                                    id = "settings:prayer_test_audio",
+                                    title = if (settings.isArabic) "تجربة واستماع صوت الأذان الآن" else "Test & Listen to Adhan Audio",
+                                    value = if (isTesting) "⏸ إيقاف التجربة" else "▶ استماع للصوت",
+                                    tokens = tokens,
+                                    glassIntensity = settings.glassIntensity,
+                                    onClick = onTestAdhan,
+                                )
+                            }
+
+                            item(key = "prayer_preview_screen") {
+                                SettingRowCard(
+                                    id = "settings:prayer_preview_screen",
+                                    title = if (settings.isArabic) "معاينة شاشة الأذان التفاعلية الكاملة" else "Preview Full Adhan Overlay",
+                                    value = "عرض الشاشة ✦",
+                                    tokens = tokens,
+                                    glassIntensity = settings.glassIntensity,
+                                    onClick = onTriggerAdhanPreview,
+                                )
+                            }
+                        }
+
+                        SettingsCategory.MAINTENANCE -> {
+                            item(key = "ram_booster") {
+                                val lastRes = killerState.lastResult
+                                val resLabel = if (lastRes != null) {
+                                    "تم إيقاف ${lastRes.killedCount} • +${String.format(Locale.US, "%.1f", lastRes.freedMb)} MB"
+                                } else {
+                                    "كنس وتحرير الرام ⚡"
+                                }
+                                SettingRowCard(
+                                    id = "settings:ram_booster",
+                                    title = if (settings.isArabic) "كنس برامج الخلفية وتحرير الرام (Process Killer)" else "Background Process Killer & RAM Boost",
+                                    value = if (killerState.isRunningSweep) "⏳ جارٍ التحرير..." else resLabel,
+                                    tokens = tokens,
+                                    glassIntensity = settings.glassIntensity,
+                                    onClick = {
+                                        scope.launch {
+                                            backgroundKiller?.sweepNow()
+                                            stats = withContext(Dispatchers.IO) { SystemStatsReader.readSnapshot(context) }
+                                        }
+                                    },
+                                )
+                            }
+
+                            item(key = "cache_cleaner") {
+                                SettingRowCard(
+                                    id = "settings:cache_cleaner",
+                                    title = if (settings.isArabic) "تنظيف الذاكرة المؤقتة الصادق (Cache Cleaner)" else "Honest Cache Cleaner",
+                                    value = lastCleanStatus ?: (if (settings.isArabic) "تنظيف الكاش 🧹" else "Clean Cache 🧹"),
+                                    tokens = tokens,
+                                    glassIntensity = settings.glassIntensity,
+                                    onClick = {
+                                        scope.launch {
+                                            val res = HonestCleaner.cleanNow(context)
+                                            lastCleanStatus = if (settings.isArabic) "تم توفير ${SystemStatsReader.formatBytes(res.freedBytes)}"
+                                            else "Freed ${SystemStatsReader.formatBytes(res.freedBytes)}"
+                                            stats = withContext(Dispatchers.IO) { SystemStatsReader.readSnapshot(context) }
+                                        }
+                                    },
+                                )
+                            }
+
+                            item(key = "auto_guard") {
+                                SettingRowCard(
+                                    id = "settings:auto_guard",
+                                    title = if (settings.isArabic) "الحارس التلقائي ضد امتلاء الرام (Auto Guard)" else "Auto RAM Guard (Auto-Sweep at 75%)",
+                                    value = if (killerState.isAutoGuardEnabled) (if (settings.isArabic) "🛡 مفعّل" else "🛡 Enabled")
+                                    else (if (settings.isArabic) "معطّل" else "Disabled"),
+                                    tokens = tokens,
+                                    glassIntensity = settings.glassIntensity,
+                                    onClick = { backgroundKiller?.toggleAutoGuard(!killerState.isAutoGuardEnabled) },
+                                )
+                            }
+
+                            item(key = "hardware_metrics") {
+                                val temp = stats.socTempCelsius?.let { String.format(Locale.US, "%.1f°C", it) } ?: "—"
+                                SettingRowCard(
+                                    id = "settings:hardware_metrics",
+                                    title = if (settings.isArabic) "مؤشرات العتاد الحقيقية (الرام والمعالج)" else "Real Hardware Metrics (RAM & SoC)",
+                                    value = "RAM: ${stats.ramUsedPercent}% | SoC: $temp",
+                                    tokens = tokens,
+                                    glassIntensity = settings.glassIntensity,
+                                    onClick = onOpenDiagnostics,
+                                )
+                            }
+
+                            item(key = "open_diagnostics") {
+                                SettingRowCard(
+                                    id = "settings:open_diagnostics",
+                                    title = if (settings.isArabic) "فتح لوحة أدوات وتشخيص العتاد الكاملة" else "Open Full Hardware Diagnostics Panel",
+                                    value = "فتح اللوحة 🛠️",
+                                    tokens = tokens,
+                                    glassIntensity = settings.glassIntensity,
+                                    onClick = onOpenDiagnostics,
+                                )
+                            }
+                        }
+
                         SettingsCategory.STREAMING -> {
                             item(key = "data_saver") {
                                 SettingRowCard(
@@ -748,9 +944,29 @@ fun SettingsOverlay(
                                     onClick = onToggleDataSaver,
                                 )
                             }
-                        }
 
-                        SettingsCategory.NOTIFICATIONS -> {
+                            item(key = "inputs_hub") {
+                                SettingRowCard(
+                                    id = "settings:inputs_hub",
+                                    title = if (settings.isArabic) "مداخل الشاشة والريسيفر الفضائي (HDMI & DVB-S2)" else "TV Inputs & Satellite Tuner (HDMI & DVB)",
+                                    value = "عرض المداخل 📡",
+                                    tokens = tokens,
+                                    glassIntensity = settings.glassIntensity,
+                                    onClick = onOpenInputsHub,
+                                )
+                            }
+
+                            item(key = "storage_hub") {
+                                SettingRowCard(
+                                    id = "settings:storage_hub",
+                                    title = if (settings.isArabic) "متصفح المداخل والملفات والشبكة (USB, SMB, FTP, DLNA)" else "Storage Explorer (USB, SMB, FTP, DLNA)",
+                                    value = "فتح المتصفح 📂",
+                                    tokens = tokens,
+                                    glassIntensity = settings.glassIntensity,
+                                    onClick = onOpenStorageExplorer,
+                                )
+                            }
+
                             item(key = "notif_permission_card") {
                                 SettingRowCard(
                                     id = "settings:notif_permission",
@@ -814,7 +1030,7 @@ fun SettingsOverlay(
                                 SettingRowCard(
                                     id = "settings:default_home",
                                     title = stringResource(R.string.safe_mode_system_launcher),
-                                    value = "HOME",
+                                    value = "HOME ✦",
                                     tokens = tokens,
                                     glassIntensity = settings.glassIntensity,
                                     onClick = onOpenSafeModeLauncherChooser,
@@ -853,11 +1069,11 @@ private fun SettingRowCard(
     Row(
         modifier = modifier
             .fillMaxWidth()
-            .mishkatFocus(id = id)
+            .mishkatFocus(id = id, radius = tokens.cardRadius)
             .clip(shape)
             .liquidGlass(tokens, tokens.card, tokens.cardRadius, glassIntensity)
             .clickable { onClick() }
-            .padding(horizontal = 20.dp, vertical = 13.dp),
+            .padding(horizontal = 22.dp, vertical = 14.dp),
         horizontalArrangement = Arrangement.SpaceBetween,
         verticalAlignment = Alignment.CenterVertically,
     ) {
@@ -865,14 +1081,39 @@ private fun SettingRowCard(
             text = title,
             color = tokens.onSurface,
             fontSize = 15.sp,
-            fontWeight = FontWeight.Medium,
+            fontWeight = FontWeight.SemiBold,
+            maxLines = 1,
+            softWrap = false,
+            overflow = TextOverflow.Ellipsis,
+            modifier = Modifier.weight(1f).padding(end = 16.dp),
         )
-        Text(
-            text = value,
-            color = tokens.primary,
-            fontSize = 14.sp,
-            fontWeight = FontWeight.Bold,
-        )
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(8.dp),
+        ) {
+            Box(
+                modifier = Modifier
+                    .clip(RoundedCornerShape(8.dp))
+                    .background(tokens.primary.copy(alpha = 0.14f))
+                    .border(BorderStroke(1.dp, tokens.primary.copy(alpha = 0.35f)), RoundedCornerShape(8.dp))
+                    .padding(horizontal = 12.dp, vertical = 5.dp),
+            ) {
+                Text(
+                    text = value,
+                    color = tokens.primary,
+                    fontSize = 13.sp,
+                    fontWeight = FontWeight.Bold,
+                    maxLines = 1,
+                    softWrap = false,
+                )
+            }
+            Text(
+                text = "›",
+                color = tokens.onSurfaceMuted,
+                fontSize = 18.sp,
+                fontWeight = FontWeight.Light,
+            )
+        }
     }
 }
 

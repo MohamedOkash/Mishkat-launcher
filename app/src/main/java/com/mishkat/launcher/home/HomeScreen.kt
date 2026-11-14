@@ -238,7 +238,6 @@ fun HomeScreen(
 
     // Single mutually-exclusive overlay state so two overlays can NEVER stack on top of each other!
     var activeOverlay by remember { mutableStateOf(ActiveOverlay.NONE) }
-    var activeDropdownMenu by remember { mutableStateOf(ActiveDropdownMenu.NONE) }
     var returnToNowPlaying by remember { mutableStateOf(false) }
     var lastFocusedShelfId by rememberSaveable { mutableStateOf("apps") }
     var lastInteractionMs by remember { mutableLongStateOf(System.currentTimeMillis()) }
@@ -251,7 +250,7 @@ fun HomeScreen(
         }
     }
 
-    val anyOverlayOpen = activeOverlay != ActiveOverlay.NONE || activeDropdownMenu != ActiveDropdownMenu.NONE || prayerState.activeAdhanAlert != null
+    val anyOverlayOpen = activeOverlay != ActiveOverlay.NONE || prayerState.activeAdhanAlert != null
 
     // When overlay closes, smoothly restore focus back to the Home Screen after 1 frame
     var wasOverlayOpen by remember { mutableStateOf(false) }
@@ -409,11 +408,12 @@ fun HomeScreen(
                     weatherSnapshot = weatherSnapshot,
                     appSettings = appSettings,
                     firstFocusRequester = topBarFocus,
-                    onOpenDropdownInputs = { activeDropdownMenu = ActiveDropdownMenu.INPUTS_AND_NETWORK },
-                    onOpenDropdownTools = { activeDropdownMenu = ActiveDropdownMenu.TOOLS_AND_FEATURES },
-                    onOpenDropdownAppearance = { activeDropdownMenu = ActiveDropdownMenu.APPEARANCE_AND_SETTINGS },
-                    onOpenWeather = { activeOverlay = ActiveOverlay.WEATHER },
+                    onOpenInputs = { activeOverlay = ActiveOverlay.TV_INPUTS },
+                    onOpenSports = { activeOverlay = ActiveOverlay.SPORTS },
+                    onOpenTools = { activeOverlay = ActiveOverlay.TOOLS },
+                    onOpenAppearance = { activeOverlay = ActiveOverlay.THEMES_WALLPAPERS },
                     onOpenSettings = { activeOverlay = ActiveOverlay.SETTINGS },
+                    onOpenWeather = { activeOverlay = ActiveOverlay.WEATHER },
                 )
             }
 
@@ -796,6 +796,9 @@ fun HomeScreen(
                     ActiveOverlay.SETTINGS -> SettingsOverlay(
                         tokens = tokens,
                         settings = appSettings,
+                        prayerState = prayerState,
+                        cities = cities,
+                        backgroundKiller = graph.backgroundProcessKiller,
                         onToggleLightMode = { graph.localeRepository.toggleLightMode() },
                         onCycleFontScale = { graph.localeRepository.cycleFontScale() },
                         onToggleAppsAtTop = { graph.localeRepository.toggleAppsAtTop() },
@@ -815,6 +818,14 @@ fun HomeScreen(
                         onMoveShelfDown = { graph.localeRepository.moveShelfDown(it) },
                         onOpenDeveloperProfile = { activeOverlay = ActiveOverlay.DEVELOPER_PROFILE },
                         onOpenNotifications = { activeOverlay = ActiveOverlay.NOTIFICATIONS },
+                        onSelectCity = { graph.prayerRepository.selectCity(it) },
+                        onSelectMuezzin = { graph.prayerRepository.setMuezzin(it) },
+                        onTestAdhan = { graph.prayerRepository.testAdhanToggle() },
+                        onTriggerAdhanPreview = { graph.prayerRepository.triggerAdhanPreview() },
+                        onToggleAudioAdhan = { graph.prayerRepository.setAudioAdhanEnabled(it) },
+                        onOpenDiagnostics = { activeOverlay = ActiveOverlay.TOOLS },
+                        onOpenInputsHub = { activeOverlay = ActiveOverlay.TV_INPUTS },
+                        onOpenStorageExplorer = { activeOverlay = ActiveOverlay.STORAGE_EXPLORER },
                         onDismiss = { activeOverlay = ActiveOverlay.NONE },
                     )
                     ActiveOverlay.NOTIFICATIONS -> NotificationsOverlay(
@@ -859,71 +870,6 @@ fun HomeScreen(
             }
         }
 
-        // TopBar 3 Dropdown Menus Dialog
-        if (activeDropdownMenu != ActiveDropdownMenu.NONE) {
-            DropdownMenuDialog(
-                menu = activeDropdownMenu,
-                tokens = tokens,
-                isArabic = isArabic,
-                onDismiss = { activeDropdownMenu = ActiveDropdownMenu.NONE },
-                onOpenUpnpStorage = {
-                    graph.storageRepository.selectTab(StorageSourceType.UPNP_DLNA)
-                    activeOverlay = ActiveOverlay.STORAGE_EXPLORER
-                },
-                onOpenSmbStorage = {
-                    graph.storageRepository.selectTab(StorageSourceType.ROUTER_SMB)
-                    activeOverlay = ActiveOverlay.STORAGE_EXPLORER
-                },
-                onOpenFtpStorage = {
-                    graph.storageRepository.selectTab(StorageSourceType.ROUTER_FTP)
-                    activeOverlay = ActiveOverlay.STORAGE_EXPLORER
-                },
-                onOpenUsbStorage = {
-                    graph.storageRepository.selectTab(StorageSourceType.LOCAL_USB)
-                    activeOverlay = ActiveOverlay.STORAGE_EXPLORER
-                },
-                onOpenDvbSatellite = {
-                    activeOverlay = ActiveOverlay.LIVE_TV
-                },
-                onOpenHdmiInputs = {
-                    activeOverlay = ActiveOverlay.TV_INPUTS
-                },
-                onOpenSportsCenter = {
-                    activeOverlay = ActiveOverlay.SPORTS
-                },
-                onOpenRamBooster = {
-                    activeOverlay = ActiveOverlay.TOOLS
-                },
-                onOpenCleaner = {
-                    activeOverlay = ActiveOverlay.TOOLS
-                },
-                onOpenRemoteQr = {
-                    activeOverlay = ActiveOverlay.REMOTE_QR
-                },
-                onOpenLockScreen = {
-                    activeOverlay = ActiveOverlay.LOCK_SCREEN
-                },
-                onOpenThemes = {
-                    activeOverlay = ActiveOverlay.THEMES_WALLPAPERS
-                },
-                onOpenWallpapers = {
-                    activeOverlay = ActiveOverlay.THEMES_WALLPAPERS
-                },
-                onOpenPrayerSettings = {
-                    activeOverlay = ActiveOverlay.CITY_PICKER
-                },
-                onOpenHomeSettings = {
-                    activeOverlay = ActiveOverlay.SETTINGS
-                },
-                onToggleLanguage = {
-                    graph.localeRepository.toggleLanguage()
-                },
-                onOpenDeveloperProfile = {
-                    activeOverlay = ActiveOverlay.DEVELOPER_PROFILE
-                },
-            )
-        }
-
         // §4 + §9 + §10 DoD: AdhanOverlay renders on top of any active screen/panel.
         val adhanAlert = prayerState.activeAdhanAlert
         if (adhanAlert != null) {
@@ -944,11 +890,12 @@ private fun TopBar(
     weatherSnapshot: WeatherSnapshot?,
     appSettings: AppSettings,
     firstFocusRequester: FocusRequester,
-    onOpenDropdownInputs: () -> Unit,
-    onOpenDropdownTools: () -> Unit,
-    onOpenDropdownAppearance: () -> Unit,
+    onOpenInputs: () -> Unit,
+    onOpenSports: () -> Unit,
+    onOpenTools: () -> Unit,
+    onOpenAppearance: () -> Unit,
+    onOpenSettings: () -> Unit,
     onOpenWeather: () -> Unit,
-    onOpenSettings: () -> Unit = {},
 ) {
     var nowMillis by remember { mutableLongStateOf(System.currentTimeMillis()) }
     val context = LocalContext.current
@@ -979,52 +926,62 @@ private fun TopBar(
     val pillShape = RoundedCornerShape(12.dp)
 
     CompositionLocalProvider(LocalLayoutDirection provides LayoutDirection.Ltr) {
-        Box(
+        Row(
             modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically,
         ) {
-            // Left Group: 3 Clean, Modern Dropdown Buttons
+            // Action Navigation Pills (Apple TV tvOS Glass Style)
             Row(
-                modifier = Modifier.align(Alignment.CenterStart),
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(10.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
-                // Dropdown 1: Inputs & Network
-                TopBarDropdownButton(
+                // Pill 1: Inputs & Storage
+                TopBarActionPill(
                     id = "topbar:btn_inputs",
-                    label = if (isArabic) "📂 المداخل والشبكة ▾" else "📂 Inputs & Network ▾",
+                    label = if (isArabic) "📂 المداخل" else "📂 Inputs",
                     tokens = tokens,
                     glassIntensity = glass,
                     shape = pillShape,
                     focusRequester = firstFocusRequester,
-                    onClick = onOpenDropdownInputs,
+                    onClick = onOpenInputs,
                 )
 
-                // Dropdown 2: Tools & Sports
-                TopBarDropdownButton(
+                // Pill 2: Sports Center
+                TopBarActionPill(
+                    id = "topbar:btn_sports",
+                    label = if (isArabic) "⚽ المباريات" else "⚽ Sports",
+                    tokens = tokens,
+                    glassIntensity = glass,
+                    shape = pillShape,
+                    onClick = onOpenSports,
+                )
+
+                // Pill 3: System Tools & Maintenance
+                TopBarActionPill(
                     id = "topbar:btn_tools",
-                    label = if (isArabic) "🛠️ الأدوات والرياضة ▾" else "🛠️ Tools & Sports ▾",
+                    label = if (isArabic) "🛠️ الصيانة" else "🛠️ Maintenance",
                     tokens = tokens,
                     glassIntensity = glass,
                     shape = pillShape,
-                    onClick = onOpenDropdownTools,
+                    onClick = onOpenTools,
                 )
 
-                // Dropdown 3: Appearance & Settings
-                TopBarDropdownButton(
+                // Pill 4: Themes & Appearance
+                TopBarActionPill(
                     id = "topbar:btn_appearance",
-                    label = if (isArabic) "🎨 المظهر والضبط ▾" else "🎨 Appearance & Settings ▾",
+                    label = if (isArabic) "🎨 المظهر" else "🎨 Appearance",
                     tokens = tokens,
                     glassIntensity = glass,
                     shape = pillShape,
-                    onClick = onOpenDropdownAppearance,
+                    onClick = onOpenAppearance,
                 )
             }
 
-            // Right Group: Clock & Weather Capsule + Logo Capsule
+            // Right Group: Clock & Weather Capsule + Logo Capsule + Settings Capsule
             Row(
-                modifier = Modifier.align(Alignment.CenterEnd),
                 verticalAlignment = Alignment.CenterVertically,
-                horizontalArrangement = Arrangement.spacedBy(10.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
                 // Clock & Weather Capsule
                 Box(
@@ -1038,13 +995,15 @@ private fun TopBar(
                 ) {
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(8.dp),
+                        horizontalArrangement = Arrangement.spacedBy(7.dp),
                     ) {
                         Text(
                             text = timeText,
                             color = tokens.onSurface,
                             fontSize = 13.sp,
                             fontWeight = FontWeight.Bold,
+                            maxLines = 1,
+                            softWrap = false,
                             style = TextStyle(shadow = Shadow(color = Color.Black, blurRadius = 10f)),
                         )
                         if (weatherSnapshot != null) {
@@ -1053,6 +1012,8 @@ private fun TopBar(
                                 color = tokens.primary,
                                 fontSize = 11.sp,
                                 fontWeight = FontWeight.SemiBold,
+                                maxLines = 1,
+                                softWrap = false,
                             )
                         }
                         if (hijriDate.isNotBlank()) {
@@ -1060,6 +1021,8 @@ private fun TopBar(
                                 text = "| $hijriDate",
                                 color = tokens.onSurfaceMuted,
                                 fontSize = 10.sp,
+                                maxLines = 1,
+                                softWrap = false,
                             )
                         }
                     }
@@ -1071,22 +1034,26 @@ private fun TopBar(
                         .clip(pillShape)
                         .background(Color(0xEE090E1A))
                         .border(1.5.dp, tokens.primary, pillShape)
-                        .padding(horizontal = 14.dp, vertical = 6.dp),
+                        .padding(horizontal = 12.dp, vertical = 6.dp),
                 ) {
                     Row(
                         verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(7.dp),
+                        horizontalArrangement = Arrangement.spacedBy(6.dp),
                     ) {
                         Text(
                             text = "✦",
                             color = tokens.primary,
                             fontSize = 12.sp,
+                            maxLines = 1,
+                            softWrap = false,
                         )
                         Text(
                             text = "مشكاة",
                             color = tokens.primary,
                             fontSize = 14.sp,
                             fontWeight = FontWeight.Bold,
+                            maxLines = 1,
+                            softWrap = false,
                         )
                         Box(
                             modifier = Modifier
@@ -1097,45 +1064,29 @@ private fun TopBar(
                     }
                 }
 
-                // Direct Settings Quick Access Shortcut Button (⚙ الضبط)
-                Box(
-                    modifier = Modifier
-                        .mishkatFocus(id = "topbar:settings_quick", radius = 12.dp)
-                        .clip(pillShape)
-                        .background(Color(0xEE090E1A))
-                        .border(1.2.dp, tokens.primary, pillShape)
-                        .clickable { onOpenSettings() }
-                        .padding(horizontal = 12.dp, vertical = 6.dp),
-                ) {
-                    Row(
-                        verticalAlignment = Alignment.CenterVertically,
-                        horizontalArrangement = Arrangement.spacedBy(6.dp),
-                    ) {
-                        Text(
-                            text = "⚙",
-                            color = tokens.primary,
-                            fontSize = 13.sp,
-                        )
-                        Text(
-                            text = if (isArabic) "الضبط" else "Settings",
-                            color = tokens.primary,
-                            fontSize = 13.sp,
-                            fontWeight = FontWeight.Bold,
-                        )
-                    }
-                }
+                // Dedicated Settings Pill Button (⚙ الضبط) placed right next to Mishkat
+                TopBarActionPill(
+                    id = "topbar:btn_settings",
+                    label = if (isArabic) "⚙ الضبط" else "⚙ Settings",
+                    tokens = tokens,
+                    glassIntensity = glass,
+                    shape = pillShape,
+                    highlighted = true,
+                    onClick = onOpenSettings,
+                )
             }
         }
     }
 }
 
 @Composable
-private fun TopBarDropdownButton(
+private fun TopBarActionPill(
     id: String,
     label: String,
     tokens: ThemeTokens,
     glassIntensity: Float,
     shape: RoundedCornerShape,
+    highlighted: Boolean = false,
     focusRequester: FocusRequester? = null,
     onClick: () -> Unit,
 ) {
@@ -1147,10 +1098,10 @@ private fun TopBarDropdownButton(
             .clip(shape)
             .liquidGlass(
                 tokens = tokens,
-                baseColor = tokens.card,
+                baseColor = if (highlighted) tokens.cardFocused else tokens.card,
                 radius = 12.dp,
                 glassIntensity = glassIntensity,
-                borderColor = tokens.glassRim.copy(alpha = 0.45f),
+                borderColor = if (highlighted) tokens.primary else tokens.glassRim.copy(alpha = 0.45f),
             )
             .onKeyEvent { keyEvent ->
                 if (keyEvent.type == KeyEventType.KeyUp &&
@@ -1160,13 +1111,16 @@ private fun TopBarDropdownButton(
                 } else false
             }
             .clickable { onClick() }
-            .padding(horizontal = 12.dp, vertical = 6.dp),
+            .padding(horizontal = 14.dp, vertical = 8.dp),
     ) {
         Text(
             text = label,
-            color = tokens.primary,
-            fontSize = 12.sp,
-            fontWeight = FontWeight.Bold,
+            color = if (highlighted) tokens.primary else tokens.onSurface,
+            fontSize = 13.sp,
+            fontWeight = if (highlighted) FontWeight.Bold else FontWeight.SemiBold,
+            maxLines = 1,
+            softWrap = false,
+            overflow = TextOverflow.Ellipsis,
         )
     }
 }
